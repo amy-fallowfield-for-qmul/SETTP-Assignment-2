@@ -20,6 +20,20 @@ class DigitalID:
         self._surname: str = surname
         self._date_of_birth: str = date_of_birth
 
+    @classmethod
+    def from_csv(cls, attributes: Dict[str, str]) -> "DigitalID":
+        digital_id = cls.__new__(cls)
+        digital_id._id = int(attributes["id"])
+        digital_id._status = Status(attributes["status"])
+        digital_id._first_name = attributes["firstName"]
+        digital_id._surname = attributes["surname"]
+        digital_id._date_of_birth = attributes["dateOfBirth"]
+
+        if digital_id._id >= cls._next_id:
+            cls._next_id = digital_id._id + 1
+
+        return digital_id
+
     def to_dict(self) -> Dict[str, object]:
         return {
             "id": self.id,
