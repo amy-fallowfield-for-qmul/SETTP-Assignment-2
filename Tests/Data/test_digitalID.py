@@ -18,8 +18,17 @@ class TestDigitalIDCreation:
     def setup_method(self) -> None:
         DigitalID._next_id = 1
 
-    def test_create_id(self) -> None:
+    def test_create_id_with_init(self) -> None:
         id = DigitalID("John", "Smith", "2000-01-01")
+        assert id.id == 1
+        assert id.status == Status.ACTIVE
+        assert id.first_name == "John"
+        assert id.surname == "Smith"
+        assert id.date_of_birth == "2000-01-01"
+
+    def test_create_id_from_csv(self) -> None:
+        attributes = {"id": "1", "status": "active", "firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"}
+        id = DigitalID.from_csv(attributes)
         assert id.id == 1
         assert id.status == Status.ACTIVE
         assert id.first_name == "John"
