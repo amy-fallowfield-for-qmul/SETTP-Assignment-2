@@ -2,12 +2,11 @@ from typing import Dict, Any
 from Logic.attributeValidator import Validator
 from Data.digitalIDRepository import DigitalIDRepository
 from Data.digitalID import DigitalID, Status
+from constants import CSV_PATH, DIGITAL_ID_ALL_FIELDS
 
 class DigitalIDService:
     """Singleton service for managing Digital ID operations"""
 
-    DIGITAL_ID_FIELDS = ["id", "status", "firstName", "surname", "dateOfBirth"]
-    CSV_PATH = "../../digital_ids.csv"
     _instance = None
 
     def __new__(cls):
@@ -49,7 +48,7 @@ class DigitalIDService:
         all_ids = self.REPOSITORY.get_all_ids()
 
         for key in params:
-            if key not in self.DIGITAL_ID_FIELDS:
+            if key not in DIGITAL_ID_ALL_FIELDS:
                 raise ValueError(f"Invalid filter field: {key}")
 
         filtered_ids: Dict[int, DigitalID] = {}
@@ -94,7 +93,7 @@ class DigitalIDService:
     def load_csv_data(self) -> None:
         try:
             self.REPOSITORY.load_from_csv()
-            print(f"Loaded digital ID data from {self.CSV_PATH}")
+            print(f"Loaded digital ID data from {CSV_PATH}")
         except FileNotFoundError:
             print("No existing data found")
 
@@ -102,7 +101,7 @@ class DigitalIDService:
         try:
             if self.REPOSITORY.get_all_ids():
                 self.REPOSITORY.save_to_csv()
-                print(f"Saved digital ID data to {self.CSV_PATH}")
+                print(f"Saved digital ID data to {CSV_PATH}")
             else:
                 print("No digital IDs to save")
         except Exception as e:
