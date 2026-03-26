@@ -1,5 +1,6 @@
 from Logic.service import DigitalIDService
 from Data.digitalID import DigitalID
+from constants import SEPARATION_WIDTH
 
 class Requests:
     """Singleton request handler for the UI layer"""
@@ -63,10 +64,10 @@ class Requests:
             print("No Digital IDs found")
             return
 
-        print("=" * self.SEPARATION_WIDTH)
+        print("=" * SEPARATION_WIDTH)
         for id in all_ids.values():
             id.print()
-        print("=" * self.SEPARATION_WIDTH)
+        print("=" * SEPARATION_WIDTH)
 
     def query_id(self) -> None:
         try:
@@ -74,9 +75,9 @@ class Requests:
             attribute_choice = self._get_attribute_subject("query")
             current_value = id_subject.to_dict()[attribute_choice]
 
-            print("=" * self.SEPARATION_WIDTH)
+            print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value}")
-            print("=" * self.SEPARATION_WIDTH)
+            print("=" * SEPARATION_WIDTH)
         except ValueError as e:
             print(f"{e}")
 
@@ -94,9 +95,9 @@ class Requests:
 
             self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value)
 
-            print("=" * self.SEPARATION_WIDTH)
+            print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value} -> {new_value}")
-            print("=" * self.SEPARATION_WIDTH)
+            print("=" * SEPARATION_WIDTH)
         except ValueError as e:
             print(f"{e}")
 

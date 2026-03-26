@@ -1,12 +1,11 @@
 from typing import Dict
 from Data.digitalID import DigitalID
+from constants import CSV_PATH, DIGITAL_ID_ALL_FIELDS
 import csv
 
 class DigitalIDRepository:
     """Singleton repository for storing and managing Digital IDs"""
 
-    CSV_HEADERS = ["ID", "Status", "First Name", "Surname", "Date of Birth"]
-    CSV_PATH = "../../digital_ids.csv"
     _instance = None
 
     def __new__(cls):
@@ -39,9 +38,9 @@ class DigitalIDRepository:
                 digitalID.date_of_birth
             ])
         try:
-            with open(self.CSV_PATH, "w") as file:
+            with open(CSV_PATH, "w") as file:
                 writer = csv.writer(file)
-                writer.writerow(self.CSV_HEADERS)
+                writer.writerow(DIGITAL_ID_ALL_FIELDS)
 
                 for row in rows:
                     writer.writerow(row)
@@ -50,7 +49,7 @@ class DigitalIDRepository:
 
     def load_from_csv(self) -> None:
         try:
-            with open(self.CSV_PATH, "r") as file:
+            with open(CSV_PATH, "r") as file:
                 reader = csv.reader(file)
                 next(reader)
                 rows = [row for row in reader]

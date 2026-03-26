@@ -1,5 +1,8 @@
 import pytest
 import os
+import Data.digitalIDRepository as repo_module
+import Logic.service as service_module
+import constants
 from Logic.service import DigitalIDService
 from Data.digitalID import DigitalID, Status
 from Data.digitalIDRepository import DigitalIDRepository
@@ -89,10 +92,11 @@ class TestServiceCSV:
         DigitalID._next_id = 1
         DigitalIDRepository._instance = None
         DigitalIDService._instance = None
-        DigitalIDRepository.CSV_PATH = self.TEST_CSV_PATH
+        constants.CSV_PATH = self.TEST_CSV_PATH
+        repo_module.CSV_PATH = self.TEST_CSV_PATH
+        service_module.CSV_PATH = self.TEST_CSV_PATH
 
     def teardown_method(self) -> None:
-        DigitalIDRepository.CSV_PATH = "../../digital_ids.csv"
         if os.path.exists(self.TEST_CSV_PATH):
             os.remove(self.TEST_CSV_PATH)
 

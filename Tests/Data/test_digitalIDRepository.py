@@ -1,5 +1,7 @@
 import pytest
 import os
+import Data.digitalIDRepository as repo_module
+import constants
 from Data.digitalID import DigitalID
 from Data.digitalIDRepository import DigitalIDRepository
 
@@ -61,11 +63,11 @@ class TestDigitalIDRepositoryCSV:
     def setup_method(self) -> None:
         DigitalID._next_id = 1
         DigitalIDRepository._instance = None
-        DigitalIDRepository.CSV_PATH = self.TEST_CSV_PATH
+        constants.CSV_PATH = self.TEST_CSV_PATH
+        repo_module.CSV_PATH = self.TEST_CSV_PATH
         self.repo = DigitalIDRepository()
 
     def teardown_method(self) -> None:
-        DigitalIDRepository.CSV_PATH = "../../digital_ids.csv"
         if os.path.exists(self.TEST_CSV_PATH):
             os.remove(self.TEST_CSV_PATH)
 
@@ -78,7 +80,7 @@ class TestDigitalIDRepositoryCSV:
         with open(self.TEST_CSV_PATH, "r") as file:
             lines = file.readlines()
 
-        assert lines[0].strip() == "ID,Status,First Name,Surname,Date of Birth"
+        assert lines[0].strip() == "id,status,firstName,surname,dateOfBirth"
         assert lines[1].strip() == "1,active,John,Smith,2000-01-01"
 
     def test_load_from_csv_restores_data(self) -> None:

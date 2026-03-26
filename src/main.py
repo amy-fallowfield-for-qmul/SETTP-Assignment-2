@@ -4,11 +4,11 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 
 from UI.requests import Requests
+from constants import SEPARATION_WIDTH
 
 class Program:
     """Singleton entry point for the Digital ID System"""
 
-    SEPARATION_WIDTH = 100
     _instance = None
 
     def __new__(cls):
@@ -28,9 +28,9 @@ class Program:
             self.generate_options()
 
     def start_program(self):
-        print("=" * self.SEPARATION_WIDTH)
+        print("=" * SEPARATION_WIDTH)
         print("Welcome to the Digital ID System")
-        print("=" * self.SEPARATION_WIDTH)
+        print("=" * SEPARATION_WIDTH)
         
         self.REQUESTS.start_program()
 
