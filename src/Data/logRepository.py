@@ -1,42 +1,32 @@
 import os
 from typing import List
-from Data.log import Log, Action
-from Data.dataStorage import DataStorage
+from Data.log import Log
+from Data.repositoryABC import RepositoryABC
 
-class LogRepository:
+class LogRepository(RepositoryABC):
     """Singleton repository for storing and managing log entries"""
 
-    CSV_PATH = os.path.join(os.path.dirname(__file__), "../../logs.csv")
-    CSV_HEADERS = ["timestamp", "organisation", "digitalID", "action", "justification", "currentValue", "newValue"]
-    _instance = None
+    def _initialise(self) -> None:
+        self._repository: List[Log] = []
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+    def add(self, log: Log) -> None:
+        self._repository.append(log)
 
-    def __init__(self) -> None:
-        if not hasattr(self, '_initialised'):
-            self._initialised = True
-            self._logs: List[Log] = []
-            self._storage = DataStorage()
+    def get_all(self) -> List[Log]:
+        return self._repository
 
-    def add_log(self, log: Log) -> None:
-        self._logs.append(log)
+    def _get_csv_path(self) -> str:
+        return os.path.join(os.path.dirname(__file__), "../../logs.csv")
 
-    def get_all_logs(self) -> List[Log]:
-        return self._logs
+    def _get_csv_headers(self) -> List[str]:
+        return ["timestamp", "organisation", "digitalID", "action", "justification", "currentValue", "newValue"]
 
-    def save_to_csv(self) -> None:
+    def _get_rows_for_csv(self) -> List[List[str]]:
         rows = []
-        for log in self._logs:
+        for log in self._repository:
             row = log.get_row()
             rows.append(row)
-        self._storage.save_to_csv(self.CSV_PATH, self.CSV_HEADERS, rows)
+        return rows
 
-    def load_from_csv(self) -> None:
-        rows = self._storage.load_from_csv(self.CSV_PATH)
-
-        for row in rows:
-            log = Log.from_csv_row(row)
-            self.add_log(log)
+    def _create_object_from_csv_row(self, row: List[str]) -> Log:
+        return Log.from_csv_row(row)
