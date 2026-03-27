@@ -51,6 +51,17 @@ class TestServiceFilterIDs:
         filtered = service.get_filtered_ids({"firstName": "Bob"})
         assert len(filtered) == 0
 
+    def test_filter_case_insensitive_name(self, service: DigitalIDService) -> None:
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        assert len(service.get_filtered_ids({"firstName": "JOHN"})) == 1
+        assert len(service.get_filtered_ids({"firstName": "john"})) == 1
+        assert len(service.get_filtered_ids({"firstName": "jOhN"})) == 1
+
+    def test_filter_case_insensitive_status(self, service: DigitalIDService) -> None:
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        assert len(service.get_filtered_ids({"status": "ACTIVE"})) == 1
+        assert len(service.get_filtered_ids({"status": "Active"})) == 1
+
     def test_filter_invalid_field(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="Invalid filter field"):
             service.get_filtered_ids({"badAttribute": "hello123"})
