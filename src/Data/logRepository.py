@@ -2,6 +2,7 @@ import os
 from typing import List
 from Data.log import Log
 from Data.repositoryABC import RepositoryABC
+from constants import LOG_PATH
 
 class LogRepository(RepositoryABC):
     """Singleton repository for storing and managing log entries"""
@@ -16,7 +17,7 @@ class LogRepository(RepositoryABC):
         return self._repository
 
     def _get_csv_path(self) -> str:
-        return os.path.join(os.path.dirname(__file__), "../../logs.csv")
+        return LOG_PATH
 
     def _get_csv_headers(self) -> List[str]:
         return ["timestamp", "organisation", "digitalID", "action", "justification", "currentValue", "newValue"]

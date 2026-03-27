@@ -24,11 +24,13 @@ class Requests:
         first_name = input("Enter first name: ")
         surname = input("Enter surname: ")
         date_of_birth = input("Enter date of birth (YYYY-MM-DD): ")
+        justification = input("Enter justification for creation: ")
 
         data = {
             "firstName": first_name,
             "surname": surname,
-            "dateOfBirth": date_of_birth
+            "dateOfBirth": date_of_birth,
+            "justification": justification
         }
 
         try:

@@ -2,7 +2,9 @@ from typing import Dict, Any
 from Logic.attributeValidator import Validator
 from Data.digitalIDRepository import DigitalIDRepository
 from Data.digitalID import DigitalID, Status
-from constants import CSV_PATH, DIGITAL_ID_ALL_FIELDS
+from Data.logRepository import LogRepository
+from Data.log import Log, Action
+from constants import ID_PATH, LOG_PATH, DIGITAL_ID_ALL_FIELDS
 
 class DigitalIDService:
     """Singleton service for managing Digital ID operations"""
@@ -18,7 +20,8 @@ class DigitalIDService:
         if not hasattr(self, '_initialised'):
             self._initialised = True
             self.VALIDATOR = Validator()
-            self.REPOSITORY = DigitalIDRepository()
+            self.DIGITAL_ID_REPOSITORY = DigitalIDRepository()
+            self.LOG_REPOSITORY = LogRepository()
 
     def create_id(self, data: Dict[str, Any]) -> DigitalID:
         try:
@@ -27,9 +30,13 @@ class DigitalIDService:
             first_name = valid_data["firstName"]
             surname = valid_data["surname"]
             date_of_birth = valid_data["dateOfBirth"]
+            justification = valid_data["justification"]
 
             new_id = DigitalID(first_name, surname, date_of_birth)
-            self.REPOSITORY.add(new_id)
+            self.DIGITAL_ID_REPOSITORY.add(new_id)
+            
+            log = Log("Central Authority", new_id.id, Action.CREATE, justification, new_id, None)
+            self.LOG_REPOSITORY.add(log)
 
             return new_id
 
@@ -37,7 +44,7 @@ class DigitalIDService:
             raise ValueError(f"Invalid attribute data: {e}")
 
     def get_all(self) -> Dict[int, DigitalID]:
-        return self.REPOSITORY.get_all()
+        return self.DIGITAL_ID_REPOSITORY.get_all()
 
     def get_filtered_ids(self, params: Dict[str, Any]) -> Dict[int, DigitalID]:
         """
@@ -45,7 +52,7 @@ class DigitalIDService:
         and returns a dictionary of all Digital IDs which match those parameters
         """
 
-        all_ids = self.REPOSITORY.get_all()
+        all_ids = self.DIGITAL_ID_REPOSITORY.get_all()
 
         for key in params:
             if key not in DIGITAL_ID_ALL_FIELDS:
@@ -62,7 +69,7 @@ class DigitalIDService:
 
     def get_id_by_number(self, id_number: int) -> DigitalID:
         try:
-            return self.REPOSITORY.get_from_id(id_number)
+            return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
 
@@ -92,17 +99,26 @@ class DigitalIDService:
         
     def load_csv_data(self) -> None:
         try:
-            self.REPOSITORY.load_from_csv()
-            print(f"Loaded digital ID data from {CSV_PATH}")
+            self.DIGITAL_ID_REPOSITORY.load_from_csv()
+            print(f"Loaded digital ID data from {ID_PATH}")
+
+            self.LOG_REPOSITORY.load_from_csv()
+            print(f"Loaded log data from {LOG_PATH}")
         except FileNotFoundError:
             print("No existing data found")
 
     def save_csv_data(self) -> None:
         try:
-            if self.REPOSITORY.get_all():
-                self.REPOSITORY.save_to_csv()
-                print(f"Saved digital ID data to {CSV_PATH}")
+            if self.DIGITAL_ID_REPOSITORY.get_all():
+                self.DIGITAL_ID_REPOSITORY.save_to_csv()
+                print(f"Saved digital ID data to {ID_PATH}")
             else:
                 print("No digital IDs to save")
+
+            if self.LOG_REPOSITORY.get_all():
+                self.LOG_REPOSITORY.save_to_csv()
+                print(f"Saved log data to {LOG_PATH}")
+            else:
+                print("No logs to save")
         except Exception as e:
             print(f"Error saving to CSV: {e}")

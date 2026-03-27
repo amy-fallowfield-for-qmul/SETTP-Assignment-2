@@ -103,9 +103,9 @@ class TestServiceCSV:
         DigitalID._next_id = 1
         DigitalIDRepository._instance = None
         DigitalIDService._instance = None
-        constants.CSV_PATH = self.TEST_CSV_PATH
-        repo_module.CSV_PATH = self.TEST_CSV_PATH
-        service_module.CSV_PATH = self.TEST_CSV_PATH
+        constants.ID_PATH = self.TEST_CSV_PATH
+        repo_module.ID_PATH = self.TEST_CSV_PATH
+        service_module.ID_PATH = self.TEST_CSV_PATH
 
     def teardown_method(self) -> None:
         if os.path.exists(self.TEST_CSV_PATH):

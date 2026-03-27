@@ -7,7 +7,7 @@ class Validator:
     """Singleton validator for Digital ID attributes"""
 
     REQUIRED_FIELDS = ["firstName", "surname", "dateOfBirth"]
-    STRING_FIELDS = ["firstName", "surname"]
+    STRING_FIELDS = ["firstName", "surname", "justification"]
     _instance = None
 
     def __new__(cls):
@@ -33,7 +33,7 @@ class Validator:
             raise ValueError("Missing required attributes")
         
         for key in data:
-            if key not in required_attributes:
+            if key not in required_attributes and key != "justification":
                 raise ValueError(f"Unexpected attribute: {key}")
 
         for key in self.STRING_FIELDS:
