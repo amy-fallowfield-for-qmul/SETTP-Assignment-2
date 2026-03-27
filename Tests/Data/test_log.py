@@ -61,6 +61,22 @@ class TestLogModel:
         assert row[5] == "John"
         assert row[6] == "Alicia"
 
+    def test_from_csv_row(self) -> None:
+        row = ["15/03/2024 - 10:30:45", "NHS", "1", "create", "New registration", "John Smith", "None"]
+        log = Log.from_csv_row(row)
+        assert log.timestamp == datetime.strptime("15/03/2024 - 10:30:45", "%d/%m/%Y - %H:%M:%S")
+        assert log.organisation == "NHS"
+        assert log.id_number == 1
+        assert log.action == Action.CREATE
+        assert log.justification == "New registration"
+        assert log.current_value == "John Smith"
+        assert log.new_value is None
+
+    def test_from_csv_row_with_new_value(self) -> None:
+        row = ["15/03/2024 - 10:30:45", "HMRC", "2", "update", "Name change", "John", "Alicia"]
+        log = Log.from_csv_row(row)
+        assert log.new_value == "Alicia"
+
 class TestLogProperties:
     """Tests for Log getters"""
 
