@@ -65,7 +65,7 @@ class TestProgramGenerateOptions:
 
     def test_update_id_option(self, program: Program, monkeypatch, capsys) -> None:
         program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        inputs = iter(["4", "1", "1", "suspended"])
+        inputs = iter(["4", "1", "1", "suspended", "Status change requested"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
         captured = capsys.readouterr()

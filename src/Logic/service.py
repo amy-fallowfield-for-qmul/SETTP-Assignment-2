@@ -73,8 +73,9 @@ class DigitalIDService:
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
 
-    def update_id(self, id_number: int, attribute: str, value: Any) -> None:
+    def update_id(self, id_number: int, attribute: str, value: Any, justification) -> None:
         digital_id = self.get_id_by_number(id_number)
+        old_value = digital_id.to_dict()[attribute]
 
         if digital_id.status == Status.REVOKED:
             raise ValueError("Cannot update a revoked Digital ID")
@@ -95,7 +96,13 @@ class DigitalIDService:
             raise ValueError(f"Cannot update field: {attribute}")
 
         validated_value = self.VALIDATOR.validate_attribute(attribute, value)
+        validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+
+        log = Log("Central Authority", id_number, Action.UPDATE, validated_justification, old_value, validated_value)
+        self.LOG_REPOSITORY.add(log)
+
         SETTER_MAP[attribute](validated_value)
+
         
     def load_csv_data(self) -> None:
         try:

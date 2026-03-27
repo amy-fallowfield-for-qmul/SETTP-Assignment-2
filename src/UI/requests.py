@@ -95,7 +95,8 @@ class Requests:
                 print("No value entered")
                 return
 
-            self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value)
+            justification = input("Enter justification for creation: ")
+            self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value, justification)
 
             print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value} -> {new_value}")

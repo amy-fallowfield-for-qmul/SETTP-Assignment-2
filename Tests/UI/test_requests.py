@@ -113,7 +113,7 @@ class TestRequestsUpdateID:
     """Tests for updating a Digital ID attribute via the UI"""
 
     def test_update_id(self, requests: Requests, monkeypatch, capsys) -> None:
-        inputs = iter(["1", "1", "suspended"])
+        inputs = iter(["1", "1", "suspended", "Status change requested"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.update_id()
         captured = capsys.readouterr()

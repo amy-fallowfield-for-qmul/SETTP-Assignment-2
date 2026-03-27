@@ -6,12 +6,15 @@ import constants
 from Logic.service import DigitalIDService
 from Data.digitalID import DigitalID, Status
 from Data.digitalIDRepository import DigitalIDRepository
+from Data.log import Action
+from Data.logRepository import LogRepository
 
 @pytest.fixture
 def service() -> DigitalIDService:
     DigitalID._next_id = 1
     DigitalIDRepository._instance = None
     DigitalIDService._instance = None
+    LogRepository._instance = None
     return DigitalIDService()
 
 class TestServiceCreateID:
@@ -82,17 +85,29 @@ class TestServiceUpdateID:
 
     def test_update_attribute(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        service.update_id(1, "firstName", "Alicia")
+        service.update_id(1, "firstName", "Alicia", "Name change requested")
         assert service.get_id_by_number(1).first_name == "Alicia"
+
+    def test_update_creates_log(self, service: DigitalIDService) -> None:
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.update_id(1, "firstName", "Alicia", "Name change requested")
+        
+        logs = service.LOG_REPOSITORY.get_all()
+        assert len(logs) == 2
+        update_log = logs[1]
+        assert update_log.action == Action.UPDATE
+        assert update_log.current_value == "John"
+        assert update_log.new_value == "Alicia"
+        assert update_log.justification == "Name Change Requested"
 
     def test_update_nonexistent_id(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="not found"):
-            service.update_id(99, "firstName", "Alicia")
+            service.update_id(99, "firstName", "Alicia", "Name change")
 
     def test_update_immutable_field_rejected(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         with pytest.raises(ValueError, match="Cannot update field"):
-            service.update_id(1, "dateOfBirth", "2010-01-01")
+            service.update_id(1, "dateOfBirth", "2010-01-01", "Date correction")
 
 class TestServiceCSV:
     """Tests for loading and saving CSV data via the service"""
