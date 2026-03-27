@@ -11,7 +11,7 @@ class TestDigitalIDRepositoryCreation:
     def test_create_empty_repository(self) -> None:
         DigitalIDRepository._instance = None
         repo = DigitalIDRepository()
-        assert repo.get_all_ids() == {}
+        assert repo.get_all() == {}
 
 class TestDigitalIDRepositoryAddAndGet:
     """Tests for adding and retrieving Digital IDs"""
@@ -21,36 +21,36 @@ class TestDigitalIDRepositoryAddAndGet:
         DigitalIDRepository._instance = None
         self.repo = DigitalIDRepository()
 
-    def test_add_id(self) -> None:
+    def test_add(self) -> None:
         id = DigitalID("John", "Smith", "2000-01-01")
-        self.repo.add_id(id)
-        assert self.repo.get_id(1) == id
+        self.repo.add(id)
+        assert self.repo.get_from_id(1) == id
 
     def test_add_multiple_ids(self) -> None:
         id1 = DigitalID("John", "Smith", "2000-01-01")
         id2 = DigitalID("Bob", "Jones", "2005-01-01")
-        self.repo.add_id(id1)
-        self.repo.add_id(id2)
-        assert len(self.repo.get_all_ids()) == 2
+        self.repo.add(id1)
+        self.repo.add(id2)
+        assert len(self.repo.get_all()) == 2
 
-    def test_get_id(self) -> None:
+    def test_get_from_id(self) -> None:
         id1 = DigitalID("John", "Smith", "2000-01-01")
         id2 = DigitalID("Bob", "Jones", "2005-01-01")
-        self.repo.add_id(id1)
-        self.repo.add_id(id2)
-        assert self.repo.get_id(2).first_name == "Bob"
+        self.repo.add(id1)
+        self.repo.add(id2)
+        assert self.repo.get_from_id(2).first_name == "Bob"
 
     def test_get_id_missing_raises_key_error(self) -> None:
         with pytest.raises(KeyError):
-            self.repo.get_id(99)
+            self.repo.get_from_id(99)
 
-    def test_get_all_ids(self) -> None:
+    def test_get_all(self) -> None:
         id1 = DigitalID("John", "Smith", "2000-01-01")
         id2 = DigitalID("Bob", "Jones", "2005-01-01")
-        self.repo.add_id(id1)
-        self.repo.add_id(id2)
+        self.repo.add(id1)
+        self.repo.add(id2)
 
-        all_ids = self.repo.get_all_ids()
+        all_ids = self.repo.get_all()
 
         assert all_ids[1].first_name == "John"
         assert all_ids[2].first_name == "Bob"
@@ -73,7 +73,7 @@ class TestDigitalIDRepositoryCSV:
 
     def test_save_to_csv(self) -> None:
         id = DigitalID("John", "Smith", "2000-01-01")
-        self.repo.add_id(id)
+        self.repo.add(id)
         self.repo.save_to_csv()
         assert os.path.exists(self.TEST_CSV_PATH)
 
@@ -87,8 +87,8 @@ class TestDigitalIDRepositoryCSV:
         id1 = DigitalID("John", "Smith", "2000-01-01")
         id2 = DigitalID("Bob", "Jones", "2005-01-01")
         
-        self.repo.add_id(id1)
-        self.repo.add_id(id2)
+        self.repo.add(id1)
+        self.repo.add(id2)
         self.repo.save_to_csv()
 
         DigitalID._next_id = 1
@@ -96,14 +96,14 @@ class TestDigitalIDRepositoryCSV:
         new_repo = DigitalIDRepository()
         new_repo.load_from_csv()
 
-        assert new_repo.get_id(1).first_name == "John"
-        assert new_repo.get_id(2).first_name == "Bob"
+        assert new_repo.get_from_id(1).first_name == "John"
+        assert new_repo.get_from_id(2).first_name == "Bob"
 
     def test_load_from_csv_updates_next_id(self) -> None:
         id1 = DigitalID("John", "Smith", "2000-01-01")
         id2 = DigitalID("Bob", "Jones", "2005-01-01")
-        self.repo.add_id(id1)
-        self.repo.add_id(id2)
+        self.repo.add(id1)
+        self.repo.add(id2)
         self.repo.save_to_csv()
 
         DigitalID._next_id = 1
