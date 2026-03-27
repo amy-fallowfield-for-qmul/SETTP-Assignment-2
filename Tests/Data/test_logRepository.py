@@ -12,11 +12,11 @@ def log_repo() -> LogRepository:
 class TestLogRepositoryAddAndGet:
     """Tests for adding and retrieving logs"""
 
-    def test_add_log(self, log_repo: LogRepository) -> None:
+    def test_add(self, log_repo: LogRepository) -> None:
         log = Log("NHS", 1, Action.CREATE, "New registration", "John Smith", None)
-        log_repo.add_log(log)
-        assert len(log_repo.get_all_logs()) == 1
-        stored_log = log_repo.get_all_logs()[0]
+        log_repo.add(log)
+        assert len(log_repo.get_all()) == 1
+        stored_log = log_repo.get_all()[0]
 
         start_time = datetime.now()
         assert stored_log.timestamp >= start_time.replace(microsecond=0)
@@ -31,12 +31,12 @@ class TestLogRepositoryAddAndGet:
     def test_add_multiple_logs(self, log_repo: LogRepository) -> None:
         log1 = Log("NHS", 1, Action.CREATE, "New registration", "John Smith", None)
         log2 = Log("HMRC", 2, Action.READ, "Tax check", "active", None)
-        log_repo.add_log(log1)
-        log_repo.add_log(log2)
-        assert len(log_repo.get_all_logs()) == 2
+        log_repo.add(log1)
+        log_repo.add(log2)
+        assert len(log_repo.get_all()) == 2
 
-    def test_get_all_logs_empty(self, log_repo: LogRepository) -> None:
-        assert log_repo.get_all_logs() == []
+    def test_get_all_empty(self, log_repo: LogRepository) -> None:
+        assert log_repo.get_all() == []
 
 class TestLogRepositoryCSV:
     """Tests for CSV save and load"""
@@ -45,16 +45,16 @@ class TestLogRepositoryCSV:
 
     def setup_method(self) -> None:
         LogRepository._instance = None
-        LogRepository.CSV_PATH = self.TEST_CSV_PATH
         self.log_repo = LogRepository()
 
     def teardown_method(self) -> None:
         if os.path.exists(self.TEST_CSV_PATH):
             os.remove(self.TEST_CSV_PATH)
 
-    def test_save_to_csv(self) -> None:
+    def test_save_to_csv(self, monkeypatch) -> None:
+        monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         log = Log("NHS", 1, Action.CREATE, "New registration", "John Smith", None)
-        self.log_repo.add_log(log)
+        self.log_repo.add(log)
         self.log_repo.save_to_csv()
         assert os.path.exists(self.TEST_CSV_PATH)
 
@@ -74,7 +74,8 @@ class TestLogRepositoryCSV:
         assert data_line[5] == "John Smith"
         assert data_line[6] == ""
 
-    def test_save_empty_csv(self) -> None:
+    def test_save_empty_csv(self, monkeypatch) -> None:
+        monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         self.log_repo.save_to_csv()
         assert os.path.exists(self.TEST_CSV_PATH)
 
@@ -84,28 +85,30 @@ class TestLogRepositoryCSV:
         assert len(lines) == 1
         assert lines[0].strip() == "timestamp,organisation,digitalID,action,justification,currentValue,newValue"
 
-    def test_load_from_csv(self) -> None:
+    def test_load_from_csv(self, monkeypatch) -> None:
+        monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         log1 = Log("NHS", 1, Action.CREATE, "New registration", "John Smith", None)
         log2 = Log("HMRC", 2, Action.UPDATE, "Name change", "John", "Alicia")
-        self.log_repo.add_log(log1)
-        self.log_repo.add_log(log2)
+        self.log_repo.add(log1)
+        self.log_repo.add(log2)
         self.log_repo.save_to_csv()
 
         LogRepository._instance = None
-        LogRepository.CSV_PATH = self.TEST_CSV_PATH
         new_repo = LogRepository()
+        monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         new_repo.load_from_csv()
 
-        assert len(new_repo.get_all_logs()) == 2
-        assert new_repo.get_all_logs()[0].organisation == "NHS"
-        assert new_repo.get_all_logs()[1].organisation == "HMRC"
+        assert len(new_repo.get_all()) == 2
+        assert new_repo.get_all()[0].organisation == "NHS"
+        assert new_repo.get_all()[1].organisation == "HMRC"
 
-    def test_load_empty_csv(self) -> None:
+    def test_load_empty_csv(self, monkeypatch) -> None:
+        monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         self.log_repo.save_to_csv()
         
         LogRepository._instance = None
-        LogRepository.CSV_PATH = self.TEST_CSV_PATH
         new_repo = LogRepository()
+        monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         new_repo.load_from_csv()
 
-        assert len(new_repo.get_all_logs()) == 0
+        assert len(new_repo.get_all()) == 0

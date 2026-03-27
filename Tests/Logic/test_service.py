@@ -24,18 +24,18 @@ class TestServiceCreateID:
         assert digital_id.first_name == "John"
         assert digital_id.surname == "Smith"
         assert digital_id.date_of_birth == "2000-01-01"
-        assert len(service.get_all_ids()) == 1
+        assert len(service.get_all()) == 1
 
 class TestServiceGetAllIDs:
     """Tests for retrieving all Digital IDs"""
 
-    def test_get_all_ids_empty(self, service: DigitalIDService) -> None:
-        assert service.get_all_ids() == {}
+    def test_get_all_empty(self, service: DigitalIDService) -> None:
+        assert service.get_all() == {}
 
-    def test_get_all_ids(self, service: DigitalIDService) -> None:
+    def test_get_all(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
         service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01"})
-        assert len(service.get_all_ids()) == 2
+        assert len(service.get_all()) == 2
 
 class TestServiceFilterIDs:
     """Tests for filtering Digital IDs by attributes"""
