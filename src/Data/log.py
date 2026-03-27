@@ -32,3 +32,31 @@ class Log:
             self._current_value,
             self._new_value
         ]
+
+    @property
+    def timestamp(self) -> datetime:
+        return self._timestamp
+    
+    @property
+    def organisation(self) -> str:
+        return self._organisation
+    
+    @property
+    def id_number(self) -> int:
+        return self._id_number
+    
+    @property
+    def action(self) -> Action:
+        return self._action
+    
+    @property
+    def justification(self) -> str:
+        return self._justification
+    
+    @property
+    def current_value(self) -> Union[str, DigitalID]:
+        return self._current_value
+    
+    @property
+    def new_value(self) -> Optional[str]:
+        return self._new_value
