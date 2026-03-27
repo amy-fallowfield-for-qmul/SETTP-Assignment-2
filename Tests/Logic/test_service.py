@@ -18,7 +18,7 @@ class TestServiceCreateID:
     """Tests for creating a Digital ID via the service"""
 
     def test_create_id(self, service: DigitalIDService) -> None:
-        digital_id = service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        digital_id = service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         assert digital_id.id == 1
         assert digital_id.status == Status.ACTIVE
         assert digital_id.first_name == "John"
@@ -33,32 +33,32 @@ class TestServiceGetAllIDs:
         assert service.get_all() == {}
 
     def test_get_all(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
-        service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
         assert len(service.get_all()) == 2
 
 class TestServiceFilterIDs:
     """Tests for filtering Digital IDs by attributes"""
 
     def test_filter_by_attribute(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
-        service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
         filtered = service.get_filtered_ids({"firstName": "John"})
         assert len(filtered) == 1
 
     def test_filter_no_matches(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         filtered = service.get_filtered_ids({"firstName": "Bob"})
         assert len(filtered) == 0
 
     def test_filter_case_insensitive_name(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         assert len(service.get_filtered_ids({"firstName": "JOHN"})) == 1
         assert len(service.get_filtered_ids({"firstName": "john"})) == 1
         assert len(service.get_filtered_ids({"firstName": "jOhN"})) == 1
 
     def test_filter_case_insensitive_status(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         assert len(service.get_filtered_ids({"status": "ACTIVE"})) == 1
         assert len(service.get_filtered_ids({"status": "Active"})) == 1
 
@@ -70,7 +70,7 @@ class TestServiceGetIDByNumber:
     """Tests for retrieving a Digital ID by its number"""
 
     def test_get_id_by_number(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         assert service.get_id_by_number(1).first_name == "John"
 
     def test_get_id_not_found(self, service: DigitalIDService) -> None:
@@ -81,7 +81,7 @@ class TestServiceUpdateID:
     """Tests for updating Digital ID attributes via the service"""
 
     def test_update_attribute(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         service.update_id(1, "firstName", "Alicia")
         assert service.get_id_by_number(1).first_name == "Alicia"
 
@@ -90,7 +90,7 @@ class TestServiceUpdateID:
             service.update_id(99, "firstName", "Alicia")
 
     def test_update_immutable_field_rejected(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         with pytest.raises(ValueError, match="Cannot update field"):
             service.update_id(1, "dateOfBirth", "2010-01-01")
 
@@ -113,7 +113,7 @@ class TestServiceCSV:
 
     def test_save_and_load_csv(self) -> None:
         service = DigitalIDService()
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         service.save_csv_data()
 
         DigitalID._next_id = 1

@@ -63,15 +63,14 @@ class TestDigitalIDRepositoryCSV:
     def setup_method(self) -> None:
         DigitalID._next_id = 1
         DigitalIDRepository._instance = None
-        constants.CSV_PATH = self.TEST_CSV_PATH
-        repo_module.CSV_PATH = self.TEST_CSV_PATH
         self.repo = DigitalIDRepository()
 
     def teardown_method(self) -> None:
         if os.path.exists(self.TEST_CSV_PATH):
             os.remove(self.TEST_CSV_PATH)
 
-    def test_save_to_csv(self) -> None:
+    def test_save_to_csv(self, monkeypatch) -> None:
+        monkeypatch.setattr(self.repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         id = DigitalID("John", "Smith", "2000-01-01")
         self.repo.add(id)
         self.repo.save_to_csv()
@@ -83,7 +82,8 @@ class TestDigitalIDRepositoryCSV:
         assert lines[0].strip() == "id,status,firstName,surname,dateOfBirth"
         assert lines[1].strip() == "1,active,John,Smith,2000-01-01"
 
-    def test_load_from_csv_restores_data(self) -> None:
+    def test_load_from_csv_restores_data(self, monkeypatch) -> None:
+        monkeypatch.setattr(self.repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         id1 = DigitalID("John", "Smith", "2000-01-01")
         id2 = DigitalID("Bob", "Jones", "2005-01-01")
         
@@ -94,12 +94,14 @@ class TestDigitalIDRepositoryCSV:
         DigitalID._next_id = 1
         DigitalIDRepository._instance = None
         new_repo = DigitalIDRepository()
+        monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         new_repo.load_from_csv()
 
         assert new_repo.get_from_id(1).first_name == "John"
         assert new_repo.get_from_id(2).first_name == "Bob"
 
-    def test_load_from_csv_updates_next_id(self) -> None:
+    def test_load_from_csv_updates_next_id(self, monkeypatch) -> None:
+        monkeypatch.setattr(self.repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         id1 = DigitalID("John", "Smith", "2000-01-01")
         id2 = DigitalID("Bob", "Jones", "2005-01-01")
         self.repo.add(id1)
@@ -109,5 +111,6 @@ class TestDigitalIDRepositoryCSV:
         DigitalID._next_id = 1
         DigitalIDRepository._instance = None
         new_repo = DigitalIDRepository()
+        monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         new_repo.load_from_csv()
         assert DigitalID._next_id == 3

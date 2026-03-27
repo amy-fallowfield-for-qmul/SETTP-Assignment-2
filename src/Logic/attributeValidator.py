@@ -6,7 +6,7 @@ from Data.digitalID import Status
 class Validator:
     """Singleton validator for Digital ID attributes"""
 
-    REQUIRED_FIELDS = ["firstName", "surname", "dateOfBirth"]
+    REQUIRED_FIELDS = ["firstName", "surname", "dateOfBirth", "justification"]
     STRING_FIELDS = ["firstName", "surname", "justification"]
     _instance = None
 
@@ -33,7 +33,7 @@ class Validator:
             raise ValueError("Missing required attributes")
         
         for key in data:
-            if key not in required_attributes and key != "justification":
+            if key not in required_attributes:
                 raise ValueError(f"Unexpected attribute: {key}")
 
         for key in self.STRING_FIELDS:
@@ -47,6 +47,7 @@ class Validator:
             "firstName": lambda value: self._validate_string(value, attribute),
             "surname": lambda value: self._validate_string(value, attribute),
             "status": lambda value: self._validate_status(value),
+            "justification": lambda value: self._validate_string(value, attribute),
         }
 
         if attribute not in VALIDATION_MAP:
