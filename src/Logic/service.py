@@ -29,15 +29,15 @@ class DigitalIDService:
             date_of_birth = valid_data["dateOfBirth"]
 
             new_id = DigitalID(first_name, surname, date_of_birth)
-            self.REPOSITORY.add_id(new_id)
+            self.REPOSITORY.add(new_id)
 
             return new_id
 
         except Exception as e:
             raise ValueError(f"Invalid attribute data: {e}")
 
-    def get_all_ids(self) -> Dict[int, DigitalID]:
-        return self.REPOSITORY.get_all_ids()
+    def get_all(self) -> Dict[int, DigitalID]:
+        return self.REPOSITORY.get_all()
 
     def get_filtered_ids(self, params: Dict[str, Any]) -> Dict[int, DigitalID]:
         """
@@ -45,7 +45,7 @@ class DigitalIDService:
         and returns a dictionary of all Digital IDs which match those parameters
         """
 
-        all_ids = self.REPOSITORY.get_all_ids()
+        all_ids = self.REPOSITORY.get_all()
 
         for key in params:
             if key not in DIGITAL_ID_ALL_FIELDS:
@@ -62,7 +62,7 @@ class DigitalIDService:
 
     def get_id_by_number(self, id_number: int) -> DigitalID:
         try:
-            return self.REPOSITORY.get_id(id_number)
+            return self.REPOSITORY.get_from_id(id_number)
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
 
@@ -99,7 +99,7 @@ class DigitalIDService:
 
     def save_csv_data(self) -> None:
         try:
-            if self.REPOSITORY.get_all_ids():
+            if self.REPOSITORY.get_all():
                 self.REPOSITORY.save_to_csv()
                 print(f"Saved digital ID data to {CSV_PATH}")
             else:

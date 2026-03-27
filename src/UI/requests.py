@@ -51,7 +51,7 @@ class Requests:
             return
         
         if choice == 1:
-            all_ids = self.DIGITAL_ID_SERVICE.get_all_ids()
+            all_ids = self.DIGITAL_ID_SERVICE.get_all()
         else:
             params = {}
             for attribute in self.DIGITAL_ID_FIELDS:
