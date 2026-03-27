@@ -60,3 +60,44 @@ class TestLogModel:
         assert row[4] == "Name change"
         assert row[5] == "John"
         assert row[6] == "Alicia"
+
+class TestLogProperties:
+    """Tests for Log getters"""
+
+    def setup_method(self) -> None:
+        DigitalID._next_id = 1
+        self.digital_id = DigitalID("John", "Smith", "2000-01-01")
+        self.log = Log("NHS", 1, Action.CREATE, "New registration", self.digital_id, None)
+
+    def test_get_timestamp(self) -> None:
+        start_time = datetime.now()
+        log = Log("NHS", 1, Action.UPDATE, "Update Medical Records", "Healthy", "Unhealthy")
+        assert log.timestamp >= start_time.replace(microsecond=0)
+        assert log.timestamp <= datetime.now()
+        assert isinstance(self.log.timestamp, datetime)
+
+    def test_get_organisation(self) -> None:
+        assert self.log.organisation == "NHS"
+
+    def test_get_id_number(self) -> None:
+        assert self.log.id_number == 1
+
+    def test_get_action(self) -> None:
+        assert self.log.action == Action.CREATE
+
+    def test_get_justification(self) -> None:
+        assert self.log.justification == "New registration"
+
+    def test_get_current_value_dict(self) -> None:
+        assert self.log.current_value["firstName"] == "John"
+
+    def test_get_current_value_string(self) -> None:
+        log = Log("NHS", 1, Action.UPDATE, "Name change", "John", "Alicia")
+        assert log.current_value == "John"
+
+    def test_get_new_value(self) -> None:
+        log = Log("NHS", 1, Action.UPDATE, "Name change", "John", "Alicia")
+        assert log.new_value == "Alicia"
+
+    def test_get_new_value_none(self) -> None:
+        assert self.log.new_value is None
