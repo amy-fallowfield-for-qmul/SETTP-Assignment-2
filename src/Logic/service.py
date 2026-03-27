@@ -55,7 +55,7 @@ class DigitalIDService:
 
         for id_number, id_object in all_ids.items():
             id_dictionary = id_object.to_dict()
-            if all(str(id_dictionary.get(key)) == str(value) for key, value in params.items()):
+            if all(str(id_dictionary.get(key)).lower() == str(value).lower() for key, value in params.items()):
                 filtered_ids[id_number] = id_object
 
         return filtered_ids
