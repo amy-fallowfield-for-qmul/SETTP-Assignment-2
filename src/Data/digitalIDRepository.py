@@ -1,7 +1,7 @@
 from typing import Dict
 from Data.digitalID import DigitalID
+from Data.dataStorage import DataStorage
 from constants import CSV_PATH, DIGITAL_ID_ALL_FIELDS
-import csv
 
 class DigitalIDRepository:
     """Singleton repository for storing and managing Digital IDs"""
@@ -17,6 +17,7 @@ class DigitalIDRepository:
         if not hasattr(self, '_initialised'):
             self._initialised = True
             self._repository: Dict[int, DigitalID] = {}
+            self._storage = DataStorage()
 
     def add_id(self, digitalID: DigitalID) -> None:
         self._repository[digitalID.id] = digitalID
@@ -37,24 +38,10 @@ class DigitalIDRepository:
                 digitalID.surname,
                 digitalID.date_of_birth
             ])
-        try:
-            with open(CSV_PATH, "w") as file:
-                writer = csv.writer(file)
-                writer.writerow(DIGITAL_ID_ALL_FIELDS)
-
-                for row in rows:
-                    writer.writerow(row)
-        except Exception as e:
-            raise(e)
+        self._storage.save_to_csv(CSV_PATH, DIGITAL_ID_ALL_FIELDS, rows)
 
     def load_from_csv(self) -> None:
-        try:
-            with open(CSV_PATH, "r") as file:
-                reader = csv.reader(file)
-                next(reader)
-                rows = [row for row in reader]
-        except Exception as e:
-            raise(e)
+        rows = self._storage.load_from_csv(CSV_PATH)
 
         for row in rows:
             attributes = {
