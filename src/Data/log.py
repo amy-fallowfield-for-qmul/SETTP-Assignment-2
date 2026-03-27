@@ -22,6 +22,18 @@ class Log:
         self._current_value: Union[str, Dict] = current_value.to_dict() if isinstance(current_value, DigitalID) else current_value
         self._new_value: Optional[str] = new_value
 
+    @classmethod
+    def from_csv_row(cls, row: List[str]) -> "Log":
+        log = cls.__new__(cls)
+        log._timestamp = datetime.strptime(row[0], "%d/%m/%Y - %H:%M:%S")
+        log._organisation = row[1]
+        log._id_number = int(row[2])
+        log._action = Action(row[3])
+        log._justification = row[4]
+        log._current_value = row[5]
+        log._new_value = row[6] if row[6] != "None" else None
+        return log
+
     def get_row(self) -> List[object]:
         return [
             self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
@@ -32,3 +44,31 @@ class Log:
             self._current_value,
             self._new_value
         ]
+
+    @property
+    def timestamp(self) -> datetime:
+        return self._timestamp
+    
+    @property
+    def organisation(self) -> str:
+        return self._organisation
+    
+    @property
+    def id_number(self) -> int:
+        return self._id_number
+    
+    @property
+    def action(self) -> Action:
+        return self._action
+    
+    @property
+    def justification(self) -> str:
+        return self._justification
+    
+    @property
+    def current_value(self) -> Union[str, DigitalID]:
+        return self._current_value
+    
+    @property
+    def new_value(self) -> Optional[str]:
+        return self._new_value
