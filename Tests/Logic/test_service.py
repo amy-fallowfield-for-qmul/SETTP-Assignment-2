@@ -29,6 +29,19 @@ class TestServiceCreateID:
         assert digital_id.date_of_birth == "2000-01-01"
         assert len(service.get_all()) == 1
 
+    def test_create_id_creates_log(self, service: DigitalIDService) -> None:
+        digital_id = service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        
+        logs = service.LOG_REPOSITORY.get_all()
+        assert len(logs) == 1
+        create_log = logs[0]
+        assert create_log.action == Action.CREATE
+        assert create_log.id_number == digital_id.id
+        assert create_log.organisation == "Central Authority"
+        assert create_log.justification == "New Registration"
+        assert create_log.current_value["firstName"] == "John"
+        assert create_log.new_value is None
+
 class TestServiceGetAllIDs:
     """Tests for retrieving all Digital IDs"""
 
