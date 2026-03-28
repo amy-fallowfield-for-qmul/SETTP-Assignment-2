@@ -11,7 +11,7 @@ class Program:
 
     _instance = None
 
-    def __new__(cls):
+    def __new__(cls) -> "Program":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
@@ -23,11 +23,11 @@ class Program:
             self.start_program()
             self.main()
 
-    def main(self):
+    def main(self) -> None:
         while True:
             self.generate_options()
 
-    def start_program(self):
+    def start_program(self) -> None:
         print("=" * SEPARATION_WIDTH)
         print("Welcome to the Digital ID System")
         print("=" * SEPARATION_WIDTH)
