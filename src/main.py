@@ -37,10 +37,12 @@ class Program:
     def generate_options(self) -> None:
         print("\nPlease select an option:")
         print("1. Create a new Digital ID")
-        print("2. View all Digital ID data")
-        print("3. Query Digital ID by ID")
-        print("4. Update a Digital ID")
-        print("5. Exit\n")
+        print("2. Query Digital ID by ID")
+        print("3. Update a Digital ID")
+        print("===== Central Authority Only =====")
+        print("4. View all Digital ID data")
+        print("5. View all log data")
+        print("6. Exit\n")
 
         try:
             choice = int(input())
@@ -52,12 +54,14 @@ class Program:
             case 1:
                 self.REQUESTS.create_id()
             case 2:
-                self.REQUESTS.view_all_ids()
-            case 3:
                 self.REQUESTS.query_id()
-            case 4:
+            case 3:
                 self.REQUESTS.update_id()
+            case 4:
+                self.REQUESTS.view_all("digitalID")
             case 5:
+                self.REQUESTS.view_all("log")
+            case 6:
                 self.REQUESTS.exit_program()
             case _:
                 print("Invalid choice")
