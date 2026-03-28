@@ -3,8 +3,6 @@ from typing import List, Optional, Union, Dict
 from datetime import datetime
 from Data.digitalID import DigitalID
 
-# [DD/MM/YYYY - HH:MM:SS] [Organisation] [DigitalID] [Action] [Accepted/Rejected] [Justification] [Value/Old Value -> New Value]
-
 class Action(Enum):
     CREATE = "create"
     READ = "read"

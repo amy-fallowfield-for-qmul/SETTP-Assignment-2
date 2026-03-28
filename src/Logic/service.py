@@ -11,12 +11,12 @@ class DigitalIDService:
 
     _instance = None
 
-    def __new__(cls):
+    def __new__(cls) -> "DigitalIDService":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self):
+    def __init__(self) -> None:
         if not hasattr(self, '_initialised'):
             self._initialised = True
             self.VALIDATOR = Validator()
@@ -98,7 +98,7 @@ class DigitalIDService:
         
         return str(attribute_value)
 
-    def update_id(self, id_number: int, attribute: str, value: Any, justification) -> None:
+    def update_id(self, id_number: int, attribute: str, value: Any, justification: str) -> None:
         digital_id = self.get_id_by_number(id_number)
         old_value = digital_id.to_dict()[attribute]
 
