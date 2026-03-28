@@ -24,11 +24,13 @@ class Requests:
         first_name = input("Enter first name: ")
         surname = input("Enter surname: ")
         date_of_birth = input("Enter date of birth (YYYY-MM-DD): ")
+        justification = input("Enter justification for creation: ")
 
         data = {
             "firstName": first_name,
             "surname": surname,
-            "dateOfBirth": date_of_birth
+            "dateOfBirth": date_of_birth,
+            "justification": justification
         }
 
         try:
@@ -73,7 +75,9 @@ class Requests:
         try:
             id_subject = self._get_id_subject()
             attribute_choice = self._get_attribute_subject("query")
-            current_value = id_subject.to_dict()[attribute_choice]
+            justification = input("Enter justification for query: ")
+            
+            current_value = self.DIGITAL_ID_SERVICE.query_attribute(id_subject.id, attribute_choice, justification)
 
             print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value}")
@@ -93,7 +97,8 @@ class Requests:
                 print("No value entered")
                 return
 
-            self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value)
+            justification = input("Enter justification for creation: ")
+            self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value, justification)
 
             print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value} -> {new_value}")

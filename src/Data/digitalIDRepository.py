@@ -1,6 +1,6 @@
 from typing import Dict, List
 from Data.digitalID import DigitalID
-from constants import CSV_PATH, DIGITAL_ID_ALL_FIELDS
+from constants import ID_PATH, DIGITAL_ID_ALL_FIELDS
 from Data.repositoryABC import RepositoryABC
 
 class DigitalIDRepository(RepositoryABC):
@@ -19,7 +19,7 @@ class DigitalIDRepository(RepositoryABC):
         return self._repository
 
     def _get_csv_path(self) -> str:
-        return CSV_PATH
+        return ID_PATH
 
     def _get_csv_headers(self) -> List[str]:
         return DIGITAL_ID_ALL_FIELDS

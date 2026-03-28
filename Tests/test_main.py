@@ -32,14 +32,14 @@ class TestProgramGenerateOptions:
     """Tests for generate_options menu routing"""
 
     def test_create_id_option(self, program: Program, monkeypatch, capsys) -> None:
-        inputs = iter(["1", "John", "Smith", "2000-01-01"])
+        inputs = iter(["1", "John", "Smith", "2000-01-01", "New registration"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
         captured = capsys.readouterr()
         assert "Digital ID created successfully" in captured.out
 
     def test_view_all_option(self, program: Program, monkeypatch, capsys) -> None:
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "Test data"})
         inputs = iter(["2", "1"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
@@ -47,8 +47,8 @@ class TestProgramGenerateOptions:
         assert "John" in captured.out
 
     def test_filter_option(self, program: Program, monkeypatch, capsys) -> None:
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01"})
+        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
         inputs = iter(["2", "2", "n", "n", "y", "Bob", "n", "n"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
@@ -56,16 +56,16 @@ class TestProgramGenerateOptions:
         assert "Bob" in captured.out
 
     def test_query_id_option(self, program: Program, monkeypatch, capsys) -> None:
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
-        inputs = iter(["3", "1", "1"])
+        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        inputs = iter(["3", "1", "1", "Status check"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
         captured = capsys.readouterr()
         assert "status" in captured.out
 
     def test_update_id_option(self, program: Program, monkeypatch, capsys) -> None:
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
-        inputs = iter(["4", "1", "1", "suspended"])
+        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        inputs = iter(["4", "1", "1", "suspended", "Status change requested"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
         captured = capsys.readouterr()

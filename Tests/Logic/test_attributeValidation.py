@@ -10,7 +10,7 @@ class TestValidatorRequiredAttributes:
     """Tests for required attribute validation"""
 
     def test_valid_data_passes(self, validator: Validator) -> None:
-        validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
     def test_missing_first_name(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="Missing required attributes"):
@@ -30,7 +30,7 @@ class TestValidatorRequiredAttributes:
 
     def test_unexpected_attribute(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="Unexpected attribute"):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "email": "test@test.com"})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration", "email": "test@test.com"})
 
 class TestValidateSingleAttribute:
     """Tests for validate_attribute"""
@@ -43,6 +43,9 @@ class TestValidateSingleAttribute:
 
     def test_validate_status(self, validator: Validator) -> None:
         assert validator.validate_attribute("status", "active") == "active"
+
+    def test_validate_justification(self, validator: Validator) -> None:
+        assert validator.validate_attribute("justification", "New user") == "New User"
 
     def test_invalid_attribute_name(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="No validation defined for attribute"):
@@ -75,91 +78,91 @@ class TestValidatorStringFields:
     """Tests for string validation"""
 
     def test_strips_whitespace(self, validator: Validator) -> None:
-        data = {"firstName": "  John  ", "surname": "Smith", "dateOfBirth": "2000-01-01"}
+        data = {"firstName": "  John  ", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"}
         validator.validate_all_attributes(data)
         assert data["firstName"] == "John"
 
     def test_title_cases(self, validator: Validator) -> None:
-        data = {"firstName": "john", "surname": "SMITH", "dateOfBirth": "2000-01-01"}
+        data = {"firstName": "john", "surname": "SMITH", "dateOfBirth": "2000-01-01", "justification": "New registration"}
         validator.validate_all_attributes(data)
         assert data["firstName"] == "John"
 
     def test_strings_with_spaces(self, validator: Validator) -> None:
-        data = {"firstName": "John Jr", "surname": "Smith", "dateOfBirth": "2000-01-01"}
+        data = {"firstName": "John Jr", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"}
         validator.validate_all_attributes(data)
         assert data["firstName"] == "John Jr"
 
     def test_strings_with_numbers(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="cannot contain numbers or special characters"):
-            validator.validate_all_attributes({"firstName": "John123", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+            validator.validate_all_attributes({"firstName": "John123", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
     def test_strings_with_special_characters(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="cannot contain numbers or special characters"):
-            validator.validate_all_attributes({"firstName": "John!", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+            validator.validate_all_attributes({"firstName": "John!", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
     def test_empty_strings(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="cannot contain numbers or special characters"):
-            validator.validate_all_attributes({"firstName": "", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+            validator.validate_all_attributes({"firstName": "", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
     def test_whitespace_only_strings(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="cannot contain numbers or special characters"):
-            validator.validate_all_attributes({"firstName": "   ", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+            validator.validate_all_attributes({"firstName": "   ", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
     def test_non_string(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="must be a string"):
-            validator.validate_all_attributes({"firstName": 123, "surname": "Smith", "dateOfBirth": "2000-01-01"})
+            validator.validate_all_attributes({"firstName": 123, "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
     def test_first_name(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="cannot contain numbers or special characters"):
-            validator.validate_all_attributes({"firstName": "John123", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+            validator.validate_all_attributes({"firstName": "John123", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
     def test_surname(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="cannot contain numbers or special characters"):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith123", "dateOfBirth": "2000-01-01"})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith123", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
 class TestValidatorDateOfBirth:
     """Tests for date of birth validation"""
 
     def test_valid_date(self, validator: Validator) -> None:
-        validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+        validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
 
     def test_non_string_date(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="must be a string"):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": 20000101})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": 20000101, "justification": "New registration"})
 
     def test_wrong_format(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="YYYY-MM-DD"):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "01-01-2000"})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "01-01-2000", "justification": "New registration"})
 
     def test_slashes_instead_of_dashes(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="YYYY-MM-DD"):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000/01/01"})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000/01/01", "justification": "New registration"})
 
     def test_non_date_string(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="YYYY-MM-DD"):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "hello"})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "hello", "justification": "New registration"})
 
     def test_invalid_month(self, validator: Validator) -> None:
         with pytest.raises(ValueError):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-13-01"})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-13-01", "justification": "New registration"})
 
     def test_invalid_day(self, validator: Validator) -> None:
         with pytest.raises(ValueError):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-02-31"})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-02-31", "justification": "New registration"})
 
     def test_future_date(self, validator: Validator) -> None:
         with pytest.raises(ValueError, match="cannot be in the future"):
-            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2099-01-01"})
+            validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": "2099-01-01", "justification": "New registration"})
 
     def test_today(self, validator: Validator) -> None:
         today = date.today().isoformat()
-        validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": today})
+        validator.validate_all_attributes({"firstName": "John", "surname": "Smith", "dateOfBirth": today, "justification": "New registration"})
 
 class TestValidatorDataPersistence:
     """Tests that validated data is cleaned in place"""
 
     def test_data_is_cleaned_in_place(self, validator: Validator) -> None:
-        data = {"firstName": "  john  ", "surname": "  SMITH  ", "dateOfBirth": "2000-01-01"}
+        data = {"firstName": "  john  ", "surname": "  SMITH  ", "dateOfBirth": "2000-01-01", "justification": "new registration"}
         validator.validate_all_attributes(data)
         assert data["firstName"] == "John"
         assert data["surname"] == "Smith"

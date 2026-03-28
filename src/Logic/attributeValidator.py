@@ -6,8 +6,8 @@ from Data.digitalID import Status
 class Validator:
     """Singleton validator for Digital ID attributes"""
 
-    REQUIRED_FIELDS = ["firstName", "surname", "dateOfBirth"]
-    STRING_FIELDS = ["firstName", "surname"]
+    REQUIRED_FIELDS = ["firstName", "surname", "dateOfBirth", "justification"]
+    STRING_FIELDS = ["firstName", "surname", "justification"]
     _instance = None
 
     def __new__(cls):
@@ -47,6 +47,7 @@ class Validator:
             "firstName": lambda value: self._validate_string(value, attribute),
             "surname": lambda value: self._validate_string(value, attribute),
             "status": lambda value: self._validate_status(value),
+            "justification": lambda value: self._validate_string(value, attribute),
         }
 
         if attribute not in VALIDATION_MAP:

@@ -11,21 +11,21 @@ def requests() -> Requests:
     DigitalIDService._instance = None
     Requests._instance = None
     req = Requests()
-    req.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"})
+    req.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
     return req
 
 class TestRequestsCreateID:
     """Tests for creating a Digital ID via the UI"""
 
     def test_create_id(self, requests: Requests, monkeypatch, capsys) -> None:
-        inputs = iter(["Bob", "Jones", "2005-01-01"])
+        inputs = iter(["Bob", "Jones", "2005-01-01", "New registration"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.create_id()
         captured = capsys.readouterr()
         assert "Digital ID created successfully" in captured.out
 
     def test_create_id_invalid_data(self, requests: Requests, monkeypatch, capsys) -> None:
-        inputs = iter(["John123", "Smith", "2000-01-01"])
+        inputs = iter(["John123", "Smith", "2000-01-01", "New registration"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.create_id()
         captured = capsys.readouterr()
@@ -41,7 +41,7 @@ class TestRequestsViewAllIDs:
         assert "John" in captured.out
 
     def test_filter(self, requests: Requests, monkeypatch, capsys) -> None:
-        requests.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01"})
+        requests.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
         inputs = iter(["2", "n", "n", "n", "y", "Smith", "n"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.view_all_ids()
@@ -49,8 +49,8 @@ class TestRequestsViewAllIDs:
         assert "John" in captured.out
 
     def test_multiple_filters(self, requests: Requests, monkeypatch, capsys) -> None:
-        requests.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01"})
-        requests.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Johnson", "dateOfBirth": "2015-01-01"})
+        requests.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
+        requests.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Johnson", "dateOfBirth": "2015-01-01", "justification": "New registration"})
         inputs = iter(["2", "n", "n", "y", "Bob", "y", "Jones", "n"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.view_all_ids()
@@ -60,7 +60,7 @@ class TestRequestsViewAllIDs:
         assert "Johnson" not in captured.out
 
     def test_filter_returns_all_when_no_params(self, requests: Requests, monkeypatch, capsys) -> None:
-        requests.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01"})
+        requests.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
         inputs = iter(["2", "n", "n", "n", "n", "n"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.view_all_ids()
@@ -89,7 +89,7 @@ class TestRequestsQueryID:
     """Tests for querying a Digital ID attribute via the UI"""
 
     def test_query_id(self, requests: Requests, monkeypatch, capsys) -> None:
-        inputs = iter(["1", "1"])
+        inputs = iter(["1", "1", "Status check"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.query_id()
         captured = capsys.readouterr()
@@ -113,7 +113,7 @@ class TestRequestsUpdateID:
     """Tests for updating a Digital ID attribute via the UI"""
 
     def test_update_id(self, requests: Requests, monkeypatch, capsys) -> None:
-        inputs = iter(["1", "1", "suspended"])
+        inputs = iter(["1", "1", "suspended", "Status change requested"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.update_id()
         captured = capsys.readouterr()
