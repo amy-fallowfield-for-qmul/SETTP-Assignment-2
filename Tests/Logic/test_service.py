@@ -34,12 +34,12 @@ class TestServiceCreateID:
         
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 1
-        create_log = logs[0]
+        create_log = list(logs.values())[0]
         assert create_log.action == Action.CREATE
         assert create_log.id_number == digital_id.id
         assert create_log.organisation == "Central Authority"
         assert create_log.justification == "New Registration"
-        assert create_log.current_value["firstName"] == "John"
+        assert create_log.current_value.first_name == "John"
         assert create_log.new_value is None
 
 class TestServiceGetAllIDs:
@@ -107,7 +107,7 @@ class TestServiceQueryAttribute:
         
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 2
-        query_log = logs[1]
+        query_log = list(logs.values())[1]
         assert query_log.action == Action.READ
         assert query_log.current_value == "active"
         assert query_log.new_value is None
@@ -132,7 +132,7 @@ class TestServiceUpdateID:
         
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 2
-        update_log = logs[1]
+        update_log = list(logs.values())[1]
         assert update_log.action == Action.UPDATE
         assert update_log.current_value == "John"
         assert update_log.new_value == "Alicia"

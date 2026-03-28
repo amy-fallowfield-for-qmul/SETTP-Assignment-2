@@ -16,7 +16,7 @@ class TestLogRepositoryAddAndGet:
         log = Log("NHS", 1, Action.CREATE, "New registration", "John Smith", None)
         log_repo.add(log)
         assert len(log_repo.get_all()) == 1
-        stored_log = log_repo.get_all()[0]
+        stored_log = log_repo.get_from_id(log.id)
 
         start_time = datetime.now()
         assert stored_log.timestamp >= start_time.replace(microsecond=0)
@@ -36,7 +36,17 @@ class TestLogRepositoryAddAndGet:
         assert len(log_repo.get_all()) == 2
 
     def test_get_all_empty(self, log_repo: LogRepository) -> None:
-        assert log_repo.get_all() == []
+        assert log_repo.get_all() == {}
+
+    def test_get_from_id(self, log_repo: LogRepository) -> None:
+        log = Log("NHS", 1, Action.CREATE, "New registration", "John Smith", None)
+        log_repo.add(log)
+        retrieved_log = log_repo.get_from_id(log.id)
+        assert retrieved_log == log
+
+    def test_get_from_id_not_found(self, log_repo: LogRepository) -> None:
+        with pytest.raises(KeyError):
+            log_repo.get_from_id(999)
 
 class TestLogRepositoryCSV:
     """Tests for CSV save and load"""
@@ -61,18 +71,19 @@ class TestLogRepositoryCSV:
         with open(self.TEST_CSV_PATH, "r") as file:
             lines = file.readlines()
 
-        assert lines[0].strip() == "timestamp,organisation,digitalID,action,justification,currentValue,newValue"
+        assert lines[0].strip() == "id,timestamp,organisation,digitalID,action,justification,currentValue,newValue"
         data_line = lines[1].strip().split(",")
         start_time = datetime.now()
-        csv_timestamp = datetime.strptime(data_line[0], "%d/%m/%Y - %H:%M:%S")
+        assert data_line[0] == str(log.id)
+        csv_timestamp = datetime.strptime(data_line[1], "%d/%m/%Y - %H:%M:%S")
         assert csv_timestamp >= start_time.replace(microsecond=0)
         assert csv_timestamp <= datetime.now()
-        assert data_line[1] == "NHS"
-        assert data_line[2] == "1"
-        assert data_line[3] == "create"
-        assert data_line[4] == "New registration"
-        assert data_line[5] == "John Smith"
-        assert data_line[6] == ""
+        assert data_line[2] == "NHS"
+        assert data_line[3] == "1"
+        assert data_line[4] == "create"
+        assert data_line[5] == "New registration"
+        assert data_line[6] == "John Smith"
+        assert data_line[7] == ""
 
     def test_save_empty_csv(self, monkeypatch) -> None:
         monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
@@ -83,7 +94,7 @@ class TestLogRepositoryCSV:
             lines = file.readlines()
 
         assert len(lines) == 1
-        assert lines[0].strip() == "timestamp,organisation,digitalID,action,justification,currentValue,newValue"
+        assert lines[0].strip() == "id,timestamp,organisation,digitalID,action,justification,currentValue,newValue"
 
     def test_load_from_csv(self, monkeypatch) -> None:
         monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
@@ -99,8 +110,9 @@ class TestLogRepositoryCSV:
         new_repo.load_from_csv()
 
         assert len(new_repo.get_all()) == 2
-        assert new_repo.get_all()[0].organisation == "NHS"
-        assert new_repo.get_all()[1].organisation == "HMRC"
+        logs = list(new_repo.get_all().values())
+        assert logs[0].organisation == "NHS"
+        assert logs[1].organisation == "HMRC"
 
     def test_load_empty_csv(self, monkeypatch) -> None:
         monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)

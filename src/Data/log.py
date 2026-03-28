@@ -12,30 +12,40 @@ class Action(Enum):
 
 class Log:
     """Stores data model for each individual log entry"""
+    
+    _next_id = 1
 
     def __init__(self, organisation: str, id_number: int, action: Action, justification: str, current_value: Union[str, DigitalID], new_value: Optional[str]) -> None:
+        self._id: int = Log._next_id
+        Log._next_id += 1
         self._timestamp: datetime = datetime.now()
         self._organisation: str = organisation
         self._id_number: int = id_number
         self._action: Action = action
         self._justification: str = justification
-        self._current_value: Union[str, Dict] = current_value.to_dict() if isinstance(current_value, DigitalID) else current_value
+        self._current_value: Union[str, DigitalID] = current_value
         self._new_value: Optional[str] = new_value
 
     @classmethod
-    def from_csv_row(cls, row: List[str]) -> "Log":
+    def from_csv(cls, attributes: Dict[str, str]) -> "Log":
         log = cls.__new__(cls)
-        log._timestamp = datetime.strptime(row[0], "%d/%m/%Y - %H:%M:%S")
-        log._organisation = row[1]
-        log._id_number = int(row[2])
-        log._action = Action(row[3])
-        log._justification = row[4]
-        log._current_value = row[5]
-        log._new_value = row[6] if row[6] != "None" else None
+        log._id = int(attributes["id"])
+        log._timestamp = datetime.strptime(attributes["timestamp"], "%d/%m/%Y - %H:%M:%S")
+        log._organisation = attributes["organisation"]
+        log._id_number = int(attributes["digitalID"])
+        log._action = Action(attributes["action"])
+        log._justification = attributes["justification"]
+        log._current_value = attributes["currentValue"]
+        log._new_value = attributes["newValue"] if attributes["newValue"] != "None" else None
+        
+        if log._id >= cls._next_id:
+            cls._next_id = log._id + 1
+        
         return log
 
     def get_row(self) -> List[object]:
         return [
+            self._id,
             self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
             self._organisation,
             str(self._id_number),
@@ -44,6 +54,10 @@ class Log:
             self._current_value,
             self._new_value
         ]
+    
+    @property
+    def id(self) -> int:
+        return self._id
 
     @property
     def timestamp(self) -> datetime:
@@ -72,3 +86,29 @@ class Log:
     @property
     def new_value(self) -> Optional[str]:
         return self._new_value
+
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "id": self._id,
+            "timestamp": self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
+            "organisation": self._organisation,
+            "digitalID": str(self._id_number),
+            "action": self._action.value,
+            "justification": self._justification,
+            "currentValue": self._current_value.to_dict() if isinstance(self._current_value, DigitalID) else str(self._current_value),
+            "newValue": str(self._new_value) if self._new_value else "None"
+        }
+
+    def print(self) -> None:
+        match(self._action):
+            case Action.CREATE:
+                if isinstance(self._current_value, DigitalID):
+                    value_string = f"ID: {self._current_value.id}, Name: {self._current_value.first_name} {self._current_value.surname}, DOB: {self._current_value.date_of_birth}, Status: {self._current_value.status.value}"
+                else:
+                    value_string = str(self._current_value)
+            case Action.READ:
+                value_string = str(self._current_value)
+            case Action.UPDATE:
+                value_string = f"{self._current_value} -> {self._new_value}"
+        print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] requested to {self._action.value} ID {self._id_number} because {self._justification} [{value_string}]")
+
