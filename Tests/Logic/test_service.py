@@ -27,7 +27,7 @@ class TestServiceCreateID:
         assert digital_id.first_name == "John"
         assert digital_id.surname == "Smith"
         assert digital_id.date_of_birth == "2000-01-01"
-        assert len(service.get_all()) == 1
+        assert len(service.get_all_ids()) == 1
 
     def test_create_id_creates_log(self, service: DigitalIDService) -> None:
         digital_id = service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
@@ -46,12 +46,12 @@ class TestServiceGetAllIDs:
     """Tests for retrieving all Digital IDs"""
 
     def test_get_all_empty(self, service: DigitalIDService) -> None:
-        assert service.get_all() == {}
+        assert service.get_all_ids() == {}
 
     def test_get_all(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
-        assert len(service.get_all()) == 2
+        assert len(service.get_all_ids()) == 2
 
 class TestServiceFilterIDs:
     """Tests for filtering Digital IDs by attributes"""
@@ -59,28 +59,37 @@ class TestServiceFilterIDs:
     def test_filter_by_attribute(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
-        filtered = service.get_filtered_ids({"firstName": "John"})
+        filtered = service.get_filtered_data({"data": "digitalID", "firstName": "John"})
         assert len(filtered) == 1
 
     def test_filter_no_matches(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        filtered = service.get_filtered_ids({"firstName": "Bob"})
+        filtered = service.get_filtered_data({"data": "digitalID", "firstName": "Bob"})
         assert len(filtered) == 0
 
     def test_filter_case_insensitive_name(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        assert len(service.get_filtered_ids({"firstName": "JOHN"})) == 1
-        assert len(service.get_filtered_ids({"firstName": "john"})) == 1
-        assert len(service.get_filtered_ids({"firstName": "jOhN"})) == 1
+        assert len(service.get_filtered_data({"data": "digitalID", "firstName": "JOHN"})) == 1
+        assert len(service.get_filtered_data({"data": "digitalID", "firstName": "john"})) == 1
+        assert len(service.get_filtered_data({"data": "digitalID", "firstName": "jOhN"})) == 1
 
     def test_filter_case_insensitive_status(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        assert len(service.get_filtered_ids({"status": "ACTIVE"})) == 1
-        assert len(service.get_filtered_ids({"status": "Active"})) == 1
+        assert len(service.get_filtered_data({"data": "digitalID", "status": "ACTIVE"})) == 1
+        assert len(service.get_filtered_data({"data": "digitalID", "status": "Active"})) == 1
 
     def test_filter_invalid_field(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="Invalid filter field"):
-            service.get_filtered_ids({"badAttribute": "hello123"})
+            service.get_filtered_data({"data": "digitalID", "badAttribute": "hello123"})
+
+class TestServiceFilterLogs:
+    """Tests for filtering logs by attributes"""
+
+    def test_filter_by_attribute(self, service: DigitalIDService) -> None:
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
+        filtered = service.get_filtered_data({"data": "log", "digitalID": "1"})
+        assert len(filtered) == 1
 
 class TestServiceGetIDByNumber:
     """Tests for retrieving a Digital ID by its number"""
