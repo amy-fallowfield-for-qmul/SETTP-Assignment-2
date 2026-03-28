@@ -72,6 +72,17 @@ class DigitalIDService:
             return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
+        
+    def query_attribute(self, id_number: int, attribute: str, justification: str) -> str:
+        digital_id = self.get_id_by_number(id_number)
+        
+        attribute_value = digital_id.to_dict()[attribute]
+        validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+        
+        log = Log("External Organisation", id_number, Action.READ, validated_justification, str(attribute_value), None)
+        self.LOG_REPOSITORY.add(log)
+        
+        return str(attribute_value)
 
     def update_id(self, id_number: int, attribute: str, value: Any, justification) -> None:
         digital_id = self.get_id_by_number(id_number)
@@ -102,8 +113,7 @@ class DigitalIDService:
         self.LOG_REPOSITORY.add(log)
 
         SETTER_MAP[attribute](validated_value)
-
-        
+  
     def load_csv_data(self) -> None:
         try:
             self.DIGITAL_ID_REPOSITORY.load_from_csv()

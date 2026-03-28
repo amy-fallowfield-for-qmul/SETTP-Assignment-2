@@ -75,7 +75,9 @@ class Requests:
         try:
             id_subject = self._get_id_subject()
             attribute_choice = self._get_attribute_subject("query")
-            current_value = id_subject.to_dict()[attribute_choice]
+            justification = input("Enter justification for query: ")
+            
+            current_value = self.DIGITAL_ID_SERVICE.query_attribute(id_subject.id, attribute_choice, justification)
 
             print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value}")
