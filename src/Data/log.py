@@ -23,7 +23,7 @@ class Log:
         self._id_number: int = id_number
         self._action: Action = action
         self._justification: str = justification
-        self._current_value: Union[str, Dict] = current_value.to_dict() if isinstance(current_value, DigitalID) else current_value
+        self._current_value: Union[str, DigitalID] = current_value
         self._new_value: Optional[str] = new_value
 
     @classmethod
@@ -95,19 +95,20 @@ class Log:
             "digitalID": str(self._id_number),
             "action": self._action.value,
             "justification": self._justification,
-            "currentValue": str(self._current_value),
+            "currentValue": self._current_value.to_dict() if isinstance(self._current_value, DigitalID) else str(self._current_value),
             "newValue": str(self._new_value) if self._new_value else "None"
         }
 
     def print(self) -> None:
-        """Print formatted log entry for display"""
-        print(f"Log ID: {self._id}")
-        print(f"Timestamp: {self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}")
-        print(f"Organisation: {self._organisation}")
-        print(f"Digital ID: {self._id_number}")
-        print(f"Action: {self._action.value}")
-        print(f"Justification: {self._justification}")
-        print(f"Current Value: {self._current_value}")
-        if self._new_value:
-            print(f"New Value: {self._new_value}")
-        print("-" * 50)
+        match(self._action):
+            case Action.CREATE:
+                if isinstance(self._current_value, DigitalID):
+                    value_string = f"ID: {self._current_value.id}, Name: {self._current_value.first_name} {self._current_value.surname}, DOB: {self._current_value.date_of_birth}, Status: {self._current_value.status.value}"
+                else:
+                    value_string = str(self._current_value)
+            case Action.READ:
+                value_string = str(self._current_value)
+            case Action.UPDATE:
+                value_string = f"{self._current_value} -> {self._new_value}"
+        print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] requested to {self._action.value} ID {self._id_number} because {self._justification} [{value_string}]")
+

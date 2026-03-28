@@ -24,6 +24,9 @@ class RepositoryABC(ABC):
     def add(self, object: object) -> None: pass
 
     @abstractmethod
+    def get_from_id(self, object: object) -> object: pass
+
+    @abstractmethod
     def get_all(self) -> Union[Dict, List]: pass
 
     @abstractmethod

@@ -13,8 +13,8 @@ class LogRepository(RepositoryABC):
     def add(self, log: Log) -> None:
         self._repository[log.id] = log
 
-    def get_from_id(self, log_id: int) -> Log:
-        return self._repository[log_id]
+    def get_from_id(self, id: int) -> Log:
+        return self._repository[id]
 
     def get_all(self) -> Dict[int, Log]:
         return self._repository
