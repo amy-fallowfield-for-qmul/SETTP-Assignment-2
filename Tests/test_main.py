@@ -40,7 +40,7 @@ class TestProgramGenerateOptions:
 
     def test_view_all_option(self, program: Program, monkeypatch, capsys) -> None:
         program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "Test data"})
-        inputs = iter(["2", "1"])
+        inputs = iter(["4", "1"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
         captured = capsys.readouterr()
@@ -49,7 +49,7 @@ class TestProgramGenerateOptions:
     def test_filter_option(self, program: Program, monkeypatch, capsys) -> None:
         program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
         program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
-        inputs = iter(["2", "2", "n", "n", "y", "Bob", "n", "n"])
+        inputs = iter(["4", "2", "n", "n", "y", "Bob", "n", "n"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
         captured = capsys.readouterr()
@@ -57,7 +57,7 @@ class TestProgramGenerateOptions:
 
     def test_query_id_option(self, program: Program, monkeypatch, capsys) -> None:
         program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        inputs = iter(["3", "1", "1", "Status check"])
+        inputs = iter(["2", "1", "1", "Status check"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
         captured = capsys.readouterr()
@@ -65,14 +65,14 @@ class TestProgramGenerateOptions:
 
     def test_update_id_option(self, program: Program, monkeypatch, capsys) -> None:
         program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        inputs = iter(["4", "1", "1", "suspended", "Status change requested"])
+        inputs = iter(["3", "1", "1", "suspended", "Status change requested"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         program.generate_options()
         captured = capsys.readouterr()
         assert "active -> suspended" in captured.out
 
     def test_exit_option(self, program: Program, monkeypatch) -> None:
-        monkeypatch.setattr("builtins.input", lambda _="": "5")
+        monkeypatch.setattr("builtins.input", lambda _="": "6")
         with pytest.raises(SystemExit):
             program.generate_options()
 

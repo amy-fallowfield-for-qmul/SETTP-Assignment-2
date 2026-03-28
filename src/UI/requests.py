@@ -1,6 +1,6 @@
 from Logic.service import DigitalIDService
 from Data.digitalID import DigitalID
-from constants import SEPARATION_WIDTH
+from constants import SEPARATION_WIDTH, LOG_HEADERS
 
 class Requests:
     """Singleton request handler for the UI layer"""
@@ -39,7 +39,7 @@ class Requests:
         except Exception as e:
             print(f"Error creating Digital ID: {e}")
 
-    def view_all_ids(self) -> None:
+    def view_all(self, data: str) -> None:
         print("\nPlease select an option:")
         print("1. View all data")
         print("2. Filter data")
@@ -52,15 +52,18 @@ class Requests:
             print("Invalid choice")
             return
         
+        attribute_list = self.DIGITAL_ID_FIELDS if data == "digitalID" else LOG_HEADERS
+        
         if choice == 1:
-            all_ids = self.DIGITAL_ID_SERVICE.get_all()
+            all_ids = self.DIGITAL_ID_SERVICE.get_all_ids() if data == "digitalID" else self.DIGITAL_ID_SERVICE.get_all_logs()
         else:
             params = {}
-            for attribute in self.DIGITAL_ID_FIELDS:
+            params["data"] = data
+            for attribute in attribute_list:
                 filter_choice = input(f"Filter data by {attribute} value [Y/N]: ")
                 if filter_choice.lower() == "y":
                     params[attribute] = input(f"Enter value for {attribute}: ")
-            all_ids = self.DIGITAL_ID_SERVICE.get_filtered_ids(params)
+            all_ids = self.DIGITAL_ID_SERVICE.get_filtered_data(params)
 
         if not all_ids:
             print("No Digital IDs found")
