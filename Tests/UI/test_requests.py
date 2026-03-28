@@ -89,7 +89,7 @@ class TestRequestsQueryID:
     """Tests for querying a Digital ID attribute via the UI"""
 
     def test_query_id(self, requests: Requests, monkeypatch, capsys) -> None:
-        inputs = iter(["1", "1"])
+        inputs = iter(["1", "1", "Status check"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         requests.query_id()
         captured = capsys.readouterr()

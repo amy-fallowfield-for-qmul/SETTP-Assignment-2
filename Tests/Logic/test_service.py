@@ -93,6 +93,31 @@ class TestServiceGetIDByNumber:
         with pytest.raises(ValueError, match="not found"):
             service.get_id_by_number(99)
 
+class TestServiceQueryAttribute:
+    """Tests for querying a Digital ID attribute via the service"""
+
+    def test_query_attribute(self, service: DigitalIDService) -> None:
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        result = service.query_attribute(1, "firstName", "External audit")
+        assert result == "John"
+
+    def test_query_attribute_creates_log(self, service: DigitalIDService) -> None:
+        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.query_attribute(1, "status", "Status verification")
+        
+        logs = service.LOG_REPOSITORY.get_all()
+        assert len(logs) == 2
+        query_log = logs[1]
+        assert query_log.action == Action.READ
+        assert query_log.current_value == "active"
+        assert query_log.new_value is None
+        assert query_log.justification == "Status Verification"
+        assert query_log.organisation == "External Organisation"
+
+    def test_query_attribute_not_found(self, service: DigitalIDService) -> None:
+        with pytest.raises(ValueError, match="not found"):
+            service.query_attribute(99, "firstName", "External audit")
+
 class TestServiceUpdateID:
     """Tests for updating Digital ID attributes via the service"""
 
