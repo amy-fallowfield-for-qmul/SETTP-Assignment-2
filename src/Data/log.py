@@ -13,10 +13,11 @@ class Log:
     
     _next_id = 1
 
-    def __init__(self, organisation: str, id_number: int, action: Action, justification: str, current_value: Union[str, DigitalID], new_value: Optional[str]) -> None:
+    def __init__(self, accepted: bool, organisation: str, id_number: int, action: Action, justification: str, current_value: Union[str, DigitalID], new_value: Optional[str]) -> None:
         self._id: int = Log._next_id
         Log._next_id += 1
         self._timestamp: datetime = datetime.now()
+        self._accepted: bool = accepted
         self._organisation: str = organisation
         self._id_number: int = id_number
         self._action: Action = action
@@ -29,6 +30,7 @@ class Log:
         log = cls.__new__(cls)
         log._id = int(attributes["id"])
         log._timestamp = datetime.strptime(attributes["timestamp"], "%d/%m/%Y - %H:%M:%S")
+        log._accepted = True if attributes["accepted"] == "True" else False
         log._organisation = attributes["organisation"]
         log._id_number = int(attributes["digitalID"])
         log._action = Action(attributes["action"])
@@ -45,6 +47,7 @@ class Log:
         return [
             self._id,
             self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
+            self._accepted,
             self._organisation,
             str(self._id_number),
             self._action.value,
@@ -74,6 +77,10 @@ class Log:
         return self._action
     
     @property
+    def accepted(self) -> bool:
+        return self._accepted
+    
+    @property
     def justification(self) -> str:
         return self._justification
     
@@ -89,6 +96,7 @@ class Log:
         return {
             "id": self._id,
             "timestamp": self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
+            "accepted": self._accepted,
             "organisation": self._organisation,
             "digitalID": str(self._id_number),
             "action": self._action.value,
@@ -108,5 +116,6 @@ class Log:
                 value_string = str(self._current_value)
             case Action.UPDATE:
                 value_string = f"{self._current_value} -> {self._new_value}"
-        print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] requested to {self._action.value} ID {self._id_number} because {self._justification} [{value_string}]")
+        accepted_string = "ACCEPTED" if self._accepted else "REJECTED"
+        print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] Requested to {self._action.value} ID {self._id_number} to [{value_string}] because {self._justification} was {accepted_string}")
 
