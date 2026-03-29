@@ -112,7 +112,14 @@ class Requests:
         self.DIGITAL_ID_SERVICE.load_csv_data()
 
     def exit_program(self) -> None:
-        self.DIGITAL_ID_SERVICE.save_csv_data()
+        try:
+            self.DIGITAL_ID_SERVICE.save_csv_data()
+            print("Data saved successfully")
+        except Exception as e:
+            print(f"Warning, failed to save data: {e}")
+            response = input("Continue with exit anyway? [Y/N]: ")
+            if response.lower() != "y":
+                return
         exit()
 
     def _get_id_subject(self) -> DigitalID:
