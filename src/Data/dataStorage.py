@@ -24,7 +24,7 @@ class DataStorage:
                 for row in rows:
                     writer.writerow(row)
         except Exception as e:
-            raise(e)
+            raise IOError(f"Failed to save CSV file at {path}: {e}")
 
     def load_from_csv(self, path: str) -> List[List[str]]:
         try:
@@ -32,5 +32,7 @@ class DataStorage:
                 reader = csv.reader(file)
                 next(reader)
                 return [row for row in reader]
+        except FileNotFoundError:
+            raise FileNotFoundError(f"CSV file not found at {path}")
         except Exception as e:
-            raise(e)
+            raise IOError(f"Failed to load CSV file from {path}: {e}")

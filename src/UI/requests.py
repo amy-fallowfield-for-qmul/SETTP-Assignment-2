@@ -1,13 +1,11 @@
 from Logic.service import DigitalIDService
 from Data.digitalID import DigitalID
-from constants import SEPARATION_WIDTH, LOG_HEADERS
+from constants import SEPARATION_WIDTH, LOG_HEADERS, DIGITAL_ID_ALL_FIELDS
 
 class Requests:
     """Singleton request handler for the UI layer"""
 
-    DIGITAL_ID_FIELDS = ["id", "status", "firstName", "surname", "dateOfBirth"]
     MUTABLE_FIELDS = ["status", "firstName", "surname"]
-    SEPARATION_WIDTH = 100
     _instance = None
 
     def __new__(cls) -> "Requests":
@@ -52,7 +50,7 @@ class Requests:
             print("Invalid choice")
             return
         
-        attribute_list = self.DIGITAL_ID_FIELDS if data == "digitalID" else LOG_HEADERS
+        attribute_list = DIGITAL_ID_ALL_FIELDS if data == "digitalID" else LOG_HEADERS
         
         if choice == 1:
             all_ids = self.DIGITAL_ID_SERVICE.get_all_ids() if data == "digitalID" else self.DIGITAL_ID_SERVICE.get_all_logs()
@@ -66,7 +64,8 @@ class Requests:
             all_ids = self.DIGITAL_ID_SERVICE.get_filtered_data(params)
 
         if not all_ids:
-            print("No Digital IDs found")
+            data_type_name = "Digital IDs" if data == "digitalID" else "logs"
+            print(f"No {data_type_name} found")
             return
 
         print("=" * SEPARATION_WIDTH)
@@ -100,7 +99,7 @@ class Requests:
                 print("No value entered")
                 return
 
-            justification = input("Enter justification for creation: ")
+            justification = input("Enter justification for update: ")
             self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value, justification)
 
             print("=" * SEPARATION_WIDTH)
@@ -113,7 +112,14 @@ class Requests:
         self.DIGITAL_ID_SERVICE.load_csv_data()
 
     def exit_program(self) -> None:
-        self.DIGITAL_ID_SERVICE.save_csv_data()
+        try:
+            self.DIGITAL_ID_SERVICE.save_csv_data()
+            print("Data saved successfully")
+        except Exception as e:
+            print(f"Warning, failed to save data: {e}")
+            response = input("Continue with exit anyway? [Y/N]: ")
+            if response.lower() != "y":
+                return
         exit()
 
     def _get_id_subject(self) -> DigitalID:
@@ -125,7 +131,7 @@ class Requests:
             raise ValueError("Invalid ID")
 
     def _get_attribute_subject(self, action: str) -> str:
-        fields = self.DIGITAL_ID_FIELDS[1:] if action == "query" else self.MUTABLE_FIELDS
+        fields = DIGITAL_ID_ALL_FIELDS[1:] if action == "query" else self.MUTABLE_FIELDS
 
         try:
             print(f"Please select the attribute you wish to {action}:")

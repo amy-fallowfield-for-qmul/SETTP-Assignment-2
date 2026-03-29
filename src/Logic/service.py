@@ -76,7 +76,10 @@ class DigitalIDService:
         for data_id, data_object in all_data.items():
             data_dictionary = data_object.to_dict()
             filter_params = {attribute: value for attribute, value in params.items() if attribute != "data"}
-            if all(str(data_dictionary.get(key)).lower() == str(value).lower() for key, value in filter_params.items()):
+
+            if not filter_params:
+                filtered_data[data_id] = data_object
+            elif all(str(data_dictionary.get(key)).lower() == str(value).lower() for key, value in filter_params.items()):
                 filtered_data[data_id] = data_object
 
         return filtered_data
