@@ -3,68 +3,33 @@ import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from UI.requests import Requests
 from constants import SEPARATION_WIDTH
+from centralAuthorityMain import CentralAuthorityMain
+from otherOrganisationsMain import OtherOrganisationMain
 
-class Program:
-    """Singleton entry point for the Digital ID System"""
-
-    _instance = None
-
-    def __new__(cls) -> "Program":
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def __init__(self) -> None:
-        if not hasattr(self, '_initialised'):
-            self._initialised = True
-            self.REQUESTS = Requests()
-            self.start_program()
-            self.main()
-
-    def main(self) -> None:
-        while True:
-            self.generate_options()
-
-    def start_program(self) -> None:
-        print("=" * SEPARATION_WIDTH)
-        print("Welcome to the Digital ID System")
-        print("=" * SEPARATION_WIDTH)
+def select_user_type():
+    print("=" * SEPARATION_WIDTH)
+    print("Welcome to the Digital ID System")
+    print("=" * SEPARATION_WIDTH)
+    
+    while True:
+        print("\nPlease select your organization type:")
+        print("1. Central Authority")
+        print("2. Other Organisation")
+        print("3. Exit")
         
-        self.REQUESTS.start_program()
-
-    def generate_options(self) -> None:
-        print("\nPlease select an option:")
-        print("1. Create a new Digital ID")
-        print("2. Query Digital ID by ID")
-        print("3. Update a Digital ID")
-        print("===== Central Authority Only =====")
-        print("4. View all Digital ID data")
-        print("5. View all log data")
-        print("6. Exit\n")
-
         try:
             choice = int(input())
+            if choice == 1:
+                CentralAuthorityMain()
+            elif choice == 2:
+                OtherOrganisationMain()
+            elif choice == 3:
+                exit()
+            else:
+                raise()
         except ValueError:
-            print("Invalid choice")
-            return
-
-        match(choice):
-            case 1:
-                self.REQUESTS.create_id()
-            case 2:
-                self.REQUESTS.query_id()
-            case 3:
-                self.REQUESTS.update_id()
-            case 4:
-                self.REQUESTS.view_all("digitalID")
-            case 5:
-                self.REQUESTS.view_all("log")
-            case 6:
-                self.REQUESTS.exit_program()
-            case _:
-                print("Invalid choice")
+            print("Invalid input")
 
 if __name__ == "__main__":
-    program = Program()
+    select_user_type()

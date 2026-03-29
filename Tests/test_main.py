@@ -1,89 +1,81 @@
 import pytest
-from main import Program
-from UI.requests import Requests
-from Data.digitalID import DigitalID
-from Data.digitalIDRepository import DigitalIDRepository
-from Logic.service import DigitalIDService
+from unittest.mock import patch, MagicMock
+import main
 
-@pytest.fixture
-def program(monkeypatch) -> Program:
-    DigitalID._next_id = 1
-    DigitalIDRepository._instance = None
-    DigitalIDService._instance = None
-    Requests._instance = None
-    Program._instance = None
+class TestMainEntryPointUserSelection:
+    """Tests for the main.py entry point user selection functionality"""
 
-    monkeypatch.setattr(Program, "start_program", lambda self: None)
-    monkeypatch.setattr(Program, "main", lambda self: None)
+    def test_select_central_authority(self, monkeypatch) -> None:
+        inputs = iter(["1"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+        
+        with patch('main.CentralAuthorityMain') as mock_central:
+            mock_instance = MagicMock()
+            mock_central.return_value = mock_instance
+            
+            try:
+                main.select_user_type()
+            except StopIteration:
+                pass
+            
+            mock_central.assert_called_once()
 
-    program = Program()
-    return program
+    def test_select_other_organisation(self, monkeypatch) -> None:
+        
+        inputs = iter(["2"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+        
+        with patch('main.OtherOrganisationMain') as mock_other:
+            mock_instance = MagicMock()
+            mock_other.return_value = mock_instance
+            
+            try:
+                main.select_user_type()
+            except StopIteration:
+                pass
+            
+            mock_other.assert_called_once()
 
-class TestProgramStartProgram:
-    """Tests for start_program"""
+    def test_invalid_non_numeric_input_handling(self, monkeypatch, capsys) -> None:
+        inputs = iter(["abc", "3"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+        
+        with pytest.raises(SystemExit):
+            main.select_user_type()
+        
+        captured = capsys.readouterr()
+        assert "Invalid input" in captured.out
 
-    def test_start_program_prints_welcome(self, program: Program, monkeypatch, capsys) -> None:
-        monkeypatch.undo()
-        program.start_program()
+    def test_welcome_message(self, monkeypatch, capsys) -> None:
+        monkeypatch.setattr("builtins.input", lambda _="": "3")
+        
+        with pytest.raises(SystemExit):
+            main.select_user_type()
+        
         captured = capsys.readouterr()
         assert "Welcome to the Digital ID System" in captured.out
+        assert "=" * 100 in captured.out
 
-class TestProgramGenerateOptions:
-    """Tests for generate_options menu routing"""
-
-    def test_create_id_option(self, program: Program, monkeypatch, capsys) -> None:
-        inputs = iter(["1", "John", "Smith", "2000-01-01", "New registration"])
-        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        program.generate_options()
-        captured = capsys.readouterr()
-        assert "Digital ID created successfully" in captured.out
-
-    def test_view_all_option(self, program: Program, monkeypatch, capsys) -> None:
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "Test data"})
-        inputs = iter(["4", "1"])
-        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        program.generate_options()
-        captured = capsys.readouterr()
-        assert "John" in captured.out
-
-    def test_filter_option(self, program: Program, monkeypatch, capsys) -> None:
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
-        inputs = iter(["4", "2", "n", "n", "y", "Bob", "n", "n"])
-        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        program.generate_options()
-        captured = capsys.readouterr()
-        assert "Bob" in captured.out
-
-    def test_query_id_option(self, program: Program, monkeypatch, capsys) -> None:
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        inputs = iter(["2", "1", "1", "Status check"])
-        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        program.generate_options()
-        captured = capsys.readouterr()
-        assert "status" in captured.out
-
-    def test_update_id_option(self, program: Program, monkeypatch, capsys) -> None:
-        program.REQUESTS.DIGITAL_ID_SERVICE.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        inputs = iter(["3", "1", "1", "suspended", "Status change requested"])
-        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        program.generate_options()
-        captured = capsys.readouterr()
-        assert "active -> suspended" in captured.out
-
-    def test_exit_option(self, program: Program, monkeypatch) -> None:
-        monkeypatch.setattr("builtins.input", lambda _="": "6")
+    def test_menu_options_displayed_correctly(self, monkeypatch, capsys) -> None:
+        monkeypatch.setattr("builtins.input", lambda _="": "3")
+        
         with pytest.raises(SystemExit):
-            program.generate_options()
-
-    def test_invalid_choice_non_numeric(self, program: Program, monkeypatch, capsys) -> None:
-        monkeypatch.setattr("builtins.input", lambda _="": "abc")
-        program.generate_options()
+            main.select_user_type()
+        
         captured = capsys.readouterr()
-        assert "Invalid choice" in captured.out
+        assert "Please select your organization type:" in captured.out
+        assert "1. Central Authority" in captured.out
+        assert "2. Other Organisation" in captured.out
+        assert "3. Exit" in captured.out
 
-    def test_invalid_choice_out_of_range(self, program: Program, monkeypatch, capsys) -> None:
-        monkeypatch.setattr("builtins.input", lambda _="": "9")
-        program.generate_options()
+    def test_retry_on_invalid_choice(self, monkeypatch, capsys) -> None:
+        inputs = iter(["abc", "xyz", "3"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+        
+        with pytest.raises(SystemExit):
+            main.select_user_type()
+        
         captured = capsys.readouterr()
-        assert "Invalid choice" in captured.out
+        
+        assert captured.out.count("Invalid input") >= 2
+        assert "Please select your organization type:" in captured.out
