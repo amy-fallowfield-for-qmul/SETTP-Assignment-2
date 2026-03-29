@@ -8,7 +8,6 @@ class CentralAuthorityMain(MainABC):
         print("1. Create a new Digital ID")
         print("2. Query Digital ID by ID")
         print("3. Update a Digital ID")
-        print("===== Central Authority Only =====")
         print("4. View all Digital ID data")
         print("5. View all log data")
         print("6. Exit\n")
