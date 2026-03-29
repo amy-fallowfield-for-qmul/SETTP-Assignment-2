@@ -6,8 +6,7 @@ class OtherOrganisationMain(MainABC):
     def generate_options(self) -> None:
         print("\nPlease select an option:")
         print("1. Query Digital ID by ID")
-        print("2. Update a Digital ID")
-        print("3. Exit\n")
+        print("2. Exit\n")
 
         try:
             choice = int(input())
@@ -19,8 +18,6 @@ class OtherOrganisationMain(MainABC):
             case 1:
                 self.REQUESTS.query_id()
             case 2:
-                self.REQUESTS.update_id()
-            case 3:
                 self.REQUESTS.exit_program()
             case _:
                 print("Invalid choice")

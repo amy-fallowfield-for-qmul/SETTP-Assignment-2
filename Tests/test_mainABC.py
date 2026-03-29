@@ -53,12 +53,12 @@ class TestCentralAuthoritySpecific:
         assert "1. Create a new Digital ID" in captured.out
         assert "2. Query Digital ID by ID" in captured.out  
         assert "3. Update a Digital ID" in captured.out
-        assert "===== Central Authority Only =====" in captured.out
         assert "4. View all Digital ID data" in captured.out
         assert "5. View all log data" in captured.out
         assert "6. Exit" in captured.out
 
-        assert "3. Exit" not in captured.out
+        assert "1. Query Digital ID by ID" not in captured.out
+        assert "2. Exit" not in captured.out
 
     def test_central_authority_can_use_extra_commands(self, central_program: CentralAuthorityMain, monkeypatch, capsys) -> None:
         inputs = iter(["5", "1"])
@@ -90,12 +90,11 @@ class TestOtherOrganisationSpecific:
         captured = capsys.readouterr()
         
         assert "1. Query Digital ID by ID" in captured.out
-        assert "2. Update a Digital ID" in captured.out
-        assert "3. Exit" in captured.out
+        assert "2. Exit" in captured.out
         
         assert "1. Create a new Digital ID" not in captured.out
-        assert "===== Central Authority Only =====" not in captured.out
-        assert "View all Digital ID data" not in captured.out
-        assert "View all log data" not in captured.out
-        assert "5." not in captured.out
-        assert "6." not in captured.out
+        assert "2. Query Digital ID by ID" not in captured.out  
+        assert "3. Update a Digital ID" not in captured.out
+        assert "4. View all Digital ID data" not in captured.out
+        assert "5. View all log data" not in captured.out
+        assert "6. Exit" not in captured.out
