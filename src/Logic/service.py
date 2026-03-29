@@ -96,7 +96,7 @@ class DigitalIDService:
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
         
-    def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: str, allowed_attributes: Optional[List[str]] = None) -> str:
+    def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: str = "Central Authority", allowed_attributes: Optional[List[str]] = None) -> str:
         safe_justification = justification if justification else "Unknown justification"
         
         try:
