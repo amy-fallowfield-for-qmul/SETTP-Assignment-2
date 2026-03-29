@@ -67,22 +67,31 @@ class TestCentralAuthoritySpecific:
         captured = capsys.readouterr()
         
         assert ("No logs found" in captured.out or "View all data" in captured.out)
+        
+class MockOrganisation(OtherOrganisationMain):
+    @property
+    def allowed_attributes(self):
+        return ["firstName", "surname"]
+    
+    @property
+    def organisation_name(self):
+        return "Test Organisation"
 
 class TestOtherOrganisationSpecific:
     """Tests for Other Organisation specific functionality"""
     
     @pytest.fixture  
-    def other_program(self, monkeypatch) -> OtherOrganisationMain:
+    def other_program(self, monkeypatch) -> MockOrganisation:
         DigitalID._next_id = 1
         DigitalIDRepository._instance = None
         DigitalIDService._instance = None
         Requests._instance = None
-        OtherOrganisationMain._instance = None
         
-        monkeypatch.setattr(OtherOrganisationMain, "start_program", lambda self: None)
-        monkeypatch.setattr(OtherOrganisationMain, "main", lambda self: None)
+        MockOrganisation._instance = None
+        monkeypatch.setattr(MockOrganisation, "start_program", lambda self: None)
+        monkeypatch.setattr(MockOrganisation, "main", lambda self: None)
         
-        return OtherOrganisationMain()
+        return MockOrganisation()
 
     def test_other_organisation(self, other_program: OtherOrganisationMain, monkeypatch, capsys) -> None:
         monkeypatch.setattr("builtins.input", lambda _="": "99")
