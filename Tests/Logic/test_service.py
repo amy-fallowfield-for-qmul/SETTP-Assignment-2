@@ -121,7 +121,7 @@ class TestServiceQueryAttribute:
         assert query_log.current_value == "active"
         assert query_log.new_value is None
         assert query_log.justification == "Status Verification"
-        assert query_log.organisation == "External Organisation"
+        assert query_log.organisation == "Central Authority"
 
     def test_query_attribute_not_found(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="not found"):

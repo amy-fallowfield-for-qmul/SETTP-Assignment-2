@@ -1,4 +1,4 @@
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, List, Optional
 from Logic.attributeValidator import Validator
 from Data.digitalIDRepository import DigitalIDRepository
 from Data.digitalID import DigitalID, Status
@@ -96,22 +96,25 @@ class DigitalIDService:
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
         
-    def query_attribute(self, id_number: int, attribute: str, justification: str) -> str:
+    def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: str = "Central Authority", allowed_attributes: Optional[List[str]] = None) -> str:
         safe_justification = justification if justification else "Unknown justification"
         
         try:
+            if allowed_attributes and attribute not in allowed_attributes:
+                raise ValueError(f"Access denied: {organisation} is not authorized to access '{attribute}' attribute")
+            
             digital_id = self.get_id_by_number(id_number)
             
             attribute_value = digital_id.to_dict()[attribute]
             validated_justification = self.VALIDATOR._validate_string(justification, "justification")
             
-            log = Log(True, "External Organisation", id_number, Action.READ, validated_justification, str(attribute_value), None)
+            log = Log(True, organisation, id_number, Action.READ, validated_justification, str(attribute_value), None)
             self.LOG_REPOSITORY.add(log)
             
             return str(attribute_value)
         except Exception as e:
             error_message = str(e)
-            failed_log = Log(False, "External Organisation", id_number, Action.READ, safe_justification, error_message, None)
+            failed_log = Log(False, organisation, id_number, Action.READ, safe_justification, error_message, None)
             self.LOG_REPOSITORY.add(failed_log)
             raise
 
