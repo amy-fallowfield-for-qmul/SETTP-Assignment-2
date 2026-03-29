@@ -24,6 +24,8 @@ class DigitalIDService:
             self.LOG_REPOSITORY = LogRepository()
 
     def create_id(self, data: Dict[str, Any]) -> DigitalID:
+        justification = data.get("justification", "Unknown justification")
+
         try:
             valid_data = self.VALIDATOR.validate_all_attributes(data)
 
@@ -35,13 +37,17 @@ class DigitalIDService:
             new_id = DigitalID(first_name, surname, date_of_birth)
             self.DIGITAL_ID_REPOSITORY.add(new_id)
             
-            log = Log("Central Authority", new_id.id, Action.CREATE, justification, new_id, None)
+            log = Log(True, "Central Authority", new_id.id, Action.CREATE, justification, new_id, None)
             self.LOG_REPOSITORY.add(log)
 
             return new_id
 
         except Exception as e:
-            raise ValueError(f"Invalid attribute data: {e}")
+            error_message = f"Invalid attribute data: {e}"
+
+            failed_log = Log(False, "Central Authority", 0, Action.CREATE, justification, error_message, None)
+            self.LOG_REPOSITORY.add(failed_log)
+            raise ValueError(error_message)
 
     def get_all_ids(self) -> Dict[int, DigitalID]:
         return self.DIGITAL_ID_REPOSITORY.get_all()
@@ -91,45 +97,61 @@ class DigitalIDService:
             raise ValueError(f"Digital ID with ID {id_number} not found")
         
     def query_attribute(self, id_number: int, attribute: str, justification: str) -> str:
-        digital_id = self.get_id_by_number(id_number)
+        safe_justification = justification if justification else "Unknown justification"
         
-        attribute_value = digital_id.to_dict()[attribute]
-        validated_justification = self.VALIDATOR._validate_string(justification, "justification")
-        
-        log = Log("External Organisation", id_number, Action.READ, validated_justification, str(attribute_value), None)
-        self.LOG_REPOSITORY.add(log)
-        
-        return str(attribute_value)
+        try:
+            digital_id = self.get_id_by_number(id_number)
+            
+            attribute_value = digital_id.to_dict()[attribute]
+            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+            
+            log = Log(True, "External Organisation", id_number, Action.READ, validated_justification, str(attribute_value), None)
+            self.LOG_REPOSITORY.add(log)
+            
+            return str(attribute_value)
+        except Exception as e:
+            error_message = str(e)
+            failed_log = Log(False, "External Organisation", id_number, Action.READ, safe_justification, error_message, None)
+            self.LOG_REPOSITORY.add(failed_log)
+            raise
 
     def update_id(self, id_number: int, attribute: str, value: Any, justification: str) -> None:
-        digital_id = self.get_id_by_number(id_number)
-        old_value = digital_id.to_dict()[attribute]
+        safe_justification = justification if justification else "Unknown justification"
+        
+        try:
+            digital_id = self.get_id_by_number(id_number)
+            old_value = digital_id.to_dict()[attribute]
 
-        if digital_id.status == Status.REVOKED:
-            raise ValueError("Cannot update a revoked Digital ID")
+            if digital_id.status == Status.REVOKED:
+                raise ValueError("Cannot update a revoked Digital ID")
 
-        STATUS_MAP = {
-            "active": digital_id.activate,
-            "suspended": digital_id.suspend,
-            "revoked": digital_id.revoke,
-        }
+            STATUS_MAP = {
+                "active": digital_id.activate,
+                "suspended": digital_id.suspend,
+                "revoked": digital_id.revoke,
+            }
 
-        SETTER_MAP = {
-            "firstName": lambda value: setattr(digital_id, 'first_name', value),
-            "surname": lambda value: setattr(digital_id, 'surname', value),
-            "status": lambda value: STATUS_MAP[value.lower()](),
-        }
+            SETTER_MAP = {
+                "firstName": lambda value: setattr(digital_id, 'first_name', value),
+                "surname": lambda value: setattr(digital_id, 'surname', value),
+                "status": lambda value: STATUS_MAP[value.lower()](),
+            }
 
-        if attribute not in SETTER_MAP:
-            raise ValueError(f"Cannot update field: {attribute}")
+            if attribute not in SETTER_MAP:
+                raise ValueError(f"{attribute} is immutable and cannot be updated")
 
-        validated_value = self.VALIDATOR.validate_attribute(attribute, value)
-        validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+            validated_value = self.VALIDATOR.validate_attribute(attribute, value)
+            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
 
-        log = Log("Central Authority", id_number, Action.UPDATE, validated_justification, old_value, validated_value)
-        self.LOG_REPOSITORY.add(log)
+            log = Log(True, "Central Authority", id_number, Action.UPDATE, validated_justification, old_value, validated_value)
+            self.LOG_REPOSITORY.add(log)
 
-        SETTER_MAP[attribute](validated_value)
+            SETTER_MAP[attribute](validated_value)
+        except Exception as e:
+            error_message = str(e)
+            failed_log = Log(False, "Central Authority", id_number, Action.UPDATE, safe_justification, error_message, None)
+            self.LOG_REPOSITORY.add(failed_log)
+            raise
   
     def load_csv_data(self) -> None:
         try:

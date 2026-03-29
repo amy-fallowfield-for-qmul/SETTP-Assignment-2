@@ -24,51 +24,55 @@ class TestLogModel:
 
     def test_create_log_for_create(self) -> None:
         digital_id = DigitalID("John", "Smith", "2000-01-01")
-        log = Log("NHS", 1, Action.CREATE, "New registration", digital_id, None)
+        log = Log(True, "NHS", 1, Action.CREATE, "New registration", digital_id, None)
         row = log.get_row()
         assert row[0] == log.id
         timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
         assert timestamp >= self.start_time.replace(microsecond=0)
         assert timestamp <= datetime.now()
-        assert row[2] == "NHS"
-        assert row[3] == "1"
-        assert row[4] == "create"
-        assert row[5] == "New registration"
-        assert row[6].first_name == "John"
-        assert row[7] is None
+        assert row[2] == True
+        assert row[3] == "NHS"
+        assert row[4] == "1"
+        assert row[5] == "create"
+        assert row[6] == "New registration"
+        assert row[7].first_name == "John"
+        assert row[8] is None
     
     def test_create_log_for_read(self) -> None:
-        log = Log("NHS", 1, Action.READ, "Medical history check", "active", None)
+        log = Log(True, "NHS", 1, Action.READ, "Medical history check", "active", None)
         row = log.get_row()
         assert row[0] == log.id
         timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
         assert timestamp >= self.start_time.replace(microsecond=0)
         assert timestamp <= datetime.now()
-        assert row[2] == "NHS"
-        assert row[3] == "1"
-        assert row[4] == "read"
-        assert row[5] == "Medical history check"
-        assert row[6] == "active"
-        assert row[7] is None
+        assert row[2] == True
+        assert row[3] == "NHS"
+        assert row[4] == "1"
+        assert row[5] == "read"
+        assert row[6] == "Medical history check"
+        assert row[7] == "active"
+        assert row[8] is None
 
     def test_create_log_for_update(self) -> None:
-        log = Log("NHS", 1, Action.UPDATE, "Name change", "John", "Alicia")
+        log = Log(True, "NHS", 1, Action.UPDATE, "Name change", "John", "Alicia")
         row = log.get_row()
         assert row[0] == log.id
         timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
         assert timestamp >= self.start_time.replace(microsecond=0)
         assert timestamp <= datetime.now()
-        assert row[2] == "NHS"
-        assert row[3] == "1"
-        assert row[4] == "update"
-        assert row[5] == "Name change"
-        assert row[6] == "John"
-        assert row[7] == "Alicia"
+        assert row[2] == True
+        assert row[3] == "NHS"
+        assert row[4] == "1"
+        assert row[5] == "update"
+        assert row[6] == "Name change"
+        assert row[7] == "John"
+        assert row[8] == "Alicia"
 
     def test_from_csv(self) -> None:
         attributes = {
             "id": "5",
             "timestamp": "15/03/2024 - 10:30:45",
+            "accepted": "True",
             "organisation": "NHS",
             "digitalID": "1",
             "action": "create",
@@ -79,6 +83,7 @@ class TestLogModel:
         log = Log.from_csv(attributes)
         assert log.id == 5
         assert log.timestamp == datetime.strptime("15/03/2024 - 10:30:45", "%d/%m/%Y - %H:%M:%S")
+        assert log.accepted == True
         assert log.organisation == "NHS"
         assert log.id_number == 1
         assert log.action == Action.CREATE
@@ -90,6 +95,7 @@ class TestLogModel:
         attributes = {
             "id": "6",
             "timestamp": "15/03/2024 - 10:30:45",
+            "accepted": "False",
             "organisation": "HMRC",
             "digitalID": "2",
             "action": "update",
@@ -99,6 +105,7 @@ class TestLogModel:
         }
         log = Log.from_csv(attributes)
         assert log.id == 6
+        assert log.accepted == False
         assert log.new_value == "Alicia"
 
 class TestLogProperties:
@@ -107,11 +114,11 @@ class TestLogProperties:
     def setup_method(self) -> None:
         DigitalID._next_id = 1
         self.digital_id = DigitalID("John", "Smith", "2000-01-01")
-        self.log = Log("NHS", 1, Action.CREATE, "New registration", self.digital_id, None)
+        self.log = Log(True, "NHS", 1, Action.CREATE, "New registration", self.digital_id, None)
 
     def test_get_timestamp(self) -> None:
         start_time = datetime.now()
-        log = Log("NHS", 1, Action.UPDATE, "Update Medical Records", "Healthy", "Unhealthy")
+        log = Log(True, "NHS", 1, Action.UPDATE, "Update Medical Records", "Healthy", "Unhealthy")
         assert log.timestamp >= start_time.replace(microsecond=0)
         assert log.timestamp <= datetime.now()
         assert isinstance(self.log.timestamp, datetime)
@@ -125,6 +132,9 @@ class TestLogProperties:
     def test_get_action(self) -> None:
         assert self.log.action == Action.CREATE
 
+    def test_get_accepted(self) -> None:
+        assert self.log.accepted == True
+
     def test_get_justification(self) -> None:
         assert self.log.justification == "New registration"
 
@@ -133,11 +143,11 @@ class TestLogProperties:
         assert isinstance(self.log.current_value, DigitalID)
 
     def test_get_current_value_string(self) -> None:
-        log = Log("NHS", 1, Action.UPDATE, "Name change", "John", "Alicia")
+        log = Log(True, "NHS", 1, Action.UPDATE, "Name change", "John", "Alicia")
         assert log.current_value == "John"
 
     def test_get_new_value(self) -> None:
-        log = Log("NHS", 1, Action.UPDATE, "Name change", "John", "Alicia")
+        log = Log(True, "NHS", 1, Action.UPDATE, "Name change", "John", "Alicia")
         assert log.new_value == "Alicia"
 
     def test_get_new_value_none(self) -> None:
@@ -150,6 +160,7 @@ class TestLogProperties:
     def test_to_dict(self) -> None:
         log_dict = self.log.to_dict()
         assert log_dict["id"] == self.log.id
+        assert log_dict["accepted"] == True
         assert log_dict["organisation"] == "NHS"
         assert log_dict["digitalID"] == "1"
         assert log_dict["action"] == "create"
@@ -158,8 +169,9 @@ class TestLogProperties:
         assert log_dict["newValue"] == "None"
 
     def test_to_dict_string_values(self) -> None:
-        log = Log("HMRC", 2, Action.UPDATE, "Name change", "John", "Alicia")
+        log = Log(False, "HMRC", 2, Action.UPDATE, "Name change", "John", "Alicia")
         log_dict = log.to_dict()
+        assert log_dict["accepted"] == False
         assert log_dict["currentValue"] == "John"
         assert log_dict["newValue"] == "Alicia"
 
@@ -168,35 +180,45 @@ class TestLogProperties:
         captured = capsys.readouterr()
         output = captured.out
         
-        assert "[NHS] requested to create ID 1 because New registration" in output
+        assert "Requested to create ID 1" in output
+        assert "New registration was ACCEPTED" in output
         assert "ID: 1" in output
         assert "Name: John Smith" in output
         assert "DOB: 2000-01-01" in output
         assert "Status: active" in output
 
     def test_print_read_action(self, capsys) -> None:
-        read_log = Log("HMRC", 2, Action.READ, "Tax verification", "active", None)
+        read_log = Log(True, "HMRC", 2, Action.READ, "Tax verification", "active", None)
         read_log.print()
         captured = capsys.readouterr()
         output = captured.out
         
-        assert "[HMRC] requested to read ID 2 because Tax verification" in output
-        assert "[active]" in output
+        assert "Requested to read ID 2" in output
+        assert "Tax verification was ACCEPTED" in output
 
     def test_print_update_action(self, capsys) -> None:
-        update_log = Log("NHS", 3, Action.UPDATE, "Status change", "active", "suspended")
+        update_log = Log(True, "NHS", 3, Action.UPDATE, "Status change", "active", "suspended")
         update_log.print()
         captured = capsys.readouterr()
         output = captured.out
         
-        assert "[NHS] requested to update ID 3 because Status change" in output
-        assert "[active -> suspended]" in output
+        assert "Requested to update ID 3" in output
+        assert "Status change was ACCEPTED" in output
 
     def test_print_create_with_non_digitalid(self, capsys) -> None:
-        create_log = Log("NHS", 4, Action.CREATE, "Manual entry", "John Doe Profile", None)
+        create_log = Log(True, "NHS", 4, Action.CREATE, "Manual entry", "John Doe Profile", None)
         create_log.print()
         captured = capsys.readouterr()
         output = captured.out
         
-        assert "[NHS] requested to create ID 4 because Manual entry" in output
-        assert "[John Doe Profile]" in output
+        assert "Requested to create ID 4" in output
+        assert "Manual entry was ACCEPTED" in output
+
+    def test_print_rejected_action(self, capsys) -> None:
+        rejected_log = Log(False, "NHS", 0, Action.CREATE, "Invalid data", "Error: Invalid name", None)
+        rejected_log.print()
+        captured = capsys.readouterr()
+        output = captured.out
+        
+        assert "Requested to create ID 0" in output
+        assert "Invalid data was REJECTED" in output

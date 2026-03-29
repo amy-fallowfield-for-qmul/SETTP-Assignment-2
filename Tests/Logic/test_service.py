@@ -153,7 +153,7 @@ class TestServiceUpdateID:
 
     def test_update_immutable_field_rejected(self, service: DigitalIDService) -> None:
         service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        with pytest.raises(ValueError, match="Cannot update field"):
+        with pytest.raises(ValueError, match="is immutable and cannot be updated"):
             service.update_id(1, "dateOfBirth", "2010-01-01", "Date correction")
 
 class TestServiceCSV:

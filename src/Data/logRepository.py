@@ -36,11 +36,12 @@ class LogRepository(RepositoryABC):
         attributes = {
             "id": row[0],
             "timestamp": row[1],
-            "organisation": row[2],
-            "digitalID": row[3],
-            "action": row[4],
-            "justification": row[5],
-            "currentValue": row[6],
-            "newValue": row[7]
+            "accepted": row[2],
+            "organisation": row[3],
+            "digitalID": row[4],
+            "action": row[5],
+            "justification": row[6],
+            "currentValue": row[7],
+            "newValue": row[8]
         }
         return Log.from_csv(attributes)
