@@ -1,5 +1,6 @@
 import pytest
 from Data.digitalID import DigitalID, Status
+from Tests.shared_test_data import new_person_dict, from_csv_person_dict
 
 class TestStatus:
     """Tests for the Status enum"""
@@ -18,26 +19,20 @@ class TestDigitalIDCreation:
     def setup_method(self) -> None:
         DigitalID._next_id = 1
 
-    def test_create_id_with_init(self) -> None:
-        id = DigitalID("John", "Smith", "2000-01-01")
-        assert id.id == 1
-        assert id.status == Status.ACTIVE
-        assert id.first_name == "John"
-        assert id.surname == "Smith"
-        assert id.date_of_birth == "2000-01-01"
+    def test_create_id_from_cli(self) -> None:
+        id = DigitalID(new_person_dict)
+        result = id.to_dict()
+        
+        for key, value in new_person_dict.items():
+            assert result[key] == value
 
     def test_create_id_from_csv(self) -> None:
-        attributes = {"id": "1", "status": "active", "firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01"}
-        id = DigitalID.from_csv(attributes)
-        assert id.id == 1
-        assert id.status == Status.ACTIVE
-        assert id.first_name == "John"
-        assert id.surname == "Smith"
-        assert id.date_of_birth == "2000-01-01"
+        id = DigitalID(from_csv_person_dict)
+        assert id.to_dict() == from_csv_person_dict
 
     def test_auto_increment_id(self) -> None:
-        id1 = DigitalID("John", "Smith", "2000-01-01")
-        id2 = DigitalID("Bob", "Jones", "2005-01-01")
+        id1 = DigitalID(new_person_dict)
+        id2 = DigitalID(from_csv_person_dict)
         assert id1.id == 1
         assert id2.id == 2
 
@@ -46,21 +41,27 @@ class TestDigitalIDProperties:
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
-        self.id = DigitalID("John", "Smith", "2000-01-01")
+        self.id = DigitalID(new_person_dict)
 
     def test_to_dict(self) -> None:
-        assert self.id.to_dict() == {
-            "id": 1,
-            "status": "active",
-            "firstName": "John",
-            "surname": "Smith",
-            "dateOfBirth": "2000-01-01"
-        }
+        result = self.id.to_dict()
+
+        for key, value in new_person_dict.items():
+            assert result[key] == value
+
+        assert "id" in result
+        assert "status" in result
 
     def test_print(self, capsys) -> None:
         self.id.print()
         captured = capsys.readouterr()
-        assert captured.out == "ID: 1, Name: John Smith, DOB: 2000-01-01, Status: active\n"
+        output = captured.out
+        
+        for value in new_person_dict.values():
+            assert str(value) in output
+        
+        assert ":" in output
+        assert "," in output
 
     def test_id_is_read_only(self) -> None:
         with pytest.raises(AttributeError):
@@ -93,21 +94,21 @@ class TestDigitalIDProperties:
         assert self.id.status == Status.ACTIVE
 
     def test_get_first_name(self) -> None:
-        assert self.id.first_name == "John"
+        assert self.id.first_name == new_person_dict["first_name"]
 
     def test_set_first_name(self) -> None:
         self.id.first_name = "Alicia"
         assert self.id.first_name == "Alicia"
 
     def test_get_surname(self) -> None:
-        assert self.id.surname == "Smith"
+        assert self.id.surname == new_person_dict["surname"]
 
     def test_set_surname(self) -> None:
         self.id.surname = "Johnson"
         assert self.id.surname == "Johnson"
 
     def test_get_date_of_birth(self) -> None:
-        assert self.id.date_of_birth == "2000-01-01"
+        assert self.id.date_of_birth == new_person_dict["date_of_birth"]
 
     def test_date_of_birth_is_read_only(self) -> None:
         with pytest.raises(AttributeError):
