@@ -13,3 +13,6 @@ from_csv_person_dict = {
     "surname": "Johnson",
     "date_of_birth": "1995-05-15"
 }
+
+justification_person_dict = new_person_dict.copy()
+justification_person_dict["justification"] = "New registration"

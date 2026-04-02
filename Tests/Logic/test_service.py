@@ -8,6 +8,7 @@ from Data.digitalID import DigitalID, Status
 from Data.digitalIDRepository import DigitalIDRepository
 from Data.log import Action
 from Data.logRepository import LogRepository
+from Tests.shared_test_data import justification_person_dict
 
 @pytest.fixture
 def service() -> DigitalIDService:
@@ -21,17 +22,15 @@ class TestServiceCreateID:
     """Tests for creating a Digital ID via the service"""
 
     def test_create_id(self, service: DigitalIDService) -> None:
-        digital_id = service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        assert digital_id.id == 1
-        assert digital_id.status == Status.ACTIVE
-        assert digital_id.first_name == "John"
-        assert digital_id.surname == "Smith"
-        assert digital_id.date_of_birth == "2000-01-01"
+        digital_id = service.create_id(justification_person_dict)
+
+        for key, value in justification_person_dict.items():
+            if key != "justification":
+                assert getattr(digital_id, key) == value
         assert len(service.get_all_ids()) == 1
 
     def test_create_id_creates_log(self, service: DigitalIDService) -> None:
-        digital_id = service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        
+        digital_id = service.create_id(justification_person_dict)
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 1
         create_log = list(logs.values())[0]
@@ -39,7 +38,7 @@ class TestServiceCreateID:
         assert create_log.id_number == digital_id.id
         assert create_log.organisation == "Central Authority"
         assert create_log.justification == "New Registration"
-        assert create_log.current_value.first_name == "John"
+        assert create_log.current_value.first_name == justification_person_dict["first_name"]
         assert create_log.new_value is None
 
 class TestServiceGetAllIDs:
@@ -49,32 +48,39 @@ class TestServiceGetAllIDs:
         assert service.get_all_ids() == {}
 
     def test_get_all(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
+        service.create_id(justification_person_dict)
+        id2 = justification_person_dict.copy()
+        id2["justification"] = "Second creation"
+        service.create_id(id2)
         assert len(service.get_all_ids()) == 2
 
 class TestServiceFilterIDs:
     """Tests for filtering Digital IDs by attributes"""
 
     def test_filter_by_attribute(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
-        filtered = service.get_filtered_data({"data": "digitalID", "firstName": "John"})
+        service.create_id(justification_person_dict)
+        id2 = justification_person_dict.copy()
+        id2["first_name"] = "DifferentName"
+        id2["justification"] = "Second creation"
+        service.create_id(id2)
+        filtered = service.get_filtered_data({"data": "digitalID", "first_name": justification_person_dict["first_name"]})
         assert len(filtered) == 1
 
     def test_filter_no_matches(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        filtered = service.get_filtered_data({"data": "digitalID", "firstName": "Bob"})
+        service.create_id(justification_person_dict)
+        filtered = service.get_filtered_data({"data": "digitalID", "first_name": "FakeName"})
         assert len(filtered) == 0
 
     def test_filter_case_insensitive_name(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        assert len(service.get_filtered_data({"data": "digitalID", "firstName": "JOHN"})) == 1
-        assert len(service.get_filtered_data({"data": "digitalID", "firstName": "john"})) == 1
-        assert len(service.get_filtered_data({"data": "digitalID", "firstName": "jOhN"})) == 1
+        service.create_id(justification_person_dict)
+        uppercase_name = justification_person_dict["first_name"].upper()
+        lowercase_name = justification_person_dict["first_name"].lower()
+
+        assert len(service.get_filtered_data({"data": "digitalID", "first_name": uppercase_name})) == 1
+        assert len(service.get_filtered_data({"data": "digitalID", "first_name": lowercase_name})) == 1
 
     def test_filter_case_insensitive_status(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.create_id(justification_person_dict)
         assert len(service.get_filtered_data({"data": "digitalID", "status": "ACTIVE"})) == 1
         assert len(service.get_filtered_data({"data": "digitalID", "status": "Active"})) == 1
 
@@ -86,8 +92,10 @@ class TestServiceFilterLogs:
     """Tests for filtering logs by attributes"""
 
     def test_filter_by_attribute(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        service.create_id({"firstName": "Bob", "surname": "Jones", "dateOfBirth": "2005-01-01", "justification": "New registration"})
+        service.create_id(justification_person_dict)
+        id2 = justification_person_dict.copy()
+        id2["justification"] = "Second creation"
+        service.create_id(id2)
         filtered = service.get_filtered_data({"data": "log", "digitalID": "1"})
         assert len(filtered) == 1
 
@@ -95,8 +103,8 @@ class TestServiceGetIDByNumber:
     """Tests for retrieving a Digital ID by its number"""
 
     def test_get_id_by_number(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        assert service.get_id_by_number(1).first_name == "John"
+        service.create_id(justification_person_dict)
+        assert service.get_id_by_number(1).first_name == justification_person_dict["first_name"]
 
     def test_get_id_not_found(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="not found"):
@@ -106,12 +114,12 @@ class TestServiceQueryAttribute:
     """Tests for querying a Digital ID attribute via the service"""
 
     def test_query_attribute(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        result = service.query_attribute(1, "firstName", "External audit")
+        service.create_id(justification_person_dict)
+        result = service.query_attribute(1, "first_name", "External audit")
         assert result == "John"
 
     def test_query_attribute_creates_log(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.create_id(justification_person_dict)
         service.query_attribute(1, "status", "Status verification")
         
         logs = service.LOG_REPOSITORY.get_all()
@@ -125,19 +133,19 @@ class TestServiceQueryAttribute:
 
     def test_query_attribute_not_found(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="not found"):
-            service.query_attribute(99, "firstName", "External audit")
+            service.query_attribute(99, "first_name", "External audit")
 
 class TestServiceUpdateID:
     """Tests for updating Digital ID attributes via the service"""
 
     def test_update_attribute(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        service.update_id(1, "firstName", "Alicia", "Name change requested")
+        service.create_id(justification_person_dict)
+        service.update_id(1, "first_name", "Alicia", "Name change requested")
         assert service.get_id_by_number(1).first_name == "Alicia"
 
     def test_update_creates_log(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
-        service.update_id(1, "firstName", "Alicia", "Name change requested")
+        service.create_id(justification_person_dict)
+        service.update_id(1, "first_name", "Alicia", "Name change requested")
         
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 2
@@ -149,12 +157,12 @@ class TestServiceUpdateID:
 
     def test_update_nonexistent_id(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="not found"):
-            service.update_id(99, "firstName", "Alicia", "Name change")
+            service.update_id(99, "first_name", "Alicia", "Name change")
 
     def test_update_immutable_field_rejected(self, service: DigitalIDService) -> None:
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.create_id(justification_person_dict)
         with pytest.raises(ValueError, match="is immutable and cannot be updated"):
-            service.update_id(1, "dateOfBirth", "2010-01-01", "Date correction")
+            service.update_id(1, "date_of_birth", "2010-01-01", "Date correction")
 
 class TestServiceCSV:
     """Tests for loading and saving CSV data via the service"""
@@ -175,7 +183,7 @@ class TestServiceCSV:
 
     def test_save_and_load_csv(self) -> None:
         service = DigitalIDService()
-        service.create_id({"firstName": "John", "surname": "Smith", "dateOfBirth": "2000-01-01", "justification": "New registration"})
+        service.create_id(justification_person_dict)
         service.save_csv_data()
 
         DigitalID._next_id = 1
@@ -184,7 +192,7 @@ class TestServiceCSV:
         new_service = DigitalIDService()
         new_service.load_csv_data()
 
-        assert new_service.get_id_by_number(1).first_name == "John"
+        assert new_service.get_id_by_number(1).first_name == justification_person_dict["first_name"]
 
     def test_load_csv_no_file(self, capsys) -> None:
         service = DigitalIDService()
