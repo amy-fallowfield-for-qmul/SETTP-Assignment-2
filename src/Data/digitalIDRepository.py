@@ -1,13 +1,15 @@
 from typing import Dict, List
 from Data.digitalID import DigitalID
-from constants import ID_PATH, DIGITAL_ID_ALL_FIELDS
+from constants import ID_PATH
 from Data.repositoryABC import RepositoryABC
+from Data.attributeRepository import AttributeRegistry
 
 class DigitalIDRepository(RepositoryABC):
     """Singleton repository for storing and managing Digital IDs"""
 
     def _initialise(self) -> None:
         self._repository: Dict[int, DigitalID] = {}
+        self._attribute_registry = AttributeRegistry()
 
     def add(self, digitalID: DigitalID) -> None:
         self._repository[digitalID.id] = digitalID
@@ -22,26 +24,21 @@ class DigitalIDRepository(RepositoryABC):
         return ID_PATH
 
     def _get_csv_headers(self) -> List[str]:
-        return DIGITAL_ID_ALL_FIELDS
+        return self._attribute_registry.get_all_attributes()
 
     def _get_rows_for_csv(self) -> List[List[str]]:
         rows = []
         for digitalID in self._repository.values():
-            rows.append([
-                str(digitalID.id),
-                digitalID.status.value,
-                digitalID.first_name,
-                digitalID.surname,
-                digitalID.date_of_birth
-            ])
+            row = []
+            digital_id_dict = digitalID.to_dict()
+            for attribute_name in self._attribute_registry.get_all_attributes():
+                row.append(str(digital_id_dict[attribute_name]))
+            rows.append(row)
         return rows
 
     def _create_object_from_csv_row(self, row: List[str]) -> DigitalID:
-        attributes = {
-            "id": row[0],
-            "status": row[1],
-            "firstName": row[2],
-            "surname": row[3],
-            "dateOfBirth": row[4]
-        }
-        return DigitalID.from_csv(attributes)
+        attributes = {}
+        attribute_names = self._attribute_registry.get_all_attributes()
+        for i, attribute_name in enumerate(attribute_names):
+            attributes[attribute_name] = row[i]
+        return DigitalID(attributes)
