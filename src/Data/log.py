@@ -108,10 +108,7 @@ class Log:
     def print(self) -> None:
         match(self._action):
             case Action.CREATE:
-                if isinstance(self._current_value, DigitalID):
-                    value_string = f"ID: {self._current_value.id}, Name: {self._current_value.first_name} {self._current_value.surname}, DOB: {self._current_value.date_of_birth}, Status: {self._current_value.status.value}"
-                else:
-                    value_string = str(self._current_value)
+                value_string = str(self._current_value)
             case Action.READ:
                 value_string = str(self._current_value)
             case Action.UPDATE:

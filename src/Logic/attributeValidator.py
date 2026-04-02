@@ -2,12 +2,11 @@ from typing import Any, Dict
 from datetime import date
 import re
 from Data.digitalID import Status
+from Data.attributeRepository import AttributeRegistry
 
 class Validator:
     """Singleton validator for Digital ID attributes"""
 
-    REQUIRED_FIELDS = ["firstName", "surname", "dateOfBirth", "justification"]
-    STRING_FIELDS = ["firstName", "surname", "justification"]
     _instance = None
 
     def __new__(cls) -> "Validator":
@@ -18,6 +17,7 @@ class Validator:
     def __init__(self) -> None:
         if not hasattr(self, '_initialised'):
             self._initialised = True
+            self.ATTRIBUTE_REGISTRY = AttributeRegistry()
 
     def validate_all_attributes(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -27,24 +27,31 @@ class Validator:
         - All expected attributes run their own validation function
         """
 
-        required_attributes = self.REQUIRED_FIELDS
+        required_attributes = self.ATTRIBUTE_REGISTRY.get_required_for_creation()
+        allowed_attributes = required_attributes + ["justification"]
 
         if not all(attribute in data for attribute in required_attributes):
             raise ValueError("Missing required attributes")
         
         for key in data:
-            if key not in required_attributes:
+            if key not in allowed_attributes:
                 raise ValueError(f"Unexpected attribute: {key}")
 
-        for key in self.STRING_FIELDS:
-            data[key] = self._validate_string(data[key], key)
-        self._validate_date_of_birth(data["dateOfBirth"])
+        for key in required_attributes:
+            attribute_metadata = self.ATTRIBUTE_REGISTRY.get_attribute(key)
+            if attribute_metadata.type.value == "string":
+                data[key] = self._validate_string(data[key], key)
+            elif attribute_metadata.type.value == "date":
+                data[key] = self._validate_date_of_birth(data[key])
+
+        if "justification" in data:
+            data["justification"] = self._validate_string(data["justification"], "justification")
 
         return data
     
     def validate_attribute(self, attribute: str, value: str) -> str:
         VALIDATION_MAP = {
-            "firstName": lambda value: self._validate_string(value, attribute),
+            "first_name": lambda value: self._validate_string(value, attribute),
             "surname": lambda value: self._validate_string(value, attribute),
             "status": lambda value: self._validate_status(value),
             "justification": lambda value: self._validate_string(value, attribute),
