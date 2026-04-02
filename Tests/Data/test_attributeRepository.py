@@ -1,14 +1,7 @@
 import pytest
 from Data.attributeRepository import AttributeRegistry
 from Data.attributeMetadata import AttributeMetadata, AttributeType
-
-from_csv_person_dict = {
-    "id": 2,
-    "status": "active",
-    "first_name": "Alice",
-    "surname": "Johnson",
-    "date_of_birth": "1995-05-15"
-}
+from Tests.shared_test_data import from_csv_person_dict
 
 class TestAttributeRegistryCreation:
     """Tests for AttributeRegistry singleton constructor"""
