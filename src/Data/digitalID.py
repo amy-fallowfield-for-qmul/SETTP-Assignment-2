@@ -43,12 +43,15 @@ class DigitalID:
 
         return result
 
-    def print(self) -> None:
+    def __str__(self) -> str:
         attribute_pairs = [
             f"{self.ATTRIBUTE_REGISTRY.get_display_name(attr_name)}: {getattr(self, attr_name) if attr_name != 'status' else self.status.value}"
             for attr_name in self.ATTRIBUTE_REGISTRY.get_all_attributes()
         ]
-        print(", ".join(attribute_pairs))
+        return ", ".join(attribute_pairs)
+
+    def print(self) -> None:
+        print(str(self))
 
     @property
     def id(self) -> int:
