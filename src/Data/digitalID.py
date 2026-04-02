@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Dict
+from typing import Dict, Any
+from Data.attributeRepository import AttributeRegistry
 
 class Status(Enum):
     ACTIVE = "active"
@@ -11,40 +12,43 @@ class DigitalID:
 
     _next_id: int = 1
 
-    def __init__(self, first_name: str, surname: str, date_of_birth: str) -> None:
-        self._id: int = DigitalID._next_id
-        DigitalID._next_id += 1
+    def __init__(self, attributes: Dict[str, Any]) -> None:
+        self.ATTRIBUTE_REGISTRY = AttributeRegistry()
 
-        self._status: Status = Status.ACTIVE
-        self._first_name: str = first_name
-        self._surname: str = surname
-        self._date_of_birth: str = date_of_birth
+        if "id" in attributes and attributes["id"] is not None:
+            self._id = int(attributes["id"])
+            if self._id >= DigitalID._next_id:
+                DigitalID._next_id = self._id + 1
+        else:
+            self._id = DigitalID._next_id
+            DigitalID._next_id += 1
 
-    @classmethod
-    def from_csv(cls, attributes: Dict[str, str]) -> "DigitalID":
-        digital_id = cls.__new__(cls)
-        digital_id._id = int(attributes["id"])
-        digital_id._status = Status(attributes["status"])
-        digital_id._first_name = attributes["firstName"]
-        digital_id._surname = attributes["surname"]
-        digital_id._date_of_birth = attributes["dateOfBirth"]
+        if "status" in attributes and attributes["status"] is not None:
+            self._status = Status(attributes["status"])
+        else:
+            self._status = Status.ACTIVE
 
-        if digital_id._id >= cls._next_id:
-            cls._next_id = digital_id._id + 1
-
-        return digital_id
+        self._first_name: str = attributes["first_name"]
+        self._surname: str = attributes["surname"] 
+        self._date_of_birth: str = attributes["date_of_birth"]
 
     def to_dict(self) -> Dict[str, object]:
-        return {
-            "id": self.id,
-            "status": self.status.value,
-            "firstName": self.first_name,
-            "surname": self.surname,
-            "dateOfBirth": self.date_of_birth
-        }
+        result: Dict[str, object] = {}
+        
+        for attribute_name in self.ATTRIBUTE_REGISTRY.get_all_attributes():
+            if attribute_name == "status":
+                result[attribute_name] = self.status.value
+            else:
+                result[attribute_name] = getattr(self, attribute_name)
+
+        return result
 
     def print(self) -> None:
-        print(f"ID: {self.id}, Name: {self.first_name} {self.surname}, DOB: {self.date_of_birth}, Status: {self.status.value}")
+        attribute_pairs = [
+            f"{self.ATTRIBUTE_REGISTRY.get_display_name(attr_name)}: {getattr(self, attr_name) if attr_name != 'status' else self.status.value}"
+            for attr_name in self.ATTRIBUTE_REGISTRY.get_all_attributes()
+        ]
+        print(", ".join(attribute_pairs))
 
     @property
     def id(self) -> int:
