@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime
 from Data.log import Log, Action
 from Data.digitalID import DigitalID
+from Tests.shared_test_data import new_person_dict
 
 class TestAction:
     """Tests for the Action enum"""
@@ -23,7 +24,7 @@ class TestLogModel:
         self.start_time = datetime.now()
 
     def test_create_log_for_create(self) -> None:
-        digital_id = DigitalID("John", "Smith", "2000-01-01")
+        digital_id = DigitalID(new_person_dict)
         log = Log(True, "NHS", 1, Action.CREATE, "New registration", digital_id, None)
         row = log.get_row()
         assert row[0] == log.id
@@ -113,7 +114,7 @@ class TestLogProperties:
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
-        self.digital_id = DigitalID("John", "Smith", "2000-01-01")
+        self.digital_id = DigitalID(new_person_dict)
         self.log = Log(True, "NHS", 1, Action.CREATE, "New registration", self.digital_id, None)
 
     def test_get_timestamp(self) -> None:
@@ -183,8 +184,9 @@ class TestLogProperties:
         assert "Requested to create ID 1" in output
         assert "New registration was ACCEPTED" in output
         assert "ID: 1" in output
-        assert "Name: John Smith" in output
-        assert "DOB: 2000-01-01" in output
+        assert "First Name: John" in output
+        assert "Surname: Smith" in output
+        assert "Date of Birth: 2000-01-01" in output
         assert "Status: active" in output
 
     def test_print_read_action(self, capsys) -> None:

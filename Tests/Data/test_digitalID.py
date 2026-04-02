@@ -52,16 +52,21 @@ class TestDigitalIDProperties:
         assert "id" in result
         assert "status" in result
 
-    def test_print(self, capsys) -> None:
-        self.id.print()
-        captured = capsys.readouterr()
-        output = captured.out
+    def test_str(self) -> None:
+        output = str(self.id)
         
         for value in new_person_dict.values():
             assert str(value) in output
         
         assert ":" in output
         assert "," in output
+
+    def test_print(self, capsys) -> None:
+        self.id.print()
+        captured = capsys.readouterr()
+        output = captured.out
+        
+        assert output.strip() == str(self.id)
 
     def test_id_is_read_only(self) -> None:
         with pytest.raises(AttributeError):
