@@ -3,7 +3,7 @@ from Logic.service import DigitalIDService
 from Data.digitalID import DigitalID
 from Data.digitalIDRepository import DigitalIDRepository
 from Data.logRepository import LogRepository
-from Data.log import Log, Action
+from Data.log import Action
 from otherOrganisationsMain import OtherOrganisationMain
 
 class TestServicePermissionSystem:
@@ -18,32 +18,32 @@ class TestServicePermissionSystem:
 
         service = DigitalIDService()
         service.create_id({
-            "firstName": "John", 
-            "surname": "Smith", 
-            "dateOfBirth": "2000-01-01", 
+            "first_name": "John",
+            "surname": "Smith",
+            "date_of_birth": "2000-01-01",
             "justification": "Test setup"
         })
         return service
 
     def test_query_with_no_restrictions(self, service: DigitalIDService) -> None:
-        result = service.query_attribute(1, "firstName", "Test query", "Test Org")
+        result = service.query_attribute(1, "first_name", "Test query", "Test Org")
         assert result == "John"
 
     def test_query_with_allowed_attribute(self, service: DigitalIDService) -> None:
-        allowed = ["firstName", "surname"]
-        result = service.query_attribute(1, "firstName", "Test query", "NHS", allowed)
+        allowed = ["first_name", "surname"]
+        result = service.query_attribute(1, "first_name", "Test query", "NHS", allowed)
         assert result == "John"
 
     def test_query_with_forbidden_attribute(self, service: DigitalIDService) -> None:
-        allowed = ["firstName", "surname"]
-        with pytest.raises(ValueError, match="Access denied: NHS is not authorized to access 'dateOfBirth' attribute"):
-            service.query_attribute(1, "dateOfBirth", "Unauthorized query", "NHS", allowed)
+        allowed = ["first_name", "surname"]
+        with pytest.raises(ValueError, match="Access denied: NHS is not authorized to access 'date_of_birth' attribute"):
+            service.query_attribute(1, "date_of_birth", "Unauthorized query", "NHS", allowed)
 
     def test_permission_denied_creates_rejected_log(self, service: DigitalIDService) -> None:
-        allowed = ["firstName"]
+        allowed = ["first_name"]
         
         try:
-            service.query_attribute(1, "dateOfBirth", "Unauthorized access attempt", "NHS", allowed)
+            service.query_attribute(1, "date_of_birth", "Unauthorized access attempt", "NHS", allowed)
         except ValueError:
             pass
         
@@ -57,8 +57,8 @@ class TestServicePermissionSystem:
         assert "Access denied" in failed_log.current_value
 
     def test_successful_query_creates_accepted_log(self, service: DigitalIDService) -> None:
-        allowed = ["firstName", "surname"]
-        service.query_attribute(1, "firstName", "Authorized query", "NHS", allowed)
+        allowed = ["first_name", "surname"]
+        service.query_attribute(1, "first_name", "Authorized query", "NHS", allowed)
         
         logs = service.get_all_logs()
         read_log = list(logs.values())[1]
