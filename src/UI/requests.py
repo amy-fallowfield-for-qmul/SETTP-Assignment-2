@@ -1,6 +1,6 @@
 from Logic.service import DigitalIDService
 from Data.digitalID import DigitalID
-from constants import SEPARATION_WIDTH, LOG_HEADERS, DIGITAL_ID_ALL_FIELDS
+from constants import SEPARATION_WIDTH, LOG_HEADERS
 
 class Requests:
     """Singleton request handler for the UI layer"""
@@ -19,17 +19,13 @@ class Requests:
             self.DIGITAL_ID_SERVICE = DigitalIDService()
 
     def create_id(self) -> None:
-        first_name = input("Enter first name: ")
-        surname = input("Enter surname: ")
-        date_of_birth = input("Enter date of birth (YYYY-MM-DD): ")
-        justification = input("Enter justification for creation: ")
+        data = {}
+        
+        for attr_name in self.DIGITAL_ID_SERVICE.get_required_attributes_for_creation():
+            prompt = self.DIGITAL_ID_SERVICE.get_attribute_input_prompt(attr_name)
+            data[attr_name] = input(prompt)
 
-        data = {
-            "firstName": first_name,
-            "surname": surname,
-            "dateOfBirth": date_of_birth,
-            "justification": justification
-        }
+        data["justification"] = input("Enter justification for creation: ")
 
         try:
             self.DIGITAL_ID_SERVICE.create_id(data)
@@ -49,8 +45,8 @@ class Requests:
         except ValueError:
             print("Invalid choice")
             return
-        
-        attribute_list = DIGITAL_ID_ALL_FIELDS if data == "digitalID" else LOG_HEADERS
+
+        attribute_list = self.DIGITAL_ID_SERVICE.get_all_digital_id_attributes() if data == "digitalID" else LOG_HEADERS
         
         if choice == 1:
             all_ids = self.DIGITAL_ID_SERVICE.get_all_ids() if data == "digitalID" else self.DIGITAL_ID_SERVICE.get_all_logs()
@@ -131,7 +127,7 @@ class Requests:
             raise ValueError("Invalid ID")
 
     def _get_attribute_subject(self, action: str) -> str:
-        fields = DIGITAL_ID_ALL_FIELDS[1:] if action == "query" else self.MUTABLE_FIELDS
+        fields = self.DIGITAL_ID_SERVICE.get_queryable_attributes() if action == "query" else self.DIGITAL_ID_SERVICE.get_mutable_attributes()
 
         try:
             print(f"Please select the attribute you wish to {action}:")
