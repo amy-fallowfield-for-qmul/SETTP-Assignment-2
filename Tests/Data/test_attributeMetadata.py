@@ -9,9 +9,11 @@ class TestAttributeType:
         assert AttributeType.DATE.value == "date"
         assert AttributeType.STATUS.value == "status"
         assert AttributeType.INTEGER.value == "integer"
+        assert AttributeType.NATIONAL_INSURANCE.value == "national_insurance"
+        assert AttributeType.ADDRESS.value == "address"
 
     def test_attribute_type_members(self) -> None:
-        assert set(AttributeType.__members__.keys()) == {"STRING", "DATE", "STATUS", "INTEGER"}
+        assert set(AttributeType.__members__.keys()) == {"STRING", "DATE", "STATUS", "INTEGER", "NATIONAL_INSURANCE", "ADDRESS"}
 
 class TestAttributeMetadataCreation:
     """Tests for AttributeMetadata constructor"""

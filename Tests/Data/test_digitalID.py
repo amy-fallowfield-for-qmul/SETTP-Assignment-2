@@ -118,3 +118,19 @@ class TestDigitalIDProperties:
     def test_date_of_birth_is_read_only(self) -> None:
         with pytest.raises(AttributeError):
             setattr(self.id, "date_of_birth", "2010-01-01")
+
+    def test_get_address(self) -> None:
+        assert self.id.address == new_person_dict["address"]
+
+    def test_set_address(self) -> None:
+        new_address = "789 New Street, Birmingham, B1 1BA"
+        self.id.address = new_address
+        assert self.id.address == new_address
+
+    def test_get_national_insurance(self) -> None:
+        assert self.id.national_insurance == new_person_dict["national_insurance"]
+
+    def test_set_national_insurance(self) -> None:
+        new_ni = "EF123456A"
+        self.id.national_insurance = new_ni
+        assert self.id.national_insurance == new_ni
