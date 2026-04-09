@@ -20,12 +20,12 @@ class TestMainEntryPointUserSelection:
             
             mock_central.assert_called_once()
 
-    def test_select_other_organisation(self, monkeypatch) -> None:
+    def test_select_hmrc(self, monkeypatch) -> None:
         
         inputs = iter(["2"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         
-        with patch('main.OtherOrganisationMain') as mock_other:
+        with patch('main.HMRC') as mock_other:
             mock_instance = MagicMock()
             mock_other.return_value = mock_instance
             
@@ -63,9 +63,9 @@ class TestMainEntryPointUserSelection:
             main.select_user_type()
         
         captured = capsys.readouterr()
-        assert "Please select your organization type:" in captured.out
+        assert "Please select your organisation type:" in captured.out
         assert "1. Central Authority" in captured.out
-        assert "2. Other Organisation" in captured.out
+        assert "2. HMRC" in captured.out
         assert "3. Exit" in captured.out
 
     def test_retry_on_invalid_choice(self, monkeypatch, capsys) -> None:
@@ -78,4 +78,4 @@ class TestMainEntryPointUserSelection:
         captured = capsys.readouterr()
         
         assert captured.out.count("Invalid input") >= 2
-        assert "Please select your organization type:" in captured.out
+        assert "Please select your organisation type:" in captured.out
