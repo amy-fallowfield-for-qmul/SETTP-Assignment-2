@@ -31,6 +31,8 @@ class DigitalID:
         self._first_name: str = attributes["first_name"]
         self._surname: str = attributes["surname"] 
         self._date_of_birth: str = attributes["date_of_birth"]
+        self._address: str = attributes["address"]
+        self._national_insurance: str = attributes["national_insurance"]
 
     def to_dict(self) -> Dict[str, object]:
         result: Dict[str, object] = {}
@@ -89,3 +91,19 @@ class DigitalID:
     @property
     def date_of_birth(self) -> str:
         return self._date_of_birth
+    
+    @property
+    def address(self) -> str:
+        return self._address
+    
+    @address.setter
+    def address(self, address: str) -> None:
+        self._address = address
+    
+    @property
+    def national_insurance(self) -> str:
+        return self._national_insurance
+    
+    @national_insurance.setter
+    def national_insurance(self, ni: str) -> None:
+        self._national_insurance = ni
