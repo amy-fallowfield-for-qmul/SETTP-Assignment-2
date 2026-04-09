@@ -6,6 +6,8 @@ class AttributeType(Enum):
     DATE = "date" 
     STATUS = "status"
     INTEGER = "integer"
+    NATIONAL_INSURANCE = "national_insurance"
+    ADDRESS = "address"
 
 class AttributeMetadata:
     """Metadata for a Digital ID attribute"""

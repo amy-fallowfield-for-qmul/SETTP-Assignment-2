@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from constants import SEPARATION_WIDTH
 from centralAuthorityMain import CentralAuthorityMain
 from otherOrganisationsMain import OtherOrganisationMain
+from hmrc import HMRC
 
 def select_user_type():
     print("=" * SEPARATION_WIDTH)
@@ -13,21 +14,22 @@ def select_user_type():
     print("=" * SEPARATION_WIDTH)
     
     while True:
-        print("\nPlease select your organization type:")
+        print("\nPlease select your organisation type:")
         print("1. Central Authority")
-        print("2. Other Organisation")
+        print("2. HMRC")
         print("3. Exit")
         
         try:
             choice = int(input())
-            if choice == 1:
-                CentralAuthorityMain()
-            elif choice == 2:
-                OtherOrganisationMain()
-            elif choice == 3:
-                exit()
-            else:
-                raise()
+            match(choice):
+                case 1:
+                    CentralAuthorityMain()
+                case 2:
+                    HMRC()
+                case 3:
+                    exit()
+                case default:
+                    raise()
         except ValueError:
             print("Invalid input")
 

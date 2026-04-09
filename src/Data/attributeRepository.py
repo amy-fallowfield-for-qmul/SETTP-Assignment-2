@@ -61,6 +61,24 @@ class AttributeRegistry:
             is_required_for_creation=True,
             input_prompt="Enter date of birth (YYYY-MM-DD): "
         ))
+        
+        self.register_attribute(AttributeMetadata(
+            name="address",
+            display_name="Address",
+            attribute_type=AttributeType.ADDRESS,
+            is_mutable=True,
+            is_required_for_creation=True,
+            input_prompt="Enter address (Address Line, Town/City, Postcode): "
+        ))
+        
+        self.register_attribute(AttributeMetadata(
+            name="national_insurance",
+            display_name="National Insurance Number",
+            attribute_type=AttributeType.NATIONAL_INSURANCE,
+            is_mutable=True,
+            is_required_for_creation=True,
+            input_prompt="Enter National Insurance number (AB123456C): "
+        ))
     
     def register_attribute(self, metadata: AttributeMetadata) -> None:
         """Register a new attribute"""

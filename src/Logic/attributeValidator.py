@@ -3,6 +3,7 @@ from datetime import date
 import re
 from Data.digitalID import Status
 from Data.attributeRepository import AttributeRegistry
+from Data.address import Address
 
 class Validator:
     """Singleton validator for Digital ID attributes"""
@@ -43,6 +44,10 @@ class Validator:
                 data[key] = self._validate_string(data[key], key)
             elif attribute_metadata.type.value == "date":
                 data[key] = self._validate_date_of_birth(data[key])
+            elif attribute_metadata.type.value == "national_insurance":
+                data[key] = self._validate_national_insurance(data[key])
+            elif attribute_metadata.type.value == "address":
+                data[key] = self._validate_address(data[key])
 
         if "justification" in data:
             data["justification"] = self._validate_string(data["justification"], "justification")
@@ -53,6 +58,8 @@ class Validator:
         VALIDATION_MAP = {
             "first_name": lambda value: self._validate_string(value, attribute),
             "surname": lambda value: self._validate_string(value, attribute),
+            "address": lambda value: self._validate_address(value),
+            "national_insurance": lambda value: self._validate_national_insurance(value),
             "status": lambda value: self._validate_status(value),
             "justification": lambda value: self._validate_string(value, attribute),
         }
@@ -110,3 +117,124 @@ class Validator:
             raise ValueError("Date of birth cannot be in the future")
         
         return date_string
+    
+    def _validate_national_insurance(self, ni_number: str) -> str:
+        """
+        Validates the following:
+        - Values must be strings
+        - Values must follow UK NI format: 2 letters + 6 digits + 1 letter (e.g., AB123456C)
+        - First letter cannot be D, F, I, Q, U, or V
+        - Second letter cannot be D, F, I, Q, U, V, or O
+        - The first 2 letters combines cannot be BG, GB, NK, KN, TN, NT, or ZZ
+        - Final letter must be A, B, C, or D
+        """
+        
+        if not isinstance(ni_number, str):
+            raise ValueError("National Insurance number must be a string")
+        
+        ni_number = ni_number.strip().replace(" ", "").upper()
+        
+        if not re.match(r"^[A-Z]{2}\d{6}[A-Z]$", ni_number):
+            raise ValueError("National Insurance number must be in format AB123456C (2 letters, 6 digits, 1 letter)")
+        
+        first_letter = ni_number[0]
+        second_letter = ni_number[1]
+        first_two_letters = ni_number[:2]
+        final_letter = ni_number[8]
+
+        validations = [
+            (first_letter, ["D", "F", "I", "Q", "U", "V"], f"National Insurance number cannot start with {first_letter}"),
+            (second_letter, ["D", "F", "I", "Q", "U", "V", "O"], f"National Insurance number cannot have {second_letter} as second letter"),
+            (first_two_letters, ["BG", "GB", "NK", "KN", "TN", "NT", "ZZ"], f"National Insurance number cannot begin with {first_two_letters}"),
+        ]
+        
+        for value, invalid_list, error_message in validations:
+            if value in invalid_list:
+                raise ValueError(error_message)
+
+
+        valid_final_letter = ["A", "B", "C", "D"]
+        if final_letter not in valid_final_letter:
+            raise ValueError(f"National Insurance number must end with A, B, C, or D")
+        
+        return ni_number
+    
+    def _validate_address(self, address_string: str) -> str:
+        """
+        Validates the following:
+        - Values must be strings
+        - Values must use comma-separated format (Address Line, Town/City, Postcode)
+        """
+        
+        if not isinstance(address_string, str):
+            raise ValueError("Address must be a string")
+        
+        if not address_string.strip():
+            raise ValueError("Address string cannot be empty")
+        
+        parts = [part.strip() for part in address_string.split(',') if part.strip()]
+        
+        if len(parts) != 3:
+            raise ValueError("Address must contain exactly 3 parts: address line, town/city, and postcode")
+        
+        address_line, town_or_city, postcode = parts
+        
+        if not address_line:
+            raise ValueError("Address line cannot be empty")
+        
+        self._validate_string(town_or_city, "Town or city")
+        self._validate_postcode(postcode)
+
+        return f"{address_line}, {town_or_city}, {postcode.upper()}"
+
+    def _validate_postcode(self, postcode: str) -> str:
+        """
+        Validates the following:
+        - Values must be strings
+        - First letter cannot be Q, V, or X
+        - Second letter cannot be I, J, or Z and may not exist
+        - Third position cannot be I, L, M, N, O, P, Q, R, V, X, Y, or Z and may not exist
+        - Second half must use format: digit + letter + letter
+        - Second half letters cannot be C, I, K, M, O, or V
+        """
+        
+        if not isinstance(postcode, str):
+            raise ValueError("Postcode must be a string")
+        
+        postcode = postcode.strip().upper()
+        
+        if not postcode:
+            raise ValueError("Postcode cannot be empty")
+        
+        if not re.match(r'^[A-Z]{1,2}\d[A-Z\d]? \d[A-Z]{2}$', postcode):
+            raise ValueError("Invalid UK postcode format")
+        
+        first_letter = postcode[0]
+        second_char = postcode[1] if len(postcode) > 1 else ""
+        second_half_letters = postcode[-2:]
+        
+        third_letter = None
+        for i, char in enumerate(postcode):
+            if i >= 2 and char.isalpha() and i < len(postcode) - len(second_half_letters):
+                third_letter = char
+                break
+        
+        validations = [
+            (first_letter, ["Q", "V", "X"], f"Postcode cannot start with {first_letter}"),
+        ]
+        
+        if second_char.isalpha():
+            validations.append((second_char, ["I", "J", "Z"], f"Postcode cannot have {second_char} as second letter"))
+        
+        if third_letter:
+            validations.append((third_letter, ["I", "L", "M", "N", "O", "P", "Q", "R", "V", "X", "Y", "Z"], f"Postcode cannot have {third_letter} in third position"))
+        
+        for value, invalid_list, error_message in validations:
+            if value in invalid_list:
+                raise ValueError(error_message)
+        
+        for letter in second_half_letters:
+            if letter in ["C", "I", "K", "M", "O", "V"]:
+                raise ValueError(f"Postcode cannot have {letter} in second half")
+        
+        return postcode
