@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 
 class Users(Enum):
     CENTRAL_AUTHORITY = 1
-    OTHER_ORGANISATION = 2
+    HMRC = 2
 
 class MainABC(ABC):
 
