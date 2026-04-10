@@ -75,7 +75,7 @@ class AttributeRegistry:
             name="national_insurance",
             display_name="National Insurance Number",
             attribute_type=AttributeType.NATIONAL_INSURANCE,
-            is_mutable=True,
+            is_mutable=False,
             is_required_for_creation=True,
             input_prompt="Enter National Insurance number (AB123456C): "
         ))
