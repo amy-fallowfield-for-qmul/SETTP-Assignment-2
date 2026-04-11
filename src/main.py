@@ -3,10 +3,10 @@ import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from constants import SEPARATION_WIDTH
-from centralAuthorityMain import CentralAuthorityMain
-from otherOrganisationsMain import OtherOrganisationMain
-from hmrc import HMRC
+from Config.constants import SEPARATION_WIDTH
+from UI.Controllers.centralAuthorityMain import CentralAuthorityMain
+from UI.Controllers.otherOrganisationsMain import OtherOrganisationMain
+from UI.Controllers.hmrc import HMRC
 
 def select_user_type():
     print("=" * SEPARATION_WIDTH)

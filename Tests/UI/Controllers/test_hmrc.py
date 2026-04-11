@@ -2,9 +2,9 @@ import pytest
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
-from hmrc import HMRC
+from UI.Controllers.hmrc import HMRC
 
 class TestHMRC:
     """Tests for HMRC class properties and functionality"""

@@ -1,11 +1,11 @@
 from typing import Dict, Any, Union, List, Optional
 from Logic.attributeValidator import Validator
-from Data.digitalIDRepository import DigitalIDRepository
-from Data.digitalID import DigitalID, Status
-from Data.logRepository import LogRepository
-from Data.log import Log, Action
-from Data.attributeRepository import AttributeRegistry
-from constants import ID_PATH, LOG_PATH, LOG_HEADERS
+from Data.DigitalID.digitalIDRepository import DigitalIDRepository
+from Data.DigitalID.digitalID import DigitalID, Status
+from Data.Logging.logRepository import LogRepository
+from Data.Logging.log import Log, Action
+from Data.Attributes.attributeRepository import AttributeRegistry
+from Config.constants import ID_PATH, LOG_PATH, LOG_HEADERS
 
 class DigitalIDService:
     """Singleton service for managing Digital ID operations"""

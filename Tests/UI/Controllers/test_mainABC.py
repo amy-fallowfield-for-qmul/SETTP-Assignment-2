@@ -1,11 +1,11 @@
 import pytest
-from centralAuthorityMain import CentralAuthorityMain
-from otherOrganisationsMain import OtherOrganisationMain
+from UI.Controllers.centralAuthorityMain import CentralAuthorityMain
+from UI.Controllers.otherOrganisationsMain import OtherOrganisationMain
 from UI.requests import Requests
-from Data.digitalID import DigitalID
-from Data.digitalIDRepository import DigitalIDRepository
+from Data.DigitalID.digitalID import DigitalID
+from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Logic.service import DigitalIDService
-from mainABC import MainABC
+from UI.Controllers.mainABC import MainABC
 
 class TestMainABCSharedFunctionality:
     """Tests for shared functionality in MainABC base class"""

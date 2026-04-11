@@ -1,10 +1,10 @@
 import pytest
 from Logic.service import DigitalIDService
-from Data.digitalID import DigitalID
-from Data.digitalIDRepository import DigitalIDRepository
-from Data.logRepository import LogRepository
-from Data.log import Action
-from otherOrganisationsMain import OtherOrganisationMain
+from Data.DigitalID.digitalID import DigitalID
+from Data.DigitalID.digitalIDRepository import DigitalIDRepository
+from Data.Logging.logRepository import LogRepository
+from Data.Logging.log import Action
+from UI.Controllers.otherOrganisationsMain import OtherOrganisationMain
 from Tests.shared_test_data import justification_person_dict
 
 class TestServicePermissionSystem:

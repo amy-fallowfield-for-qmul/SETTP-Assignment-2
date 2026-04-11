@@ -1,5 +1,5 @@
 from typing import Dict, List
-from Data.attributeMetadata import AttributeMetadata, AttributeType
+from .attributeMetadata import AttributeMetadata, AttributeType
 
 class AttributeRegistry:
     """Singleton repository for storing and managing Digital ID attributes"""

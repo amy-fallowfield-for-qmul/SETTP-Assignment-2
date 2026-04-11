@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import datetime
-from Data.logRepository import LogRepository
-from Data.log import Log, Action
+from Data.Logging.logRepository import LogRepository
+from Data.Logging.log import Log, Action
 
 class SuspendedChecker:
 

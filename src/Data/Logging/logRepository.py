@@ -1,8 +1,7 @@
-import os
 from typing import List, Dict
-from Data.log import Log
-from Data.repositoryABC import RepositoryABC
-from constants import LOG_PATH, LOG_HEADERS
+from .log import Log
+from ..repositoryABC import RepositoryABC
+from Config.constants import LOG_PATH, LOG_HEADERS
 
 class LogRepository(RepositoryABC):
     """Singleton repository for storing and managing log entries"""

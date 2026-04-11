@@ -1,8 +1,8 @@
 from typing import Dict, List
-from Data.digitalID import DigitalID
-from constants import ID_PATH
-from Data.repositoryABC import RepositoryABC
-from Data.attributeRepository import AttributeRegistry
+from .digitalID import DigitalID
+from Config.constants import ID_PATH
+from ..repositoryABC import RepositoryABC
+from ..Attributes.attributeRepository import AttributeRegistry
 
 class DigitalIDRepository(RepositoryABC):
     """Singleton repository for storing and managing Digital IDs"""

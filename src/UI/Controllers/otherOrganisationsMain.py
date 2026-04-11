@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import List
-from mainABC import MainABC
-from constants import SEPARATION_WIDTH
+from .mainABC import MainABC
+from Config.constants import SEPARATION_WIDTH
 
 class OtherOrganisationMain(MainABC):
     """Abstract base class for specific other organisations"""

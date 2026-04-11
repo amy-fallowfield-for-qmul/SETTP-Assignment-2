@@ -4,7 +4,7 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 
 from UI.requests import Requests
-from constants import SEPARATION_WIDTH
+from Config.constants import SEPARATION_WIDTH
 from enum import Enum
 from abc import ABC, abstractmethod
 
