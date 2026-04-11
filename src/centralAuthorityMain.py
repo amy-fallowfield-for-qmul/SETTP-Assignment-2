@@ -8,9 +8,10 @@ class CentralAuthorityMain(MainABC):
         print("1. Create a new Digital ID")
         print("2. Query Digital ID by ID")
         print("3. Update a Digital ID")
-        print("4. View all Digital ID data")
-        print("5. View all log data")
-        print("6. Exit\n")
+        print("4. Query Digital ID suspended in given period")
+        print("5. View all Digital ID data")
+        print("6. View all log data")
+        print("7. Exit\n")
 
         try:
             choice = int(input())
@@ -26,10 +27,12 @@ class CentralAuthorityMain(MainABC):
             case 3:
                 self.REQUESTS.update_id()
             case 4:
-                self.REQUESTS.view_all("digitalID")
+                self._query_suspended_in_period()
             case 5:
-                self.REQUESTS.view_all("log")
+                self.REQUESTS.view_all("digitalID")
             case 6:
+                self.REQUESTS.view_all("log")
+            case 7:
                 self.REQUESTS.exit_program()
             case _:
                 print("Invalid choice")

@@ -41,3 +41,15 @@ class MainABC(ABC):
 
     @abstractmethod
     def generate_options(self) -> None: pass
+
+    def _query_suspended_in_period(self) -> None:
+        try:
+            result = self.REQUESTS.id_suspended_in_period()
+            
+            if result:
+                print("Result: Digital ID was suspended during specified period")
+            else:
+                print("Result: Digital ID was NOT suspended during specified period")
+                
+        except ValueError as e:
+            print(f"Error checking suspension history: {e}")
