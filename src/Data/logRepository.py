@@ -42,6 +42,7 @@ class LogRepository(RepositoryABC):
             "action": row[5],
             "justification": row[6],
             "currentValue": row[7],
-            "newValue": row[8]
+            "newValue": row[8],
+            "attribute": row[9]
         }
         return Log.from_csv(attributes)
