@@ -1,4 +1,5 @@
 from Logic.service import DigitalIDService
+from Logic.suspendedChecker import SuspendedChecker
 from Data.digitalID import DigitalID
 from constants import SEPARATION_WIDTH, LOG_HEADERS
 
@@ -17,6 +18,7 @@ class Requests:
         if not hasattr(self, '_initialised'):
             self._initialised = True
             self.DIGITAL_ID_SERVICE = DigitalIDService()
+            self.SUSPENDED_CHECKER = SuspendedChecker()
 
     def create_id(self) -> None:
         data = {}
@@ -143,3 +145,19 @@ class Requests:
 
         except (ValueError, IndexError):
             raise ValueError("Invalid input")
+
+    def id_suspended_in_period(self) -> bool:
+        try:
+            start_date = input("Enter start date (YYYY-MM-DD): ")
+            end_date = input("Enter end date (YYYY-MM-DD): ")
+            id_number = int(input("Enter Digital ID number: "))
+
+            self.DIGITAL_ID_SERVICE.get_id_by_number(id_number)
+            
+            validated_start = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(start_date)
+            validated_end = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(end_date)
+
+            return self.SUSPENDED_CHECKER.id_suspended_in_period(validated_start, validated_end, id_number)
+            
+        except Exception as e:
+            raise ValueError(f"Error checking suspension period: {str(e)}")

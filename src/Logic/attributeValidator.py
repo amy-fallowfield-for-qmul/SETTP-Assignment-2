@@ -43,7 +43,7 @@ class Validator:
             if attribute_metadata.type.value == "string":
                 data[key] = self._validate_string(data[key], key)
             elif attribute_metadata.type.value == "date":
-                data[key] = self._validate_date_of_birth(data[key])
+                data[key] = self.validate_date(data[key])
             elif attribute_metadata.type.value == "national_insurance":
                 data[key] = self._validate_national_insurance(data[key])
             elif attribute_metadata.type.value == "address":
@@ -98,7 +98,7 @@ class Validator:
             raise ValueError(f"{attribute} cannot contain numbers or special characters")
         return value
 
-    def _validate_date_of_birth(self, date_string: str) -> str:
+    def validate_date(self, date_string: str) -> str:
         """
         Validates the following:
         - Values must be strings
@@ -107,14 +107,14 @@ class Validator:
         """
         
         if not isinstance(date_string, str):
-            raise ValueError("Date of birth must be a string")
+            raise ValueError("Date must be a string")
         
         if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_string):
-            raise ValueError("Date of birth must be in YYYY-MM-DD format")
+            raise ValueError("Date must be in YYYY-MM-DD format")
         
         date_object = date.fromisoformat(date_string)
         if date_object > date.today():
-            raise ValueError("Date of birth cannot be in the future")
+            raise ValueError("Date cannot be in the future")
         
         return date_string
     
