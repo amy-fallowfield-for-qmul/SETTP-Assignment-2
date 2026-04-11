@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
-from Data.log import Log, Action
-from Data.digitalID import DigitalID
+from Data.Logging.log import Log, Action
+from Data.DigitalID.digitalID import DigitalID
 from Tests.shared_test_data import new_person_dict
 
 class TestAction:

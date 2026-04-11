@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional, Union, Dict
 from datetime import datetime
-from Data.digitalID import DigitalID
+from ..DigitalID.digitalID import DigitalID
 
 class Action(Enum):
     CREATE = "create"

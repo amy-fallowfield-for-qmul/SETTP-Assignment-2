@@ -1,4 +1,4 @@
-from otherOrganisationsMain import OtherOrganisationMain
+from .otherOrganisationsMain import OtherOrganisationMain
 
 class HMRC(OtherOrganisationMain):
     @property

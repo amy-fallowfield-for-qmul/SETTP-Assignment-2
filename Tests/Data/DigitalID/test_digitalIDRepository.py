@@ -1,7 +1,7 @@
 import pytest
 import os
-from Data.digitalID import DigitalID
-from Data.digitalIDRepository import DigitalIDRepository
+from Data.DigitalID.digitalID import DigitalID
+from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Tests.shared_test_data import new_person_dict, from_csv_person_dict
 
 class TestDigitalIDRepositoryCreation:

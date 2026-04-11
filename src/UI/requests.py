@@ -1,7 +1,7 @@
 from Logic.service import DigitalIDService
 from Logic.suspendedChecker import SuspendedChecker
-from Data.digitalID import DigitalID
-from constants import SEPARATION_WIDTH, LOG_HEADERS
+from Data.DigitalID.digitalID import DigitalID
+from Config.constants import SEPARATION_WIDTH, LOG_HEADERS
 
 class Requests:
     """Singleton request handler for the UI layer"""

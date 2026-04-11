@@ -1,7 +1,7 @@
 import pytest
 from UI.requests import Requests
-from Data.digitalID import DigitalID
-from Data.digitalIDRepository import DigitalIDRepository
+from Data.DigitalID.digitalID import DigitalID
+from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Logic.service import DigitalIDService
 from Tests.shared_test_data import justification_person_dict
 

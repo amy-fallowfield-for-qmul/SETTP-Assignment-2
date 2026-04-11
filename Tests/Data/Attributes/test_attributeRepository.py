@@ -1,6 +1,6 @@
 import pytest
-from Data.attributeRepository import AttributeRegistry
-from Data.attributeMetadata import AttributeMetadata, AttributeType
+from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.attributeMetadata import AttributeMetadata, AttributeType
 from Tests.shared_test_data import from_csv_person_dict
 
 class TestAttributeRegistryCreation:

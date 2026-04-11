@@ -2,10 +2,10 @@ import pytest
 from unittest.mock import Mock
 from datetime import datetime
 from Logic.suspendedChecker import SuspendedChecker
-from Data.log import Action
-from Data.logRepository import LogRepository
-from Data.digitalID import DigitalID
-from Data.digitalIDRepository import DigitalIDRepository
+from Data.Logging.log import Action
+from Data.Logging.logRepository import LogRepository
+from Data.DigitalID.digitalID import DigitalID
+from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Tests.shared_test_data import new_person_dict
 
 def get_create_log() -> Mock:

@@ -1,9 +1,9 @@
 from typing import Any, Dict
 from datetime import date
 import re
-from Data.digitalID import Status
-from Data.attributeRepository import AttributeRegistry
-from Data.address import Address
+from Data.DigitalID.digitalID import Status
+from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.address import Address
 
 class Validator:
     """Singleton validator for Digital ID attributes"""

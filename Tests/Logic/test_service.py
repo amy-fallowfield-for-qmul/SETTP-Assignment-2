@@ -1,13 +1,13 @@
 import pytest
 import os
-import Data.digitalIDRepository as repo_module
+import Data.DigitalID.digitalIDRepository as repo_module
 import Logic.service as service_module
-import constants
+from Config import constants
 from Logic.service import DigitalIDService
-from Data.digitalID import DigitalID, Status
-from Data.digitalIDRepository import DigitalIDRepository
-from Data.log import Action
-from Data.logRepository import LogRepository
+from Data.DigitalID.digitalID import DigitalID, Status
+from Data.DigitalID.digitalIDRepository import DigitalIDRepository
+from Data.Logging.log import Action
+from Data.Logging.logRepository import LogRepository
 from Tests.shared_test_data import justification_person_dict
 
 @pytest.fixture

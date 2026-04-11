@@ -1,4 +1,4 @@
-from mainABC import MainABC
+from .mainABC import MainABC
 
 class CentralAuthorityMain(MainABC):
     """Singleton entry point for the Digital ID System used by the Central Authority"""

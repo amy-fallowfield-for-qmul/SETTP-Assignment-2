@@ -1,5 +1,5 @@
 import pytest
-from Data.digitalID import DigitalID, Status
+from Data.DigitalID.digitalID import DigitalID, Status
 from Tests.shared_test_data import new_person_dict, from_csv_person_dict
 
 class TestStatus:

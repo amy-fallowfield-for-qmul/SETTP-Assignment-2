@@ -1,5 +1,5 @@
 import pytest
-from Data.attributeMetadata import AttributeMetadata, AttributeType
+from Data.Attributes.attributeMetadata import AttributeMetadata, AttributeType
 
 class TestAttributeType:
     """Tests for the AttributeType enum"""
