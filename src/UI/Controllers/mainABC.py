@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 class Users(Enum):
     CENTRAL_AUTHORITY = 1
     HMRC = 2
+    EMPLOYER = 3
 
 class MainABC(ABC):
 

@@ -7,6 +7,7 @@ from Config.constants import SEPARATION_WIDTH
 from UI.Controllers.centralAuthorityMain import CentralAuthorityMain
 from UI.Controllers.otherOrganisationsMain import OtherOrganisationMain
 from UI.Controllers.hmrc import HMRC
+from UI.Controllers.employer import Employer
 
 def select_user_type():
     print("=" * SEPARATION_WIDTH)
@@ -17,7 +18,8 @@ def select_user_type():
         print("\nPlease select your organisation type:")
         print("1. Central Authority")
         print("2. HMRC")
-        print("3. Exit")
+        print("3. Employer")
+        print("4. Exit")
         
         try:
             choice = int(input())
@@ -27,6 +29,8 @@ def select_user_type():
                 case 2:
                     HMRC()
                 case 3:
+                    Employer()
+                case 4:
                     exit()
                 case default:
                     raise()
