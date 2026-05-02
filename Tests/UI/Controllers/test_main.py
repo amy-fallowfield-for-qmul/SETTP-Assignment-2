@@ -51,8 +51,23 @@ class TestMainEntryPointUserSelection:
             
             mock_employer.assert_called_once()
 
+    def test_select_bank(self, monkeypatch) -> None:
+        inputs = iter(["4"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+        
+        with patch('main.Bank') as mock_bank:
+            mock_instance = MagicMock()
+            mock_bank.return_value = mock_instance
+            
+            try:
+                main.select_user_type()
+            except StopIteration:
+                pass
+            
+            mock_bank.assert_called_once()
+
     def test_invalid_non_numeric_input_handling(self, monkeypatch, capsys) -> None:
-        inputs = iter(["abc", "4"])
+        inputs = iter(["abc", "5"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         
         with pytest.raises(SystemExit):
@@ -62,7 +77,7 @@ class TestMainEntryPointUserSelection:
         assert "Invalid input" in captured.out
 
     def test_welcome_message(self, monkeypatch, capsys) -> None:
-        monkeypatch.setattr("builtins.input", lambda _="": "4")
+        monkeypatch.setattr("builtins.input", lambda _="": "5")
         
         with pytest.raises(SystemExit):
             main.select_user_type()
@@ -72,7 +87,7 @@ class TestMainEntryPointUserSelection:
         assert "=" * 100 in captured.out
 
     def test_menu_options_displayed_correctly(self, monkeypatch, capsys) -> None:
-        monkeypatch.setattr("builtins.input", lambda _="": "4")
+        monkeypatch.setattr("builtins.input", lambda _="": "5")
         
         with pytest.raises(SystemExit):
             main.select_user_type()
@@ -82,10 +97,11 @@ class TestMainEntryPointUserSelection:
         assert "1. Central Authority" in captured.out
         assert "2. HMRC" in captured.out
         assert "3. Employer" in captured.out
-        assert "4. Exit" in captured.out
+        assert "4. Bank" in captured.out
+        assert "5. Exit" in captured.out
 
     def test_retry_on_invalid_choice(self, monkeypatch, capsys) -> None:
-        inputs = iter(["abc", "xyz", "4"])
+        inputs = iter(["abc", "xyz", "5"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         
         with pytest.raises(SystemExit):
