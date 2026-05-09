@@ -32,7 +32,7 @@ class DigitalIDService(metaclass=SingletonMeta):
             new_id = DigitalID(creation_attributes)
             self.DIGITAL_ID_REPOSITORY.add(new_id)
             
-            log = Log(True, "Central Authority", new_id.id, Action.CREATE, justification, new_id, None, None)
+            log = Log.for_create("Central Authority", new_id.id, justification, new_id)
             self.LOG_REPOSITORY.add(log)
 
             return new_id
@@ -40,7 +40,7 @@ class DigitalIDService(metaclass=SingletonMeta):
         except Exception as e:
             error_message = f"Invalid attribute data: {e}"
 
-            failed_log = Log(False, "Central Authority", 0, Action.CREATE, justification, error_message, None, None)
+            failed_log = Log.for_failure("Central Authority", 0, Action.CREATE, justification, error_message)
             self.LOG_REPOSITORY.add(failed_log)
             raise ValueError(error_message)
 
@@ -103,13 +103,13 @@ class DigitalIDService(metaclass=SingletonMeta):
             attribute_value = digital_id.to_dict()[attribute]
             validated_justification = self.VALIDATOR._validate_string(justification, "justification")
             
-            log = Log(True, organisation, id_number, Action.READ, validated_justification, str(attribute_value), None, None)
+            log = Log.for_read(organisation, id_number, validated_justification, str(attribute_value))
             self.LOG_REPOSITORY.add(log)
             
             return str(attribute_value)
         except Exception as e:
             error_message = str(e)
-            failed_log = Log(False, organisation, id_number, Action.READ, safe_justification, error_message, None, None)
+            failed_log = Log.for_failure(organisation, id_number, Action.READ, safe_justification, error_message)
             self.LOG_REPOSITORY.add(failed_log)
             raise
 
@@ -139,11 +139,11 @@ class DigitalIDService(metaclass=SingletonMeta):
             else:
                 setattr(digital_id, attribute, validated_value)
 
-            log = Log(True, "Central Authority", id_number, Action.UPDATE, validated_justification, old_value, validated_value, attribute)
+            log = Log.for_update("Central Authority", id_number, validated_justification, attribute, old_value, validated_value)
             self.LOG_REPOSITORY.add(log)
         except Exception as e:
             error_message = str(e)
-            failed_log = Log(False, "Central Authority", id_number, Action.UPDATE, safe_justification, error_message, None, attribute)
+            failed_log = Log.for_failure("Central Authority", id_number, Action.UPDATE, safe_justification, error_message, attribute)
             self.LOG_REPOSITORY.add(failed_log)
             raise
   
