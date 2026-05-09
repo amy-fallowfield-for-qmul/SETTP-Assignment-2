@@ -36,8 +36,8 @@ def select_user_type():
                     Bank()
                 case 5:
                     exit()
-                case default:
-                    raise()
+                case _:
+                    raise
         except ValueError:
             print("Invalid input")
 
