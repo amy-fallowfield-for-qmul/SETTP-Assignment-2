@@ -13,9 +13,9 @@ class TestServicePermissionSystem:
     @pytest.fixture
     def service(self) -> DigitalIDService:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
-        LogRepository._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
+        LogRepository.clear_instance()
 
         service = DigitalIDService()
         service.create_id(justification_person_dict)

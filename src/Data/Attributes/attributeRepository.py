@@ -1,21 +1,13 @@
 from typing import Dict, List
+from Common.singleton import SingletonMeta
 from .attributeMetadata import AttributeMetadata, AttributeType
 
-class AttributeRegistry:
+class AttributeRegistry(metaclass=SingletonMeta):
     """Singleton repository for storing and managing Digital ID attributes"""
-    
-    _instance = None
-    
-    def __new__(cls) -> "AttributeRegistry":
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-    
+
     def __init__(self) -> None:
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._attributes: Dict[str, AttributeMetadata] = {}
-            self._register_core_attributes()
+        self._attributes: Dict[str, AttributeMetadata] = {}
+        self._register_core_attributes()
     
     def _register_core_attributes(self) -> None:
         

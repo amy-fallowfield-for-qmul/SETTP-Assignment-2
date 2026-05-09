@@ -3,10 +3,11 @@ import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+from Common.singleton import SingletonABCMeta
 from UI.requests import Requests
 from Config.constants import SEPARATION_WIDTH
 from enum import Enum
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 class Users(Enum):
     CENTRAL_AUTHORITY = 1
@@ -14,21 +15,12 @@ class Users(Enum):
     EMPLOYER = 3
     BANK = 4
 
-class MainABC(ABC):
-
-    _instance = None
-
-    def __new__(cls) -> "MainABC":
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+class MainABC(metaclass=SingletonABCMeta):
 
     def __init__(self) -> None:
-        if not hasattr(self, '_initialised'):
-            self._initialised = True
-            self.REQUESTS = Requests()
-            self.start_program()
-            self.main()
+        self.REQUESTS = Requests()
+        self.start_program()
+        self.main()
 
     def main(self) -> None:
         while True:

@@ -7,7 +7,7 @@ class TestAttributeRegistryCreation:
     """Tests for AttributeRegistry singleton constructor"""
 
     def test_create_registry_singleton(self) -> None:
-        AttributeRegistry._instance = None
+        AttributeRegistry.clear_instance()
         registry1 = AttributeRegistry()
         registry2 = AttributeRegistry()
         assert registry1 is registry2
@@ -16,7 +16,7 @@ class TestAttributeRegistryAddAndGet:
     """Tests for registering and retrieving attributes"""
 
     def setup_method(self) -> None:
-        AttributeRegistry._instance = None
+        AttributeRegistry.clear_instance()
         self.registry = AttributeRegistry()
 
     def test_register_new_attribute(self) -> None:
@@ -57,7 +57,7 @@ class TestAttributeRegistryFiltering:
     """Tests for attribute filtering methods"""
 
     def setup_method(self) -> None:
-        AttributeRegistry._instance = None
+        AttributeRegistry.clear_instance()
         self.registry = AttributeRegistry()
 
     def test_get_required_for_creation(self) -> None:
@@ -82,7 +82,7 @@ class TestAttributeRegistryUtilities:
     """Tests for utility methods"""
 
     def setup_method(self) -> None:
-        AttributeRegistry._instance = None
+        AttributeRegistry.clear_instance()
         self.registry = AttributeRegistry()
 
     def test_get_input_prompt(self) -> None:

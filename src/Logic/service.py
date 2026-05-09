@@ -1,4 +1,5 @@
 from typing import Dict, Any, Union, List, Optional
+from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import DigitalID, Status
@@ -7,23 +8,14 @@ from Data.Logging.log import Log, Action
 from Data.Attributes.attributeRepository import AttributeRegistry
 from Config.constants import ID_PATH, LOG_PATH, LOG_HEADERS
 
-class DigitalIDService:
+class DigitalIDService(metaclass=SingletonMeta):
     """Singleton service for managing Digital ID operations"""
 
-    _instance = None
-
-    def __new__(cls) -> "DigitalIDService":
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
     def __init__(self) -> None:
-        if not hasattr(self, '_initialised'):
-            self._initialised = True
-            self.VALIDATOR = Validator()
-            self.DIGITAL_ID_REPOSITORY = DigitalIDRepository()
-            self.LOG_REPOSITORY = LogRepository()
-            self.ATTRIBUTE_REGISTRY = AttributeRegistry()
+        self.VALIDATOR = Validator()
+        self.DIGITAL_ID_REPOSITORY = DigitalIDRepository()
+        self.LOG_REPOSITORY = LogRepository()
+        self.ATTRIBUTE_REGISTRY = AttributeRegistry()
 
     def create_id(self, data: Dict[str, Any]) -> DigitalID:
         justification = data.get("justification", "Unknown justification")

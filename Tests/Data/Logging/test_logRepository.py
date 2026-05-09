@@ -14,9 +14,7 @@ EXPECTED_HEADERS = [
 
 @pytest.fixture
 def log_repo() -> LogRepository:
-    LogRepository._instance = None
-    DigitalID._next_id = 1
-    Log._next_id = 1
+    LogRepository.clear_instance()
     return LogRepository()
 
 class TestLogRepositoryAddAndGet:
@@ -67,9 +65,7 @@ class TestLogRepositoryCSV:
     TEST_CSV_PATH = "test_logs.csv"
 
     def setup_method(self) -> None:
-        LogRepository._instance = None
-        DigitalID._next_id = 1
-        Log._next_id = 1
+        LogRepository.clear_instance()
         self.log_repo = LogRepository()
 
     def teardown_method(self) -> None:
@@ -121,7 +117,7 @@ class TestLogRepositoryCSV:
         self.log_repo.add(log2)
         self.log_repo.save_to_csv()
 
-        LogRepository._instance = None
+        LogRepository.clear_instance()
         new_repo = LogRepository()
         monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         new_repo.load_from_csv()
@@ -141,7 +137,7 @@ class TestLogRepositoryCSV:
         monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         self.log_repo.save_to_csv()
         
-        LogRepository._instance = None
+        LogRepository.clear_instance()
         new_repo = LogRepository()
         monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         new_repo.load_from_csv()

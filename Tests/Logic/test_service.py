@@ -13,9 +13,9 @@ from Tests.shared_test_data import justification_person_dict
 @pytest.fixture
 def service() -> DigitalIDService:
     DigitalID._next_id = 1
-    DigitalIDRepository._instance = None
-    DigitalIDService._instance = None
-    LogRepository._instance = None
+    DigitalIDRepository.clear_instance()
+    DigitalIDService.clear_instance()
+    LogRepository.clear_instance()
     return DigitalIDService()
 
 class TestServiceCreateID:
@@ -171,8 +171,8 @@ class TestServiceCSV:
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
         constants.ID_PATH = self.TEST_CSV_PATH
         repo_module.ID_PATH = self.TEST_CSV_PATH
         service_module.ID_PATH = self.TEST_CSV_PATH
@@ -187,8 +187,8 @@ class TestServiceCSV:
         service.save_csv_data()
 
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
         new_service = DigitalIDService()
         new_service.load_csv_data()
 
