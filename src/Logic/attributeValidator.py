@@ -1,24 +1,16 @@
 from typing import Any, Dict
 from datetime import date
 import re
+from Common.singleton import SingletonMeta
 from Data.DigitalID.digitalID import Status
 from Data.Attributes.attributeRepository import AttributeRegistry
 from Data.Attributes.address import Address
 
-class Validator:
+class Validator(metaclass=SingletonMeta):
     """Singleton validator for Digital ID attributes"""
 
-    _instance = None
-
-    def __new__(cls) -> "Validator":
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
     def __init__(self) -> None:
-        if not hasattr(self, '_initialised'):
-            self._initialised = True
-            self.ATTRIBUTE_REGISTRY = AttributeRegistry()
+        self.ATTRIBUTE_REGISTRY = AttributeRegistry()
 
     def validate_all_attributes(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """

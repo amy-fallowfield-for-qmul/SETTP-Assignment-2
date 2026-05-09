@@ -18,10 +18,12 @@ class TestMainABCSharedFunctionality:
         assert hasattr(central, 'REQUESTS')
         assert isinstance(central.REQUESTS, Requests)
 
-    def test_singleton_pattern(self) -> None:
+    def test_singleton_pattern(self, monkeypatch) -> None:
         CentralAuthorityMain._instance = None
-        instance1 = CentralAuthorityMain.__new__(CentralAuthorityMain)
-        instance2 = CentralAuthorityMain.__new__(CentralAuthorityMain)
+        monkeypatch.setattr(CentralAuthorityMain, "start_program", lambda self: None)
+        monkeypatch.setattr(CentralAuthorityMain, "main", lambda self: None)
+        instance1 = CentralAuthorityMain()
+        instance2 = CentralAuthorityMain()
         assert instance1 is instance2
 
     def test_abc_prevents_direct_instantiation(self) -> None:

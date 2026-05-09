@@ -1,24 +1,17 @@
+from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
 from Logic.suspendedChecker import SuspendedChecker
 from Data.DigitalID.digitalID import DigitalID
 from Config.constants import SEPARATION_WIDTH, LOG_HEADERS
 
-class Requests:
+class Requests(metaclass=SingletonMeta):
     """Singleton request handler for the UI layer"""
 
     MUTABLE_FIELDS = ["status", "firstName", "surname"]
-    _instance = None
-
-    def __new__(cls) -> "Requests":
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
 
     def __init__(self) -> None:
-        if not hasattr(self, '_initialised'):
-            self._initialised = True
-            self.DIGITAL_ID_SERVICE = DigitalIDService()
-            self.SUSPENDED_CHECKER = SuspendedChecker()
+        self.DIGITAL_ID_SERVICE = DigitalIDService()
+        self.SUSPENDED_CHECKER = SuspendedChecker()
 
     def create_id(self) -> None:
         data = {}

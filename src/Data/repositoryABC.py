@@ -1,21 +1,13 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from Common.singleton import SingletonABCMeta
 from Data.dataStorage import DataStorage
 from typing import Union, Dict, List
 
-class RepositoryABC(ABC):
-    
-    _instance = None
+class RepositoryABC(metaclass=SingletonABCMeta):
 
-    def __new__(cls) -> "RepositoryABC":
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-    
     def __init__(self) -> None:
-        if not hasattr(self, '_initialised'):
-            self._initialised = True
-            self._storage = DataStorage()
-            self._initialise()
+        self._storage = DataStorage()
+        self._initialise()
 
     @abstractmethod
     def _initialise(self) -> None: pass
