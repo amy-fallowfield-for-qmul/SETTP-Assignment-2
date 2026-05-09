@@ -27,6 +27,22 @@ class Log:
         self._attribute: Optional[str] = attribute
 
     @classmethod
+    def for_create(cls, organisation: str, id_number: int, justification: str, digital_id: DigitalID) -> "Log":
+        return cls(True, organisation, id_number, Action.CREATE, justification, digital_id, None, None)
+
+    @classmethod
+    def for_read(cls, organisation: str, id_number: int, justification: str, value: str) -> "Log":
+        return cls(True, organisation, id_number, Action.READ, justification, value, None, None)
+
+    @classmethod
+    def for_update(cls, organisation: str, id_number: int, justification: str, attribute: str, old_value: str, new_value: str) -> "Log":
+        return cls(True, organisation, id_number, Action.UPDATE, justification, old_value, new_value, attribute)
+
+    @classmethod
+    def for_failure(cls, organisation: str, id_number: int, action: Action, justification: str, error: str, attribute: Optional[str] = None) -> "Log":
+        return cls(False, organisation, id_number, action, justification, error, None, attribute)
+
+    @classmethod
     def from_csv(cls, attributes: Dict[str, str]) -> "Log":
         log = cls.__new__(cls)
         log._id = int(attributes["id"])
@@ -123,4 +139,3 @@ class Log:
                 value_string = f"{self.attribute}: {self._current_value} -> {self._new_value}"
         accepted_string = "ACCEPTED" if self._accepted else "REJECTED"
         print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] Requested to {self._action.value} ID {self._id_number} to [{value_string}] because {self._justification} was {accepted_string}")
-
