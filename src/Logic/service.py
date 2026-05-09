@@ -1,4 +1,4 @@
-from typing import Dict, Any, Union, List, Optional
+from typing import Dict, Any, List, Optional
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
@@ -50,40 +50,27 @@ class DigitalIDService(metaclass=SingletonMeta):
     def get_all_logs(self) -> Dict[int, Log]:
         return self.LOG_REPOSITORY.get_all()
 
-    def get_filtered_data(self, params: Dict[str, Any]) -> Union[Dict[int, DigitalID], Dict[int, Log]]:
-        """
-        Takes a list of parameters specifying any specific values an attribute should have
-        and returns a dictionary of all Digital IDs or Logs which match those parameters
-        """
+    def get_filtered_ids(self, filters: Dict[str, str]) -> Dict[int, DigitalID]:
+        return self._apply_filter(self.DIGITAL_ID_REPOSITORY.get_all(), filters, self.ATTRIBUTE_REGISTRY.get_all_attributes())
 
-        if "data" not in params:
-            raise ValueError("No data type specified for filtering")
+    def get_filtered_logs(self, filters: Dict[str, str]) -> Dict[int, Log]:
+        return self._apply_filter(self.LOG_REPOSITORY.get_all(), filters, LOG_HEADERS)
 
-        if params["data"] == "log":
-            all_data = self.LOG_REPOSITORY.get_all()
-            valid_fields = LOG_HEADERS
-        elif params["data"] == "digitalID":
-            all_data = self.DIGITAL_ID_REPOSITORY.get_all()
-            valid_fields = self.ATTRIBUTE_REGISTRY.get_all_attributes()
-        else:
-            raise ValueError("Data type must be 'digitalID' or 'log'")
-
-        for key in params:
-            if key not in valid_fields and key != "data":
+    def _apply_filter(self, all_data: Dict[int, Any], filters: Dict[str, str], valid_fields: List[str]) -> Dict[int, Any]:
+        for key in filters:
+            if key not in valid_fields:
                 raise ValueError(f"Invalid filter field: {key}")
 
-        filtered_data = {}
+        if not filters:
+            return dict(all_data)
 
+        matches: Dict[int, Any] = {}
         for data_id, data_object in all_data.items():
             data_dictionary = data_object.to_dict()
-            filter_params = {attribute: value for attribute, value in params.items() if attribute != "data"}
+            if all(str(data_dictionary.get(key)).lower() == str(value).lower() for key, value in filters.items()):
+                matches[data_id] = data_object
 
-            if not filter_params:
-                filtered_data[data_id] = data_object
-            elif all(str(data_dictionary.get(key)).lower() == str(value).lower() for key, value in filter_params.items()):
-                filtered_data[data_id] = data_object
-
-        return filtered_data
+        return matches
 
     def get_id_by_number(self, id_number: int) -> DigitalID:
         try:

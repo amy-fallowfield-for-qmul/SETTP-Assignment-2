@@ -28,40 +28,60 @@ class Requests(metaclass=SingletonMeta):
         except Exception as e:
             print(f"Error creating Digital ID: {e}")
 
-    def view_all(self, data: str) -> None:
-        print("\nPlease select an option:")
-        print("1. View all data")
-        print("2. Filter data")
-
+    def view_all_ids(self) -> None:
         try:
-            choice = int(input())
-            if choice != 1 and choice != 2:
-                raise ValueError
+            choice, filters = self._get_filter_choice(self.DIGITAL_ID_SERVICE.get_all_digital_id_attributes())
         except ValueError:
             print("Invalid choice")
             return
 
-        attribute_list = self.DIGITAL_ID_SERVICE.get_all_digital_id_attributes() if data == "digitalID" else LOG_HEADERS
-        
         if choice == 1:
-            all_ids = self.DIGITAL_ID_SERVICE.get_all_ids() if data == "digitalID" else self.DIGITAL_ID_SERVICE.get_all_logs()
+            all_data = self.DIGITAL_ID_SERVICE.get_all_ids()
         else:
-            params = {}
-            params["data"] = data
+            all_data = self.DIGITAL_ID_SERVICE.get_filtered_ids(filters)
+
+        self._print_results(all_data, "Digital IDs")
+
+    def view_all_logs(self) -> None:
+        try:
+            choice, filters = self._get_filter_choice(LOG_HEADERS)
+        except ValueError:
+            print("Invalid choice")
+            return
+
+        if choice == 1:
+            all_data = self.DIGITAL_ID_SERVICE.get_all_logs()
+        else:
+            all_data = self.DIGITAL_ID_SERVICE.get_filtered_logs(filters)
+
+        self._print_results(all_data, "logs")
+
+    def _get_filter_choice(self, attribute_list):
+        print("\nPlease select an option:")
+        print("1. View all data")
+        print("2. Filter data")
+
+        choice = int(input())
+        if choice != 1 and choice != 2:
+            raise ValueError
+
+        filters = {}
+        if choice == 2:
             for attribute in attribute_list:
                 filter_choice = input(f"Filter data by {attribute} value [Y/N]: ")
                 if filter_choice.lower() == "y":
-                    params[attribute] = input(f"Enter value for {attribute}: ")
-            all_ids = self.DIGITAL_ID_SERVICE.get_filtered_data(params)
+                    filters[attribute] = input(f"Enter value for {attribute}: ")
 
-        if not all_ids:
-            data_type_name = "Digital IDs" if data == "digitalID" else "logs"
-            print(f"No {data_type_name} found")
+        return choice, filters
+
+    def _print_results(self, all_data, empty_label: str) -> None:
+        if not all_data:
+            print(f"No {empty_label} found")
             return
 
         print("=" * SEPARATION_WIDTH)
-        for id in all_ids.values():
-            id.print()
+        for item in all_data.values():
+            item.print()
         print("=" * SEPARATION_WIDTH)
 
     def query_id(self) -> None:
