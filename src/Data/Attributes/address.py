@@ -14,7 +14,6 @@ class Address:
         self.postcode = postcode.strip().upper()
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert address to dictionary format"""
         result = {
             "address_line": self.address_line,
             "town_city": self.town_city,
