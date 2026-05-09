@@ -8,7 +8,7 @@ class TestDigitalIDRepositoryCreation:
     """Tests for DigitalIDRepository constructor"""
 
     def test_create_empty_repository(self) -> None:
-        DigitalIDRepository._instance = None
+        DigitalIDRepository.clear_instance()
         repo = DigitalIDRepository()
         assert repo.get_all() == {}
 
@@ -17,7 +17,7 @@ class TestDigitalIDRepositoryAddAndGet:
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
+        DigitalIDRepository.clear_instance()
         self.repo = DigitalIDRepository()
 
     def test_add(self) -> None:
@@ -61,7 +61,7 @@ class TestDigitalIDRepositoryCSV:
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
+        DigitalIDRepository.clear_instance()
         self.repo = DigitalIDRepository()
 
     def teardown_method(self) -> None:
@@ -94,7 +94,7 @@ class TestDigitalIDRepositoryCSV:
         self.repo.save_to_csv()
 
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
+        DigitalIDRepository.clear_instance()
         new_repo = DigitalIDRepository()
         monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         new_repo.load_from_csv()
@@ -111,7 +111,7 @@ class TestDigitalIDRepositoryCSV:
         self.repo.save_to_csv()
 
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
+        DigitalIDRepository.clear_instance()
         new_repo = DigitalIDRepository()
         monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         new_repo.load_from_csv()

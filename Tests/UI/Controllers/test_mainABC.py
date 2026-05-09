@@ -11,7 +11,7 @@ class TestMainABCSharedFunctionality:
     """Tests for shared functionality in MainABC base class"""
 
     def test_start_program_initialization(self, monkeypatch, capsys) -> None:
-        CentralAuthorityMain._instance = None
+        CentralAuthorityMain.clear_instance()
         monkeypatch.setattr(CentralAuthorityMain, "main", lambda self: None)
         central = CentralAuthorityMain()
 
@@ -19,7 +19,7 @@ class TestMainABCSharedFunctionality:
         assert isinstance(central.REQUESTS, Requests)
 
     def test_singleton_pattern(self, monkeypatch) -> None:
-        CentralAuthorityMain._instance = None
+        CentralAuthorityMain.clear_instance()
         monkeypatch.setattr(CentralAuthorityMain, "start_program", lambda self: None)
         monkeypatch.setattr(CentralAuthorityMain, "main", lambda self: None)
         instance1 = CentralAuthorityMain()
@@ -36,10 +36,10 @@ class TestCentralAuthoritySpecific:
     @pytest.fixture
     def central_program(self, monkeypatch) -> CentralAuthorityMain:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
-        Requests._instance = None
-        CentralAuthorityMain._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
+        Requests.clear_instance()
+        CentralAuthorityMain.clear_instance()
         
         monkeypatch.setattr(CentralAuthorityMain, "start_program", lambda self: None)
         monkeypatch.setattr(CentralAuthorityMain, "main", lambda self: None)
@@ -86,11 +86,11 @@ class TestOtherOrganisationSpecific:
     @pytest.fixture  
     def other_program(self, monkeypatch) -> MockOrganisation:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
-        Requests._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
+        Requests.clear_instance()
         
-        MockOrganisation._instance = None
+        MockOrganisation.clear_instance()
         monkeypatch.setattr(MockOrganisation, "start_program", lambda self: None)
         monkeypatch.setattr(MockOrganisation, "main", lambda self: None)
         

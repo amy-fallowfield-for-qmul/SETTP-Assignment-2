@@ -8,7 +8,7 @@ class TestDataStorageSaveToCSV:
     TEST_CSV_PATH = "test_data_storage.csv"
 
     def setup_method(self) -> None:
-        DataStorage._instance = None
+        DataStorage.clear_instance()
         self.storage = DataStorage()
 
     def teardown_method(self) -> None:
@@ -44,7 +44,7 @@ class TestDataStorageLoadFromCSV:
     TEST_CSV_PATH = "test_data_storage.csv"
 
     def setup_method(self) -> None:
-        DataStorage._instance = None
+        DataStorage.clear_instance()
         self.storage = DataStorage()
 
     def teardown_method(self) -> None:

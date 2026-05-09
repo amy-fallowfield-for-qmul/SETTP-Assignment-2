@@ -56,8 +56,8 @@ class TestSuspendedChecker:
     """Tests for SuspendedChecker"""
 
     def setup_method(self):
-        LogRepository._instance = None
-        DigitalIDRepository._instance = None
+        LogRepository.clear_instance()
+        DigitalIDRepository.clear_instance()
         DigitalID._next_id = 1
         
         self.checker = SuspendedChecker()

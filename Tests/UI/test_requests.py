@@ -8,9 +8,9 @@ from Tests.shared_test_data import justification_person_dict
 @pytest.fixture
 def requests() -> Requests:
     DigitalID._next_id = 1
-    DigitalIDRepository._instance = None
-    DigitalIDService._instance = None
-    Requests._instance = None
+    DigitalIDRepository.clear_instance()
+    DigitalIDService.clear_instance()
+    Requests.clear_instance()
     return Requests()
 
 class TestRequestsCreateID:
@@ -85,9 +85,9 @@ class TestRequestsViewAllIDs:
 
     def test_view_all_empty(self, monkeypatch, capsys) -> None:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
-        Requests._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
+        Requests.clear_instance()
         req = Requests()
         monkeypatch.setattr("builtins.input", lambda _="": "1")
         req.view_all("digitalID")
@@ -105,9 +105,9 @@ class TestRequestsQueryID:
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
-        Requests._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
+        Requests.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 
@@ -137,9 +137,9 @@ class TestRequestsUpdateID:
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
-        Requests._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
+        Requests.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 
@@ -175,9 +175,9 @@ class TestRequestsHelpers:
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
-        DigitalIDRepository._instance = None
-        DigitalIDService._instance = None
-        Requests._instance = None
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
+        Requests.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 
