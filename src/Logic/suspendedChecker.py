@@ -1,9 +1,10 @@
 from typing import Optional
 from datetime import datetime
+from Common.singleton import SingletonMeta
 from Data.Logging.logRepository import LogRepository
 from Data.Logging.log import Log, Action
 
-class SuspendedChecker:
+class SuspendedChecker(metaclass=SingletonMeta):
 
     SUSPENDED_VALUES = ["suspended", "revoked"]
 
