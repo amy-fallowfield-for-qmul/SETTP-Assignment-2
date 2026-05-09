@@ -23,7 +23,7 @@ class HMRC(OtherOrganisationMain):
 
         match(choice):
             case 1:
-                self._query_permissions()
+                self.REQUESTS.query_id(self.organisation_name, self.allowed_attributes)
             case 2:
                 self._query_suspended_in_period()
             case 3:

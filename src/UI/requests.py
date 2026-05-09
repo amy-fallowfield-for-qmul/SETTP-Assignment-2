@@ -1,3 +1,4 @@
+from typing import List, Optional
 from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
 from Logic.suspendedChecker import SuspendedChecker
@@ -84,13 +85,15 @@ class Requests(metaclass=SingletonMeta):
             item.print()
         print("=" * SEPARATION_WIDTH)
 
-    def query_id(self) -> None:
+    def query_id(self, organisation: str = "Central Authority", allowed_attributes: Optional[List[str]] = None) -> None:
         try:
             id_subject = self._get_id_subject()
-            attribute_choice = self._get_attribute_subject("query")
+            attribute_choice = self._get_attribute_subject("query", allowed_attributes)
             justification = input("Enter justification for query: ")
             
-            current_value = self.DIGITAL_ID_SERVICE.query_attribute(id_subject.id, attribute_choice, justification)
+            current_value = self.DIGITAL_ID_SERVICE.query_attribute(
+                id_subject.id, attribute_choice, justification, organisation, allowed_attributes
+            )
 
             print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value}")
@@ -141,8 +144,13 @@ class Requests(metaclass=SingletonMeta):
         except (ValueError, KeyError):
             raise ValueError("Invalid ID")
 
-    def _get_attribute_subject(self, action: str) -> str:
-        fields = self.DIGITAL_ID_SERVICE.get_queryable_attributes() if action == "query" else self.DIGITAL_ID_SERVICE.get_mutable_attributes()
+    def _get_attribute_subject(self, action: str, allowed_attributes: Optional[List[str]] = None) -> str:
+        if allowed_attributes is not None:
+            fields = allowed_attributes
+        elif action == "query":
+            fields = self.DIGITAL_ID_SERVICE.get_queryable_attributes()
+        else:
+            fields = self.DIGITAL_ID_SERVICE.get_mutable_attributes()
 
         try:
             print(f"Please select the attribute you wish to {action}:")
