@@ -18,7 +18,6 @@ class AttributeRegistry:
             self._register_core_attributes()
     
     def _register_core_attributes(self) -> None:
-        """Register the core Digital ID attributes"""
         
         self.register_attribute(AttributeMetadata(
             name="id",
@@ -81,35 +80,27 @@ class AttributeRegistry:
         ))
     
     def register_attribute(self, metadata: AttributeMetadata) -> None:
-        """Register a new attribute"""
         self._attributes[metadata.name] = metadata
     
     def get_attribute(self, name: str) -> AttributeMetadata:
-        """Get attribute metadata by name"""
         if name not in self._attributes:
             raise ValueError(f"Unknown attribute: {name}")
         return self._attributes[name]
     
     def get_all_attributes(self) -> List[str]:
-        """Get all attribute names"""
         return list(self._attributes.keys())
     
     def get_required_for_creation(self) -> List[str]:
-        """Get attributes required for Digital ID creation"""
         return [name for name, attr in self._attributes.items() if attr.is_required_for_creation]
     
     def get_mutable_attributes(self) -> List[str]:
-        """Get attributes that can be updated"""
         return [name for name, attr in self._attributes.items() if attr.is_mutable]
     
     def get_queryable_attributes(self) -> List[str]:
-        """Get attributes that can be queried"""
         return [name for name in self._attributes.keys() if name != "id"]
     
     def get_input_prompt(self, attribute_name: str) -> str:
-        """Get user input prompt for an attribute"""
         return self.get_attribute(attribute_name).input_prompt
     
     def get_display_name(self, attribute_name: str) -> str:
-        """Get display name for an attribute"""
         return self.get_attribute(attribute_name).display_name
