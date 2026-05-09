@@ -38,7 +38,7 @@ class TestRequestsViewAllIDs:
     def test_view_all(self, requests: Requests, monkeypatch, capsys) -> None:
         id = requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
         monkeypatch.setattr("builtins.input", lambda _="": "1")
-        requests.view_all("digitalID")
+        requests.view_all_ids()
         captured = capsys.readouterr()
         assert id.first_name in captured.out
 
@@ -51,7 +51,7 @@ class TestRequestsViewAllIDs:
         inputs = iter(["2", "n", "n", "n", "y", "Johnson"] + ["n"] * num_attrs)
         
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        requests.view_all("digitalID")
+        requests.view_all_ids()
         captured = capsys.readouterr()
         assert id1.surname not in captured.out
         assert "Johnson" in captured.out
@@ -65,7 +65,7 @@ class TestRequestsViewAllIDs:
         extra_ns = ["n"] * (len(justification_person_dict) - 3)
         inputs = iter(["2", "n", "n", "y", id2["first_name"], "y", "Johnson"] + extra_ns)
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        requests.view_all("digitalID")
+        requests.view_all_ids()
         captured = capsys.readouterr()
         assert justification_person_dict["surname"] not in captured.out
         assert id2_dict["surname"] in captured.out
@@ -78,7 +78,7 @@ class TestRequestsViewAllIDs:
         extra_ns = ["n"] * (len(justification_person_dict) + 1)
         inputs = iter(["2"] + extra_ns)
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        requests.view_all("digitalID")
+        requests.view_all_ids()
         captured = capsys.readouterr()
         assert justification_person_dict["first_name"] in captured.out
         assert "Bob" in captured.out
@@ -90,13 +90,13 @@ class TestRequestsViewAllIDs:
         Requests.clear_instance()
         req = Requests()
         monkeypatch.setattr("builtins.input", lambda _="": "1")
-        req.view_all("digitalID")
+        req.view_all_ids()
         captured = capsys.readouterr()
         assert "No Digital IDs found" in captured.out
 
     def test_view_all_invalid_choice(self, requests: Requests, monkeypatch, capsys) -> None:
         monkeypatch.setattr("builtins.input", lambda _="": "q")
-        requests.view_all("digitalID")
+        requests.view_all_ids()
         captured = capsys.readouterr()
         assert "Invalid choice" in captured.out
 

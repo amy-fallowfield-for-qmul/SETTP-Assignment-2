@@ -4,6 +4,7 @@ import re
 from Common.singleton import SingletonMeta
 from Data.DigitalID.digitalID import Status
 from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.attributeMetadata import AttributeMetadata, AttributeType
 from Data.Attributes.address import Address
 
 class Validator(metaclass=SingletonMeta):
@@ -31,35 +32,36 @@ class Validator(metaclass=SingletonMeta):
                 raise ValueError(f"Unexpected attribute: {key}")
 
         for key in required_attributes:
-            attribute_metadata = self.ATTRIBUTE_REGISTRY.get_attribute(key)
-            if attribute_metadata.type.value == "string":
-                data[key] = self._validate_string(data[key], key)
-            elif attribute_metadata.type.value == "date":
-                data[key] = self.validate_date(data[key])
-            elif attribute_metadata.type.value == "national_insurance":
-                data[key] = self._validate_national_insurance(data[key])
-            elif attribute_metadata.type.value == "address":
-                data[key] = self._validate_address(data[key])
+            data[key] = self.validate_attribute(key, data[key])
 
         if "justification" in data:
-            data["justification"] = self._validate_string(data["justification"], "justification")
+            data["justification"] = self.validate_attribute("justification", data["justification"])
 
         return data
     
     def validate_attribute(self, attribute: str, value: str) -> str:
-        VALIDATION_MAP = {
-            "first_name": lambda value: self._validate_string(value, attribute),
-            "surname": lambda value: self._validate_string(value, attribute),
-            "address": lambda value: self._validate_address(value),
-            "national_insurance": lambda value: self._validate_national_insurance(value),
-            "status": lambda value: self._validate_status(value),
-            "justification": lambda value: self._validate_string(value, attribute),
-        }
+        if attribute == "justification":
+            return self._validate_string(value, attribute)
 
-        if attribute not in VALIDATION_MAP:
+        if attribute not in self.ATTRIBUTE_REGISTRY.get_all_attributes():
             raise ValueError(f"No validation defined for attribute: {attribute}")
 
-        return VALIDATION_MAP[attribute](value)
+        metadata = self.ATTRIBUTE_REGISTRY.get_attribute(attribute)
+        return self._validate_by_type(metadata, value)
+
+    def _validate_by_type(self, metadata: AttributeMetadata, value: str) -> str:
+        if metadata.type == AttributeType.STRING:
+            return self._validate_string(value, metadata.name)
+        elif metadata.type == AttributeType.DATE:
+            return self.validate_date(value)
+        elif metadata.type == AttributeType.NATIONAL_INSURANCE:
+            return self._validate_national_insurance(value)
+        elif metadata.type == AttributeType.ADDRESS:
+            return self._validate_address(value)
+        elif metadata.type == AttributeType.STATUS:
+            return self._validate_status(value)
+        else:
+            raise ValueError(f"No validation defined for attribute type: {metadata.type.value}")
 
     def _validate_status(self, status: str) -> str:
         """

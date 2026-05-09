@@ -63,12 +63,12 @@ class TestServiceFilterIDs:
         id2["first_name"] = "DifferentName"
         id2["justification"] = "Second creation"
         service.create_id(id2)
-        filtered = service.get_filtered_data({"data": "digitalID", "first_name": justification_person_dict["first_name"]})
+        filtered = service.get_filtered_ids({"first_name": justification_person_dict["first_name"]})
         assert len(filtered) == 1
 
     def test_filter_no_matches(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        filtered = service.get_filtered_data({"data": "digitalID", "first_name": "FakeName"})
+        filtered = service.get_filtered_ids({"first_name": "FakeName"})
         assert len(filtered) == 0
 
     def test_filter_case_insensitive_name(self, service: DigitalIDService) -> None:
@@ -76,17 +76,17 @@ class TestServiceFilterIDs:
         uppercase_name = justification_person_dict["first_name"].upper()
         lowercase_name = justification_person_dict["first_name"].lower()
 
-        assert len(service.get_filtered_data({"data": "digitalID", "first_name": uppercase_name})) == 1
-        assert len(service.get_filtered_data({"data": "digitalID", "first_name": lowercase_name})) == 1
+        assert len(service.get_filtered_ids({"first_name": uppercase_name})) == 1
+        assert len(service.get_filtered_ids({"first_name": lowercase_name})) == 1
 
     def test_filter_case_insensitive_status(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        assert len(service.get_filtered_data({"data": "digitalID", "status": "ACTIVE"})) == 1
-        assert len(service.get_filtered_data({"data": "digitalID", "status": "Active"})) == 1
+        assert len(service.get_filtered_ids({"status": "ACTIVE"})) == 1
+        assert len(service.get_filtered_ids({"status": "Active"})) == 1
 
     def test_filter_invalid_field(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="Invalid filter field"):
-            service.get_filtered_data({"data": "digitalID", "badAttribute": "hello123"})
+            service.get_filtered_ids({"badAttribute": "hello123"})
 
 class TestServiceFilterLogs:
     """Tests for filtering logs by attributes"""
@@ -96,7 +96,7 @@ class TestServiceFilterLogs:
         id2 = justification_person_dict.copy()
         id2["justification"] = "Second creation"
         service.create_id(id2)
-        filtered = service.get_filtered_data({"data": "log", "digitalID": "1"})
+        filtered = service.get_filtered_logs({"digitalID": "1"})
         assert len(filtered) == 1
 
 class TestServiceGetIDByNumber:

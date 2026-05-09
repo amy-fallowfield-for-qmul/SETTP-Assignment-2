@@ -29,9 +29,9 @@ class CentralAuthorityMain(MainABC):
             case 4:
                 self._query_suspended_in_period()
             case 5:
-                self.REQUESTS.view_all("digitalID")
+                self.REQUESTS.view_all_ids()
             case 6:
-                self.REQUESTS.view_all("log")
+                self.REQUESTS.view_all_logs()
             case 7:
                 self.REQUESTS.exit_program()
             case _:
