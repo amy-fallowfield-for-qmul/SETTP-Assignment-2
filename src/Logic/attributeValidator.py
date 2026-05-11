@@ -5,7 +5,6 @@ from Common.singleton import SingletonMeta
 from Data.DigitalID.digitalID import Status
 from Data.Attributes.attributeRepository import AttributeRegistry
 from Data.Attributes.attributeMetadata import AttributeMetadata, AttributeType
-from Data.Attributes.address import Address
 
 class Validator(metaclass=SingletonMeta):
     """Singleton validator for Digital ID attributes"""

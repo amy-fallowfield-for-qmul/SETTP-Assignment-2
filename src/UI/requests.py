@@ -8,8 +8,6 @@ from Config.constants import SEPARATION_WIDTH, LOG_HEADERS
 class Requests(metaclass=SingletonMeta):
     """Singleton request handler for the UI layer"""
 
-    MUTABLE_FIELDS = ["status", "firstName", "surname"]
-
     def __init__(self) -> None:
         self.DIGITAL_ID_SERVICE = DigitalIDService()
         self.SUSPENDED_CHECKER = SuspendedChecker()
