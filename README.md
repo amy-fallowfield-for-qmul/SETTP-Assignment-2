@@ -3,10 +3,9 @@
 ### Development
 
 ### Adding new organisations:
-1. Create a new file `[organisation_name].py` (e.g. hmrc.py for HMRC) + Create a class which inherits from `OtherOrganisationMain` + Define functions `allowed_attributes` and `organisation_name`
-2. In `mainABC.py`: Add name to the `Users` enum
-3. In `main.py`: Add name to listed options and match statement
-4. Add new attribute(s) if required (See below)
+1. Create a new file `[organisation_name].py` (e.g. hmrc.py for HMRC) + Create a class which inherits from `OtherOrganisationMain` + Define @classmethods `allowed_attributes` and `organisation_name`
+2. In `main.py`: Add new class to `USER_OPTIONS` list
+3. Add new attribute(s) if required (See below)
 
 #### Adding new attributes:
 

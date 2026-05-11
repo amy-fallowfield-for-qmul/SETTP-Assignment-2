@@ -1,70 +1,70 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 import main
 
 class TestMainEntryPointUserSelection:
     """Tests for the main.py entry point user selection functionality"""
 
+    def _mock_controller(self, name: str) -> MagicMock:
+        mock_cls = MagicMock()
+        mock_cls.organisation_name = MagicMock(return_value=name)
+        return mock_cls
+
     def test_select_central_authority(self, monkeypatch) -> None:
         inputs = iter(["1"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        
-        with patch('main.CentralAuthorityMain') as mock_central:
-            mock_instance = MagicMock()
-            mock_central.return_value = mock_instance
-            
-            try:
-                main.select_user_type()
-            except StopIteration:
-                pass
-            
-            mock_central.assert_called_once()
+
+        mock_central = self._mock_controller("Central Authority")
+        monkeypatch.setattr(main, "USER_OPTIONS", [mock_central, main.HMRC, main.Employer, main.Bank])
+
+        try:
+            main.select_user_type()
+        except StopIteration:
+            pass
+
+        mock_central.assert_called_once()
 
     def test_select_hmrc(self, monkeypatch) -> None:
-        
         inputs = iter(["2"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        
-        with patch('main.HMRC') as mock_other:
-            mock_instance = MagicMock()
-            mock_other.return_value = mock_instance
-            
-            try:
-                main.select_user_type()
-            except StopIteration:
-                pass
-            
-            mock_other.assert_called_once()
+
+        mock_hmrc = self._mock_controller("HMRC")
+        monkeypatch.setattr(main, "USER_OPTIONS", [main.CentralAuthorityMain, mock_hmrc, main.Employer, main.Bank])
+
+        try:
+            main.select_user_type()
+        except StopIteration:
+            pass
+
+        mock_hmrc.assert_called_once()
 
     def test_select_employer(self, monkeypatch) -> None:
         inputs = iter(["3"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        
-        with patch('main.Employer') as mock_employer:
-            mock_instance = MagicMock()
-            mock_employer.return_value = mock_instance
-            
-            try:
-                main.select_user_type()
-            except StopIteration:
-                pass
-            
-            mock_employer.assert_called_once()
+
+        mock_employer = self._mock_controller("Employer")
+        monkeypatch.setattr(main, "USER_OPTIONS", [main.CentralAuthorityMain, main.HMRC, mock_employer, main.Bank])
+
+        try:
+            main.select_user_type()
+        except StopIteration:
+            pass
+
+        mock_employer.assert_called_once()
 
     def test_select_bank(self, monkeypatch) -> None:
         inputs = iter(["4"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        
-        with patch('main.Bank') as mock_bank:
-            mock_instance = MagicMock()
-            mock_bank.return_value = mock_instance
-            
-            try:
-                main.select_user_type()
-            except StopIteration:
-                pass
-            
-            mock_bank.assert_called_once()
+
+        mock_bank = self._mock_controller("Bank")
+        monkeypatch.setattr(main, "USER_OPTIONS", [main.CentralAuthorityMain, main.HMRC, main.Employer, mock_bank])
+
+        try:
+            main.select_user_type()
+        except StopIteration:
+            pass
+
+        mock_bank.assert_called_once()
 
     def test_invalid_non_numeric_input_handling(self, monkeypatch, capsys) -> None:
         inputs = iter(["abc", "5"])

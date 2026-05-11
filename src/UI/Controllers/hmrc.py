@@ -1,12 +1,12 @@
 from .otherOrganisationsMain import OtherOrganisationMain
 
 class HMRC(OtherOrganisationMain):
-    @property
-    def allowed_attributes(self) -> list:
+    @classmethod
+    def allowed_attributes(cls) -> list:
         return ["status", "address", "national_insurance"]
 
-    @property
-    def organisation_name(self) -> str:
+    @classmethod
+    def organisation_name(cls) -> str:
         return "HMRC"
     
     def generate_options(self) -> None:
@@ -23,7 +23,7 @@ class HMRC(OtherOrganisationMain):
 
         match(choice):
             case 1:
-                self.REQUESTS.query_id(self.organisation_name, self.allowed_attributes)
+                self.REQUESTS.query_id(self.organisation_name(), self.allowed_attributes())
             case 2:
                 self._query_suspended_in_period()
             case 3:

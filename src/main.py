@@ -5,39 +5,42 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from Config.constants import SEPARATION_WIDTH
 from UI.Controllers.centralAuthorityMain import CentralAuthorityMain
-from UI.Controllers.otherOrganisationsMain import OtherOrganisationMain
 from UI.Controllers.hmrc import HMRC
 from UI.Controllers.employer import Employer
 from UI.Controllers.bank import Bank
+
+USER_OPTIONS = [
+    CentralAuthorityMain,
+    HMRC,
+    Employer,
+    Bank
+]
 
 def select_user_type():
     print("=" * SEPARATION_WIDTH)
     print("Welcome to the Digital ID System")
     print("=" * SEPARATION_WIDTH)
-    
+
+    exit_option = len(USER_OPTIONS) + 1
+
     while True:
         print("\nPlease select your organisation type:")
-        print("1. Central Authority")
-        print("2. HMRC")
-        print("3. Employer")
-        print("4. Bank")
-        print("5. Exit")
-        
+        for number, cls in enumerate(USER_OPTIONS, start=1):
+            print(f"{number}. {cls.organisation_name()}")
+        print(f"{exit_option}. Exit")
+
         try:
             choice = int(input())
-            match(choice):
-                case 1:
-                    CentralAuthorityMain()
-                case 2:
-                    HMRC()
-                case 3:
-                    Employer()
-                case 4:
-                    Bank()
-                case 5:
-                    exit()
-                case _:
-                    raise
+
+            if choice == exit_option:
+                exit()
+
+            if choice < 1 or choice > len(USER_OPTIONS):
+                raise
+
+            controller_class = USER_OPTIONS[choice - 1]
+            controller_class()
+
         except ValueError:
             print("Invalid input")
 
