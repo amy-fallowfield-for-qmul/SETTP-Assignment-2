@@ -3,6 +3,10 @@ from .mainABC import MainABC
 class CentralAuthorityMain(MainABC):
     """Singleton entry point for the Digital ID System used by the Central Authority"""
 
+    @classmethod
+    def organisation_name(cls) -> str:
+        return "Central Authority"
+
     def generate_options(self) -> None:
         print("\nPlease select an option:")
         print("1. Create a new Digital ID")

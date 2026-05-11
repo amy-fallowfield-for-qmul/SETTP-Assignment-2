@@ -1,12 +1,12 @@
 from .otherOrganisationsMain import OtherOrganisationMain
 
 class Bank(OtherOrganisationMain):
-    @property
-    def allowed_attributes(self) -> list:
+    @classmethod
+    def allowed_attributes(cls) -> list:
         return ["status", "first_name", "surname", "date_of_birth", "address"]
 
-    @property
-    def organisation_name(self) -> str:
+    @classmethod
+    def organisation_name(cls) -> str:
         return "Bank"
 
 if __name__ == "__main__":

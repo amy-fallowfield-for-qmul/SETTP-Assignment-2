@@ -6,14 +6,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from Common.singleton import SingletonABCMeta
 from UI.requests import Requests
 from Config.constants import SEPARATION_WIDTH
-from enum import Enum
 from abc import abstractmethod
-
-class Users(Enum):
-    CENTRAL_AUTHORITY = 1
-    HMRC = 2
-    EMPLOYER = 3
-    BANK = 4
 
 class MainABC(metaclass=SingletonABCMeta):
 
@@ -32,6 +25,10 @@ class MainABC(metaclass=SingletonABCMeta):
         print("=" * SEPARATION_WIDTH)
         
         self.REQUESTS.start_program()
+
+    @classmethod
+    @abstractmethod
+    def organisation_name(cls) -> str: pass
 
     @abstractmethod
     def generate_options(self) -> None: pass

@@ -72,12 +72,12 @@ class TestCentralAuthoritySpecific:
         assert ("No logs found" in captured.out or "View all data" in captured.out)
         
 class MockOrganisation(OtherOrganisationMain):
-    @property
-    def allowed_attributes(self):
+    @classmethod
+    def allowed_attributes(cls):
         return ["firstName", "surname"]
     
-    @property
-    def organisation_name(self):
+    @classmethod
+    def organisation_name(cls):
         return "Test Organisation"
 
 class TestOtherOrganisationSpecific:
