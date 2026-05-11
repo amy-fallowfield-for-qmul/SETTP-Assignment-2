@@ -11,9 +11,11 @@
 
 1. In `attributeRepository.py`: Add a new AttributeMetadata object to _register_core_attributes()
 2. In `digitalID.py`: Add to constructor + Add getter/setter
-3. In `attributeValidator.py`: Add validation function to attributeValidator.py if attribute requires special validation rules
+3. If attribute cannot use an existing validation function:
+    - In `attributeMetadata.py` add attribute type to `AttributeType` enum
+    - In `attributeValidator.py`: Add validation function and add mapping to `_validate_by_type`
 4. In `test_digitalID.py`: Add tests for getters and setters
-5. In `test_attributeValidation.py`: Add tests for single attribute validation. Also add tests for any specifial validation function that has been added
+5. In `test_attributeValidation.py`: Add tests for single attribute validation. Also add tests for any other functions that have been added
 
 ### Tests
 
