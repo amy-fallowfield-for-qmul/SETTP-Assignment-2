@@ -1,5 +1,49 @@
 # SETTP Assignment 2
 
+### Capabilities
+
+#### Central Authority
+Central Authority has full access and can individually query the following attributes:
+- status
+- first_name
+- surname
+- date_of_birth
+- address
+- national_insurance
+
+Central Authority can also:
+- Create new Digital IDs
+- Update existing Digital IDs (mutable attributes only)
+- View all Digital ID data
+- View all log data
+- Query suspension history for any period
+
+#### Bank
+Bank can individually query the following attributes:
+- status
+- first_name
+- surname
+- date_of_birth
+- address
+
+#### Employer
+Employer can individually query the following attributes:
+- status
+- first_name
+- surname
+- date_of_birth
+- address
+- national_insurance
+
+#### HMRC
+HMRC can individually query the following attributes:
+- status
+- address
+- national_insurance
+
+HMRC also has additional capability to:
+- Query suspension history for any period
+
 ### Development
 
 ### Adding new organisations:
