@@ -83,7 +83,7 @@ class Requests(metaclass=SingletonMeta):
             item.print()
         print("=" * SEPARATION_WIDTH)
 
-    def query_id(self, organisation: str = "Central Authority", allowed_attributes: Optional[List[str]] = None) -> None:
+    def query_id(self, organisation: str, allowed_attributes: List[str]) -> None:
         try:
             id_subject = self._get_id_subject()
             attribute_choice = self._get_attribute_subject("query", allowed_attributes)
@@ -99,7 +99,7 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"{e}")
 
-    def verify_identity(self, organisation: str = "Bank", allowed_attributes: Optional[List[str]] = None) -> None:
+    def verify_identity(self, organisation: str, allowed_attributes: List[str]) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
             first_name = input("Enter first name: ")
@@ -120,7 +120,7 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"Request rejected: {e}")
 
-    def verify_minimum_age(self, organisation: str = "Bank", allowed_attributes: Optional[List[str]] = None) -> None:
+    def verify_minimum_age(self, organisation: str, allowed_attributes: List[str]) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
             minimum_age = input("Enter minimum age: ")

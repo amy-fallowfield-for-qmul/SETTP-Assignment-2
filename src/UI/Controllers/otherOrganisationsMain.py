@@ -1,13 +1,7 @@
-from abc import abstractmethod
-from typing import List
 from .mainABC import MainABC
 
 class OtherOrganisationMain(MainABC):
     """Abstract base class for specific other organisations"""
-
-    @classmethod
-    @abstractmethod
-    def allowed_attributes(cls) -> List[str]: pass
 
     def generate_options(self) -> None:
         print("\nPlease select an option:")

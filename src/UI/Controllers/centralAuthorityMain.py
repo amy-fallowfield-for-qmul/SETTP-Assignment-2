@@ -1,4 +1,5 @@
 from .mainABC import MainABC
+from Data.Attributes.attributeRepository import AttributeRegistry
 
 class CentralAuthorityMain(MainABC):
     """Singleton entry point for the Digital ID System used by the Central Authority"""
@@ -6,6 +7,10 @@ class CentralAuthorityMain(MainABC):
     @classmethod
     def organisation_name(cls) -> str:
         return "Central Authority"
+
+    @classmethod
+    def allowed_attributes(cls) -> list:
+        return AttributeRegistry().get_queryable_attributes()
 
     def generate_options(self) -> None:
         print("\nPlease select an option:")
@@ -27,7 +32,7 @@ class CentralAuthorityMain(MainABC):
             case 1:
                 self.REQUESTS.create_id()
             case 2:
-                self.REQUESTS.query_id()
+                self.REQUESTS.query_id(self.organisation_name(), self.allowed_attributes())
             case 3:
                 self.REQUESTS.update_id()
             case 4:
