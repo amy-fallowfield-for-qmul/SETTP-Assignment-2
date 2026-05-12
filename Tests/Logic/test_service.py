@@ -225,27 +225,25 @@ class TestServiceVerifyMinimumAge:
 class TestServiceVerifyAttribute:
     """Tests for verifying a single Digital ID attribute via the service"""
 
-    EMPLOYER_VERIFIABLE = ["status", "national_insurance", "address"]
-
     def test_verify_attribute_match(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.verify_attribute(1, "national_insurance", "AB123456C", "New hire", "Employer", self.EMPLOYER_VERIFIABLE)
+        result = service.verify_attribute(1, "national_insurance", "AB123456C", "New hire", "Employer", ["national_insurance"])
         assert result is True
 
     def test_verify_attribute_mismatch(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.verify_attribute(1, "national_insurance", "BC123456C", "New hire", "Employer", self.EMPLOYER_VERIFIABLE)
+        result = service.verify_attribute(1, "national_insurance", "BC123456C", "New hire", "Employer", ["national_insurance"])
         assert result is False
 
     def test_verify_attribute_status_on_suspended(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
         service.update_id(1, "status", "suspended", "Investigation")
-        result = service.verify_attribute(1, "status", "active", "Hiring check", "Employer", self.EMPLOYER_VERIFIABLE)
+        result = service.verify_attribute(1, "status", "active", "Hiring check", "Employer", ["status"])
         assert result is False
 
     def test_verify_attribute_creates_log(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        service.verify_attribute(1, "national_insurance", "AB123456C", "New hire", "Employer", self.EMPLOYER_VERIFIABLE)
+        service.verify_attribute(1, "national_insurance", "AB123456C", "New hire", "Employer", ["national_insurance"])
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
         assert verify_log.action == Action.VERIFY
@@ -255,7 +253,7 @@ class TestServiceVerifyAttribute:
     def test_verify_attribute_access_denied(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
         with pytest.raises(ValueError, match="Access denied"):
-            service.verify_attribute(1, "first_name", "John", "New hire", "Employer", self.EMPLOYER_VERIFIABLE)
+            service.verify_attribute(1, "first_name", "John", "New hire", "Employer", ["national_insurance"])
 
 class TestServiceCSV:
     """Tests for loading and saving CSV data via the service"""

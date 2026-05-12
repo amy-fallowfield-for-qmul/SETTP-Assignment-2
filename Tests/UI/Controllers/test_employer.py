@@ -13,5 +13,9 @@ class TestEmployer:
         assert Employer.organisation_name() == "Employer"
 
     def test_accessible_attributes(self) -> None:
-        expected_attributes = ["status", "first_name", "surname", "date_of_birth", "address", "national_insurance"]
+        expected_attributes = ["status", "address"]
         assert Employer.accessible_attributes() == expected_attributes
+
+    def test_verifiable_attributes(self) -> None:
+        expected_attributes = ["national_insurance"]
+        assert Employer.verifiable_attributes() == expected_attributes
