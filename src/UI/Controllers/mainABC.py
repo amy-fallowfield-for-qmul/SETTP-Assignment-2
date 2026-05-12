@@ -7,6 +7,7 @@ from Common.singleton import SingletonABCMeta
 from UI.requests import Requests
 from Config.constants import SEPARATION_WIDTH
 from abc import abstractmethod
+from typing import List
 
 class MainABC(metaclass=SingletonABCMeta):
 
@@ -29,6 +30,14 @@ class MainABC(metaclass=SingletonABCMeta):
     @classmethod
     @abstractmethod
     def organisation_name(cls) -> str: pass
+
+    @classmethod
+    @abstractmethod
+    def accessible_attributes(cls) -> List[str]: pass
+
+    @classmethod
+    def verifiable_attributes(cls) -> List[str]:
+        return cls.accessible_attributes()
 
     @abstractmethod
     def generate_options(self) -> None: pass

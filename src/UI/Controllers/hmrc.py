@@ -2,7 +2,7 @@ from .otherOrganisationsMain import OtherOrganisationMain
 
 class HMRC(OtherOrganisationMain):
     @classmethod
-    def allowed_attributes(cls) -> list:
+    def accessible_attributes(cls) -> list:
         return ["status", "address", "national_insurance"]
 
     @classmethod
@@ -23,7 +23,7 @@ class HMRC(OtherOrganisationMain):
 
         match(choice):
             case 1:
-                self.REQUESTS.query_id(self.organisation_name(), self.allowed_attributes())
+                self.REQUESTS.query_id(self.organisation_name(), self.accessible_attributes())
             case 2:
                 self._query_suspended_in_period()
             case 3:

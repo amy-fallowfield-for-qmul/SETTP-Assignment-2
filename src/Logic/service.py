@@ -1,6 +1,8 @@
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
+from datetime import date
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
+from Logic.verificationValidator import VerificationValidator
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import DigitalID, Status
 from Data.Logging.logRepository import LogRepository
@@ -13,6 +15,7 @@ class DigitalIDService(metaclass=SingletonMeta):
 
     def __init__(self) -> None:
         self.VALIDATOR = Validator()
+        self.VERIFICATION_VALIDATOR = VerificationValidator()
         self.DIGITAL_ID_REPOSITORY = DigitalIDRepository()
         self.LOG_REPOSITORY = LogRepository()
         self.ATTRIBUTE_REGISTRY = AttributeRegistry()
@@ -78,11 +81,11 @@ class DigitalIDService(metaclass=SingletonMeta):
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
         
-    def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: str = "Central Authority", allowed_attributes: Optional[List[str]] = None) -> str:
+    def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: str, accessible_attributes: List[str]) -> str:
         safe_justification = justification if justification else "Unknown justification"
         
         try:
-            if allowed_attributes and attribute not in allowed_attributes:
+            if attribute not in accessible_attributes:
                 raise ValueError(f"Access denied: {organisation} is not authorized to access '{attribute}' attribute")
             
             digital_id = self.get_id_by_number(id_number)
@@ -97,6 +100,78 @@ class DigitalIDService(metaclass=SingletonMeta):
         except Exception as e:
             error_message = str(e)
             failed_log = Log.for_failure(organisation, id_number, Action.READ, safe_justification, error_message)
+            self.LOG_REPOSITORY.add(failed_log)
+            raise
+
+    def verify_identity(self, id_number: int, first_name: str, surname: str, date_of_birth: str, justification: str, organisation: str, accessible_attributes: List[str]) -> bool:
+        safe_justification = justification if justification else "Unknown justification"
+
+        try:
+            required_attributes = {
+                "first_name": first_name,
+                "surname": surname,
+                "date_of_birth": date_of_birth,
+            }
+
+            for attr in required_attributes:
+                if attr not in accessible_attributes:
+                    raise ValueError(f"Access denied: {organisation} is not authorised to access '{attr}' attribute")
+
+            digital_id = self.get_id_by_number(id_number)
+
+            if digital_id.status != Status.ACTIVE:
+                raise ValueError(f"Digital ID is {digital_id.status.value}")
+
+            validated_attributes = {
+                name: self.VALIDATOR.validate_attribute(name, value)
+                for name, value in required_attributes.items()
+            }
+            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+
+            result = all(
+                getattr(digital_id, name) == validated_value
+                for name, validated_value in validated_attributes.items()
+            )
+
+            log = Log.for_verify(organisation, id_number, validated_justification, "identity", result)
+            self.LOG_REPOSITORY.add(log)
+
+            return result
+        except Exception as e:
+            error_message = str(e)
+            failed_log = Log.for_failure(organisation, id_number, Action.VERIFY, safe_justification, error_message, "identity")
+            self.LOG_REPOSITORY.add(failed_log)
+            raise
+
+    def verify_minimum_age(self, id_number: int, minimum_age: Any, justification: str, organisation: str, accessible_attributes: List[str]) -> bool:
+        safe_justification = justification if justification else "Unknown justification"
+
+        try:
+            if "date_of_birth" not in accessible_attributes:
+                raise ValueError(f"Access denied: {organisation} is not authorized to access 'date_of_birth' attribute")
+
+            validated_min_age = self.VERIFICATION_VALIDATOR.validate_minimum_age(minimum_age)
+
+            digital_id = self.get_id_by_number(id_number)
+
+            if digital_id.status != Status.ACTIVE:
+                raise ValueError(f"Digital ID is {digital_id.status.value}")
+
+            date_of_birth = date.fromisoformat(digital_id.date_of_birth)
+            today = date.today()
+            age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+
+            result = age >= validated_min_age
+
+            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+
+            log = Log.for_verify(organisation, id_number, validated_justification, "minimum_age", result, str(validated_min_age))
+            self.LOG_REPOSITORY.add(log)
+
+            return result
+        except Exception as e:
+            error_message = str(e)
+            failed_log = Log.for_failure(organisation, id_number, Action.VERIFY, safe_justification, error_message, "minimum_age")
             self.LOG_REPOSITORY.add(failed_log)
             raise
 

@@ -73,7 +73,7 @@ class TestCentralAuthoritySpecific:
         
 class MockOrganisation(OtherOrganisationMain):
     @classmethod
-    def allowed_attributes(cls):
+    def accessible_attributes(cls):
         return ["firstName", "surname"]
     
     @classmethod

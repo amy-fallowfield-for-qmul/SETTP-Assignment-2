@@ -11,9 +11,10 @@ class TestAction:
         assert Action.CREATE.value == "create"
         assert Action.READ.value == "read"
         assert Action.UPDATE.value == "update"
+        assert Action.VERIFY.value == "verify"
 
     def test_action_members(self) -> None:
-        assert set(Action.__members__.keys()) == {"CREATE", "READ", "UPDATE"}
+        assert set(Action.__members__.keys()) == {"CREATE", "READ", "UPDATE", "VERIFY"}
 
 class TestLogModel:
     """Tests for Log data model"""
@@ -72,6 +73,32 @@ class TestLogModel:
         assert row[8] == "Alicia"
         assert row[9] == "first_name"
 
+    def test_create_log_for_verify(self) -> None:
+        log = Log.for_verify("Bank", 1, "Account opening", "identity", True)
+        row = log.get_row()
+        assert row[0] == log.id
+        timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
+        assert timestamp >= self.start_time.replace(microsecond=0)
+        assert timestamp <= datetime.now()
+        assert row[2] == True
+        assert row[3] == "Bank"
+        assert row[4] == "1"
+        assert row[5] == "verify"
+        assert row[6] == "Account opening"
+        assert row[7] == "True"
+        assert row[8] is None
+        assert row[9] == "identity"
+
+    def test_create_log_for_verify_with_context(self) -> None:
+        log = Log.for_verify("Bank", 1, "ISA eligibility", "minimum_age", False, "18")
+        row = log.get_row()
+        assert row[5] == "verify"
+        assert row[6] == "ISA eligibility"
+        assert row[7] == "False"
+        assert row[8] is None
+        assert row[9] == "minimum_age"
+        assert row[10] == "18"
+
     def test_from_csv(self) -> None:
         attributes = {
             "id": "5",
@@ -83,7 +110,8 @@ class TestLogModel:
             "justification": "New registration",
             "currentValue": "John Smith",
             "newValue": "None",
-            "attribute": "None"
+            "attribute": "None",
+            "comparativeValue": "None"
         }
         log = Log.from_csv(attributes)
         assert log.id == 5
@@ -96,6 +124,7 @@ class TestLogModel:
         assert log.current_value == "John Smith"
         assert log.new_value is None
         assert log.attribute is None
+        assert log.comparative_value is None
 
     def test_from_csv_with_new_value(self) -> None:
         attributes = {
@@ -108,13 +137,15 @@ class TestLogModel:
             "justification": "Name change",
             "currentValue": "John",
             "newValue": "Alicia",
-            "attribute": "first_name"
+            "attribute": "first_name",
+            "comparativeValue": "None"
         }
         log = Log.from_csv(attributes)
         assert log.id == 6
         assert log.accepted == False
         assert log.new_value == "Alicia"
         assert log.attribute == "first_name"
+        assert log.comparative_value is None
 
 class TestLogProperties:
     """Tests for Log getters"""
@@ -215,6 +246,26 @@ class TestLogProperties:
         
         assert "Requested to update ID 3" in output
         assert "Status change was ACCEPTED" in output
+
+    def test_print_verify_action(self, capsys) -> None:
+        verify_log = Log.for_verify("Bank", 5, "Account opening", "identity", True)
+        verify_log.print()
+        captured = capsys.readouterr()
+        output = captured.out
+
+        assert "Requested to verify ID 5" in output
+        assert "identity: True" in output
+        assert "Account opening was ACCEPTED" in output
+
+    def test_print_verify_action_with_context(self, capsys) -> None:
+        verify_log = Log.for_verify("Bank", 5, "ISA eligibility", "minimum_age", False, "18")
+        verify_log.print()
+        captured = capsys.readouterr()
+        output = captured.out
+
+        assert "Requested to verify ID 5" in output
+        assert "minimum_age (threshold: 18): False" in output
+        assert "ISA eligibility was ACCEPTED" in output
 
     def test_print_create_with_non_digitalid(self, capsys) -> None:
         create_log = Log(True, "NHS", 4, Action.CREATE, "Manual entry", "John Doe Profile", None, None)
