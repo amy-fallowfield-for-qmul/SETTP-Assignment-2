@@ -8,6 +8,7 @@ from Data.DigitalID.digitalID import DigitalID, Status
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.Logging.log import Action
 from Data.Logging.logRepository import LogRepository
+from Data.Attributes.attributeRepository import AttributeRegistry
 from Tests.shared_test_data import justification_person_dict
 
 @pytest.fixture
@@ -113,14 +114,16 @@ class TestServiceGetIDByNumber:
 class TestServiceQueryAttribute:
     """Tests for querying a Digital ID attribute via the service"""
 
+    central_authority_attributes = AttributeRegistry().get_queryable_attributes()
+
     def test_query_attribute(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.query_attribute(1, "first_name", "External audit")
+        result = service.query_attribute(1, "first_name", "External audit", "Central Authority", self.central_authority_attributes)
         assert result == "John"
 
     def test_query_attribute_creates_log(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        service.query_attribute(1, "status", "Status verification")
+        service.query_attribute(1, "status", "Status verification", "Central Authority", self.central_authority_attributes)
         
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 2
@@ -133,7 +136,7 @@ class TestServiceQueryAttribute:
 
     def test_query_attribute_not_found(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="not found"):
-            service.query_attribute(99, "first_name", "External audit")
+            service.query_attribute(99, "first_name", "External audit", "Central Authority", self.central_authority_attributes)
 
 class TestServiceUpdateID:
     """Tests for updating Digital ID attributes via the service"""

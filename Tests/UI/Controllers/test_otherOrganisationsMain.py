@@ -21,10 +21,6 @@ class TestServicePermissionSystem:
         service.create_id(justification_person_dict)
         return service
 
-    def test_query_with_no_restrictions(self, service: DigitalIDService) -> None:
-        result = service.query_attribute(1, "first_name", "Test query", "Test Org")
-        assert result == justification_person_dict["first_name"]
-
     def test_query_with_allowed_attribute(self, service: DigitalIDService) -> None:
         allowed = ["first_name", "surname"]
         result = service.query_attribute(1, "first_name", "Test query", "NHS", allowed)
