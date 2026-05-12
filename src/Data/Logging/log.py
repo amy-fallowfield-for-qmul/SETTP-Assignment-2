@@ -14,7 +14,7 @@ class Log:
     
     _next_id = 1
 
-    def __init__(self, accepted: bool, organisation: str, id_number: int, action: Action, justification: str, current_value: Union[str, DigitalID], new_value: Optional[str], attribute: Optional[str] = None) -> None:
+    def __init__(self, accepted: bool, organisation: str, id_number: int, action: Action, justification: str, current_value: Union[str, DigitalID], new_value: Optional[str], attribute: Optional[str] = None, comparative_value: Optional[str] = None) -> None:
         self._id: int = Log._next_id
         Log._next_id += 1
         self._timestamp: datetime = datetime.now()
@@ -26,6 +26,7 @@ class Log:
         self._current_value: Union[str, DigitalID] = current_value
         self._new_value: Optional[str] = new_value
         self._attribute: Optional[str] = attribute
+        self._comparative_value: Optional[str] = comparative_value
 
     @classmethod
     def for_create(cls, organisation: str, id_number: int, justification: str, digital_id: DigitalID) -> "Log":
@@ -40,8 +41,8 @@ class Log:
         return cls(True, organisation, id_number, Action.UPDATE, justification, old_value, new_value, attribute)
 
     @classmethod
-    def for_verify(cls, organisation: str, id_number: int, justification: str, verification_type: str, result: bool, context: Optional[str] = None) -> "Log":
-        return cls(True, organisation, id_number, Action.VERIFY, justification, str(result).title(), context, verification_type)
+    def for_verify(cls, organisation: str, id_number: int, justification: str, verification_type: str, result: bool, comparative_value: Optional[str] = None) -> "Log":
+        return cls(True, organisation, id_number, Action.VERIFY, justification, str(result).title(), None, verification_type, comparative_value)
 
     @classmethod
     def for_failure(cls, organisation: str, id_number: int, action: Action, justification: str, error: str, attribute: Optional[str] = None) -> "Log":
@@ -60,6 +61,7 @@ class Log:
         log._current_value = attributes["currentValue"]
         log._new_value = attributes["newValue"] if attributes["newValue"] != "None" else None
         log._attribute = attributes["attribute"] if attributes["attribute"] != "None" else None
+        log._comparative_value = attributes["comparativeValue"] if attributes["comparativeValue"] != "None" else None
         
         if log._id >= cls._next_id:
             cls._next_id = log._id + 1
@@ -77,7 +79,8 @@ class Log:
             self._justification,
             self._current_value,
             self._new_value,
-            self._attribute
+            self._attribute,
+            self._comparative_value
         ]
     
     @property
@@ -120,6 +123,10 @@ class Log:
     def attribute(self) -> Optional[str]:
         return self._attribute
 
+    @property
+    def comparative_value(self) -> Optional[str]:
+        return self._comparative_value
+
     def to_dict(self) -> Dict[str, object]:
         return {
             "id": self._id,
@@ -131,7 +138,8 @@ class Log:
             "justification": self._justification,
             "currentValue": self._current_value.to_dict() if isinstance(self._current_value, DigitalID) else str(self._current_value),
             "newValue": str(self._new_value) if self._new_value else "None",
-            "attribute": str(self._attribute) if self._attribute else "None"
+            "attribute": str(self._attribute) if self._attribute else "None",
+            "comparativeValue": str(self._comparative_value) if self._comparative_value else "None"
         }
 
     def print(self) -> None:
@@ -143,7 +151,7 @@ class Log:
             case Action.UPDATE:
                 value_string = f"{self.attribute}: {self._current_value} -> {self._new_value}"
             case Action.VERIFY:
-                context_string = f" (threshold: {self._new_value})" if self._new_value else ""
+                context_string = f" (threshold: {self._comparative_value})" if self._comparative_value else ""
                 value_string = f"{self.attribute}{context_string}: {self._current_value}"
         accepted_string = "ACCEPTED" if self._accepted else "REJECTED"
         print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] Requested to {self._action.value} ID {self._id_number} to [{value_string}] because {self._justification} was {accepted_string}")
