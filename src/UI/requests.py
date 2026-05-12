@@ -139,6 +139,26 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"Request rejected: {e}")
 
+    def verify_attribute(self, organisation: str, accessible_attributes: List[str]) -> None:
+        try:
+            id_number = int(input("Enter Digital ID number: "))
+            attribute_choice = self._get_attribute_subject("verify", accessible_attributes)
+            claimed_value = input(f"Enter claimed {attribute_choice}: ")
+            justification = input("Enter justification for verification: ")
+
+            result = self.DIGITAL_ID_SERVICE.verify_attribute(
+                id_number, attribute_choice, claimed_value, justification, organisation, accessible_attributes
+            )
+
+            print("=" * SEPARATION_WIDTH)
+            if result:
+                print(f"Result: {attribute_choice} matches for Digital ID {id_number}")
+            else:
+                print(f"Result: {attribute_choice} does NOT match for Digital ID {id_number}")
+            print("=" * SEPARATION_WIDTH)
+        except ValueError as e:
+            print(f"Request rejected: {e}")
+
     def update_id(self) -> None:
         try:
             id_subject = self._get_id_subject()

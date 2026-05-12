@@ -175,6 +175,34 @@ class DigitalIDService(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(failed_log)
             raise
 
+    def verify_attribute(self, id_number: int, attribute: str, claimed_value: str, justification: str, organisation: str, accessible_attributes: List[str]) -> bool:
+        safe_justification = justification if justification else "Unknown justification"
+
+        try:
+            if attribute not in accessible_attributes:
+                raise ValueError(f"Access denied: {organisation} is not authorised to verify '{attribute}' attribute")
+
+            digital_id = self.get_id_by_number(id_number)
+
+            if attribute != "status" and digital_id.status != Status.ACTIVE:
+                raise ValueError(f"Digital ID is {digital_id.status.value}")
+
+            validated_claimed_value = self.VALIDATOR.validate_attribute(attribute, claimed_value)
+            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+
+            stored_value = digital_id.to_dict()[attribute]
+            result = str(stored_value) == str(validated_claimed_value)
+
+            log = Log.for_verify(organisation, id_number, validated_justification, attribute, result)
+            self.LOG_REPOSITORY.add(log)
+
+            return result
+        except Exception as e:
+            error_message = str(e)
+            failed_log = Log.for_failure(organisation, id_number, Action.VERIFY, safe_justification, error_message, attribute)
+            self.LOG_REPOSITORY.add(failed_log)
+            raise
+
     def update_id(self, id_number: int, attribute: str, value: Any, justification: str) -> None:
         safe_justification = justification if justification else "Unknown justification"
         
