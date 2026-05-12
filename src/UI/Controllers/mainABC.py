@@ -44,7 +44,7 @@ class MainABC(metaclass=SingletonABCMeta):
 
     def _query_suspended_in_period(self) -> None:
         try:
-            result = self.REQUESTS.id_suspended_in_period()
+            result = self.REQUESTS.id_suspended_in_period(self.organisation_name())
             
             if result:
                 print("Result: Digital ID was suspended during specified period")

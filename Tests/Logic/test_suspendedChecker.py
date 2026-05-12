@@ -67,7 +67,7 @@ class TestSuspendedChecker:
     def test_id_suspended_in_period_no_suspension_during_period(self):
         self.checker.LOG_REPOSITORY.get_all.return_value = {}
         
-        assert self.checker.id_suspended_in_period("2026-01-01", "2026-01-02", 1) == False
+        assert self.checker.id_suspended_in_period("2026-01-01", "2026-01-02", 1, "Audit check", "HMRC") == False
 
 
     def test_id_suspended_in_period_with_suspension_during_period(self):
@@ -76,7 +76,7 @@ class TestSuspendedChecker:
         mock_logs = {1: suspend_log}
         self.checker.LOG_REPOSITORY.get_all.return_value = mock_logs
 
-        assert self.checker.id_suspended_in_period("2026-01-01", "2026-01-03", 1) == True
+        assert self.checker.id_suspended_in_period("2026-01-01", "2026-01-03", 1, "Audit check", "HMRC") == True
 
     def test_id_suspended_in_period_suspended_before_period(self):
         id = DigitalID(new_person_dict)
@@ -87,7 +87,7 @@ class TestSuspendedChecker:
         mock_logs = {1: create_log, 2: suspend_log}
         self.checker.LOG_REPOSITORY.get_all.return_value = mock_logs
         
-        assert self.checker.id_suspended_in_period("2026-01-01", "2026-01-04", 1) == True
+        assert self.checker.id_suspended_in_period("2026-01-01", "2026-01-04", 1, "Audit check", "HMRC") == True
 
     def test_id_suspended_in_period_suspended_and_activated_before_period(self):
         id = DigitalID(new_person_dict)
@@ -99,12 +99,12 @@ class TestSuspendedChecker:
         mock_logs = {1: create_log, 2: suspend_log, 3: active_log}
         self.checker.LOG_REPOSITORY.get_all.return_value = mock_logs
         
-        assert self.checker.id_suspended_in_period("2026-01-04", "2026-01-05", 1) == False
+        assert self.checker.id_suspended_in_period("2026-01-04", "2026-01-05", 1, "Audit check", "HMRC") == False
 
 
     def test_id_suspended_in_period_no_logs_for_id(self):
         self.checker.LOG_REPOSITORY.get_all.return_value = {}
-        assert self.checker.id_suspended_in_period("2026-01-01", "2026-01-02", 999) == False
+        assert self.checker.id_suspended_in_period("2026-01-01", "2026-01-02", 999, "Audit check", "HMRC") == False
 
     def test_id_revoked_during_period_counts_as_suspended(self):
         """Test that revoked status is treated the same as suspended"""
@@ -119,4 +119,36 @@ class TestSuspendedChecker:
         mock_logs = {1: revoke_log}
         self.checker.LOG_REPOSITORY.get_all.return_value = mock_logs
 
-        assert self.checker.id_suspended_in_period("2026-01-12", "2026-01-18", 1) == True
+        assert self.checker.id_suspended_in_period("2026-01-12", "2026-01-18", 1, "Audit check", "HMRC") == True
+
+    def test_id_suspended_in_period_creates_log_on_success(self):
+        self.checker.LOG_REPOSITORY.get_all.return_value = {}
+
+        self.checker.id_suspended_in_period("2026-01-01", "2026-01-02", 1, "Audit check", "HMRC")
+
+        self.checker.LOG_REPOSITORY.add.assert_called_once()
+        added_log = self.checker.LOG_REPOSITORY.add.call_args[0][0]
+        assert added_log.action == Action.VERIFY
+        assert added_log.accepted is True
+        assert added_log.attribute == "suspended_in_period"
+        assert added_log.current_value == "False"
+        assert added_log.comparative_value == "2026-01-01 to 2026-01-02"
+        assert added_log.organisation == "HMRC"
+        assert added_log.justification == "Audit check"
+        assert added_log.id_number == 1
+
+    def test_id_suspended_in_period_creates_log_on_failure(self):
+        self.checker.LOG_REPOSITORY.get_all.side_effect = RuntimeError("Storage error")
+
+        with pytest.raises(RuntimeError):
+            self.checker.id_suspended_in_period("2026-01-01", "2026-01-02", 1, "Audit check", "HMRC")
+
+        self.checker.LOG_REPOSITORY.add.assert_called_once()
+        added_log = self.checker.LOG_REPOSITORY.add.call_args[0][0]
+        assert added_log.action == Action.VERIFY
+        assert added_log.accepted is False
+        assert added_log.attribute == "suspended_in_period"
+        assert added_log.current_value == "Storage error"
+        assert added_log.organisation == "HMRC"
+        assert added_log.justification == "Audit check"
+        assert added_log.id_number == 1
