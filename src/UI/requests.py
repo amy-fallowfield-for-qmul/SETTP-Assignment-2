@@ -83,14 +83,14 @@ class Requests(metaclass=SingletonMeta):
             item.print()
         print("=" * SEPARATION_WIDTH)
 
-    def query_id(self, organisation: str, allowed_attributes: List[str]) -> None:
+    def query_id(self, organisation: str, accessible_attributes: List[str]) -> None:
         try:
             id_subject = self._get_id_subject()
-            attribute_choice = self._get_attribute_subject("query", allowed_attributes)
+            attribute_choice = self._get_attribute_subject("query", accessible_attributes)
             justification = input("Enter justification for query: ")
             
             current_value = self.DIGITAL_ID_SERVICE.query_attribute(
-                id_subject.id, attribute_choice, justification, organisation, allowed_attributes
+                id_subject.id, attribute_choice, justification, organisation, accessible_attributes
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -99,7 +99,7 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"{e}")
 
-    def verify_identity(self, organisation: str, allowed_attributes: List[str]) -> None:
+    def verify_identity(self, organisation: str, accessible_attributes: List[str]) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
             first_name = input("Enter first name: ")
@@ -108,7 +108,7 @@ class Requests(metaclass=SingletonMeta):
             justification = input("Enter justification for verification: ")
 
             result = self.DIGITAL_ID_SERVICE.verify_identity(
-                id_number, first_name, surname, date_of_birth, justification, organisation, allowed_attributes
+                id_number, first_name, surname, date_of_birth, justification, organisation, accessible_attributes
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -120,14 +120,14 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"Request rejected: {e}")
 
-    def verify_minimum_age(self, organisation: str, allowed_attributes: List[str]) -> None:
+    def verify_minimum_age(self, organisation: str, accessible_attributes: List[str]) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
             minimum_age = input("Enter minimum age: ")
             justification = input("Enter justification for verification: ")
 
             result = self.DIGITAL_ID_SERVICE.verify_minimum_age(
-                id_number, minimum_age, justification, organisation, allowed_attributes
+                id_number, minimum_age, justification, organisation, accessible_attributes
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -182,9 +182,9 @@ class Requests(metaclass=SingletonMeta):
         except (ValueError, KeyError):
             raise ValueError("Invalid ID")
 
-    def _get_attribute_subject(self, action: str, allowed_attributes: Optional[List[str]] = None) -> str:
-        if allowed_attributes is not None:
-            fields = allowed_attributes
+    def _get_attribute_subject(self, action: str, accessible_attributes: Optional[List[str]] = None) -> str:
+        if accessible_attributes is not None:
+            fields = accessible_attributes
         elif action == "query":
             fields = self.DIGITAL_ID_SERVICE.get_queryable_attributes()
         else:

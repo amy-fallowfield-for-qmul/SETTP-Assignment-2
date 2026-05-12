@@ -33,7 +33,11 @@ class MainABC(metaclass=SingletonABCMeta):
 
     @classmethod
     @abstractmethod
-    def allowed_attributes(cls) -> List[str]: pass
+    def accessible_attributes(cls) -> List[str]: pass
+
+    @classmethod
+    def verifiable_attributes(cls) -> List[str]:
+        return cls.accessible_attributes()
 
     @abstractmethod
     def generate_options(self) -> None: pass

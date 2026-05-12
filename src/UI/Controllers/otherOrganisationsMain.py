@@ -16,7 +16,7 @@ class OtherOrganisationMain(MainABC):
 
         match(choice):
             case 1:
-                self.REQUESTS.query_id(self.organisation_name(), self.allowed_attributes())
+                self.REQUESTS.query_id(self.organisation_name(), self.accessible_attributes())
             case 2:
                 self.REQUESTS.exit_program()
             case _:

@@ -2,7 +2,11 @@ from .otherOrganisationsMain import OtherOrganisationMain
 
 class Bank(OtherOrganisationMain):
     @classmethod
-    def allowed_attributes(cls) -> list:
+    def accessible_attributes(cls) -> list:
+        return ["status", "address"]
+
+    @classmethod
+    def verifiable_attributes(cls) -> list:
         return ["status", "first_name", "surname", "date_of_birth", "address"]
 
     @classmethod
@@ -24,11 +28,11 @@ class Bank(OtherOrganisationMain):
 
         match(choice):
             case 1:
-                self.REQUESTS.query_id(self.organisation_name(), self.allowed_attributes())
+                self.REQUESTS.query_id(self.organisation_name(), self.accessible_attributes())
             case 2:
-                self.REQUESTS.verify_identity(self.organisation_name(), self.allowed_attributes())
+                self.REQUESTS.verify_identity(self.organisation_name(), self.verifiable_attributes())
             case 3:
-                self.REQUESTS.verify_minimum_age(self.organisation_name(), self.allowed_attributes())
+                self.REQUESTS.verify_minimum_age(self.organisation_name(), self.verifiable_attributes())
             case 4:
                 self.REQUESTS.exit_program()
             case _:

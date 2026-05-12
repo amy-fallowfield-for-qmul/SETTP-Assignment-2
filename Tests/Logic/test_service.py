@@ -170,26 +170,26 @@ class TestServiceUpdateID:
 class TestServiceVerifyIdentity:
     """Tests for verifying a Digital ID's identity via the service"""
 
-    BANK_ATTRIBUTES = ["status", "first_name", "surname", "date_of_birth", "address"]
+    BANK_VERIFIABLE = ["status", "first_name", "surname", "date_of_birth", "address"]
 
     def test_verify_identity_match(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_ATTRIBUTES)
+        result = service.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_VERIFIABLE)
         assert result is True
 
     def test_verify_identity_mismatch(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.verify_identity(1, "Alice", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_ATTRIBUTES)
+        result = service.verify_identity(1, "Alice", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_VERIFIABLE)
         assert result is False
 
     def test_verify_identity_normalises_input(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.verify_identity(1, "  john  ", "SMITH", "2000-01-01", "Account opening", "Bank", self.BANK_ATTRIBUTES)
+        result = service.verify_identity(1, "  john  ", "SMITH", "2000-01-01", "Account opening", "Bank", self.BANK_VERIFIABLE)
         assert result is True
 
     def test_verify_identity_creates_log(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        service.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_ATTRIBUTES)
+        service.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_VERIFIABLE)
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
         assert verify_log.action == Action.VERIFY
@@ -204,26 +204,26 @@ class TestServiceVerifyIdentity:
 class TestServiceVerifyMinimumAge:
     """Tests for verifying a Digital ID's minimum age via the service"""
 
-    BANK_ATTRIBUTES = ["status", "first_name", "surname", "date_of_birth", "address"]
+    BANK_VERIFIABLE = ["status", "first_name", "surname", "date_of_birth", "address"]
 
     def test_verify_minimum_age_meets(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.verify_minimum_age(1, 18, "ISA eligibility", "Bank", self.BANK_ATTRIBUTES)
+        result = service.verify_minimum_age(1, 18, "ISA eligibility", "Bank", self.BANK_VERIFIABLE)
         assert result is True
 
     def test_verify_minimum_age_does_not_meet(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.verify_minimum_age(1, 99, "Pension eligibility", "Bank", self.BANK_ATTRIBUTES)
+        result = service.verify_minimum_age(1, 99, "Pension eligibility", "Bank", self.BANK_VERIFIABLE)
         assert result is False
 
     def test_verify_minimum_age_accepts_string_input(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        result = service.verify_minimum_age(1, "18", "ISA eligibility", "Bank", self.BANK_ATTRIBUTES)
+        result = service.verify_minimum_age(1, "18", "ISA eligibility", "Bank", self.BANK_VERIFIABLE)
         assert result is True
 
     def test_verify_minimum_age_creates_log(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)
-        service.verify_minimum_age(1, 18, "ISA eligibility", "Bank", self.BANK_ATTRIBUTES)
+        service.verify_minimum_age(1, 18, "ISA eligibility", "Bank", self.BANK_VERIFIABLE)
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
         assert verify_log.action == Action.VERIFY

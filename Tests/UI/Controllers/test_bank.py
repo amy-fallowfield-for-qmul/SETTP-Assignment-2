@@ -12,6 +12,10 @@ class TestBank:
     def test_organisation_name(self) -> None:
         assert Bank.organisation_name() == "Bank"
 
-    def test_allowed_attributes(self) -> None:
+    def test_accessible_attributes(self) -> None:
+        expected_attributes = ["status", "address"]
+        assert Bank.accessible_attributes() == expected_attributes
+
+    def test_verifiable_attributes(self) -> None:
         expected_attributes = ["status", "first_name", "surname", "date_of_birth", "address"]
-        assert Bank.allowed_attributes() == expected_attributes
+        assert Bank.verifiable_attributes() == expected_attributes

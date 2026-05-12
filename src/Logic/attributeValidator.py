@@ -21,13 +21,13 @@ class Validator(metaclass=SingletonMeta):
         """
 
         required_attributes = self.ATTRIBUTE_REGISTRY.get_required_for_creation()
-        allowed_attributes = required_attributes + ["justification"]
+        accessible_attributes = required_attributes + ["justification"]
 
         if not all(attribute in data for attribute in required_attributes):
             raise ValueError("Missing required attributes")
         
         for key in data:
-            if key not in allowed_attributes:
+            if key not in accessible_attributes:
                 raise ValueError(f"Unexpected attribute: {key}")
 
         for key in required_attributes:
