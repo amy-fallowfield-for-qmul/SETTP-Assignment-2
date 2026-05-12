@@ -3,7 +3,7 @@
 ### Capabilities
 
 #### Central Authority
-Central Authority has full access and can individually query the following attributes:
+Central Authority has full access and can individually retrieve the following attributes:
 - status
 - first_name
 - surname
@@ -16,38 +16,39 @@ Central Authority can also:
 - Update existing Digital IDs (mutable attributes only)
 - View all Digital ID data
 - View all log data
-- Query suspension history for any period
+- Verify suspension history for any period
 
 #### Bank
-Bank can individually query the following attributes:
+Bank can retrieve the following attributes:
 - status
-- first_name
-- surname
-- date_of_birth
 - address
+
+Bank can also:
+- Verify a Digital ID's identity (given ID number, first name, surname, and date of birth, receive a boolean indicating whether those values match the Digital ID)
+- Verify a Digital ID meets a minimum age (given ID number and minimum age, receive a boolean indicating whether the Digital ID meets the threshold)
 
 #### Employer
-Employer can individually query the following attributes:
+Employer can retrieve the following attributes:
 - status
-- first_name
-- surname
-- date_of_birth
 - address
-- national_insurance
+
+Employer can also:
+- Verify a Digital ID's identity (given ID number, first name, surname, and date of birth, receive a boolean)
+- Verify a Digital ID meets a minimum age (given ID number and minimum age, receive a boolean)
+- Verify a provided National Insurance number matches a Digital ID (given ID number and NI number, receive a boolean)
 
 #### HMRC
-HMRC can individually query the following attributes:
-- status
+HMRC can retrieve the following attributes:
 - address
-- national_insurance
 
-HMRC also has additional capability to:
-- Query suspension history for any period
+HMRC can also:
+- Verify a provided National Insurance number matches a Digital ID (given ID number and NI number, receive a boolean)
+- Verify suspension history for any period
 
 ### Development
 
 ### Adding new organisations:
-1. Create a new file `[organisation_name].py` (e.g. hmrc.py for HMRC) + Create a class which inherits from `OtherOrganisationMain` + Define @classmethods `allowed_attributes` and `organisation_name`
+1. Create a new file `[organisation_name].py` (e.g. hmrc.py for HMRC) + Create a class which inherits from `OtherOrganisationMain` + Define @classmethods `accessible_attributes` and `organisation_name`. If the organisation uses `verify_attribute`, also override `verifiable_attributes` (defaults to `[]` if not overridden).
 2. In `main.py`: Add new class to `USER_OPTIONS` list
 3. Add new attribute(s) if required (See below)
 
