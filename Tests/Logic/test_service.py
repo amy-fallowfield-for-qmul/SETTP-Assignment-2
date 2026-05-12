@@ -164,6 +164,75 @@ class TestServiceUpdateID:
         with pytest.raises(ValueError, match="is immutable and cannot be updated"):
             service.update_id(1, "date_of_birth", "2010-01-01", "Date correction")
 
+class TestServiceVerifyIdentity:
+    """Tests for verifying a Digital ID's identity via the service"""
+
+    BANK_ATTRIBUTES = ["status", "first_name", "surname", "date_of_birth", "address"]
+
+    def test_verify_identity_match(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        result = service.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_ATTRIBUTES)
+        assert result is True
+
+    def test_verify_identity_mismatch(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        result = service.verify_identity(1, "Alice", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_ATTRIBUTES)
+        assert result is False
+
+    def test_verify_identity_normalises_input(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        result = service.verify_identity(1, "  john  ", "SMITH", "2000-01-01", "Account opening", "Bank", self.BANK_ATTRIBUTES)
+        assert result is True
+
+    def test_verify_identity_creates_log(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        service.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank", self.BANK_ATTRIBUTES)
+        logs = service.LOG_REPOSITORY.get_all()
+        verify_log = list(logs.values())[1]
+        assert verify_log.action == Action.VERIFY
+        assert verify_log.attribute == "identity"
+        assert verify_log.current_value == "True"
+
+    def test_verify_identity_access_denied(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        with pytest.raises(ValueError, match="Access denied"):
+            service.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank", ["status"])
+
+class TestServiceVerifyMinimumAge:
+    """Tests for verifying a Digital ID's minimum age via the service"""
+
+    BANK_ATTRIBUTES = ["status", "first_name", "surname", "date_of_birth", "address"]
+
+    def test_verify_minimum_age_meets(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        result = service.verify_minimum_age(1, 18, "ISA eligibility", "Bank", self.BANK_ATTRIBUTES)
+        assert result is True
+
+    def test_verify_minimum_age_does_not_meet(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        result = service.verify_minimum_age(1, 99, "Pension eligibility", "Bank", self.BANK_ATTRIBUTES)
+        assert result is False
+
+    def test_verify_minimum_age_accepts_string_input(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        result = service.verify_minimum_age(1, "18", "ISA eligibility", "Bank", self.BANK_ATTRIBUTES)
+        assert result is True
+
+    def test_verify_minimum_age_creates_log(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        service.verify_minimum_age(1, 18, "ISA eligibility", "Bank", self.BANK_ATTRIBUTES)
+        logs = service.LOG_REPOSITORY.get_all()
+        verify_log = list(logs.values())[1]
+        assert verify_log.action == Action.VERIFY
+        assert verify_log.attribute == "minimum_age"
+        assert verify_log.current_value == "True"
+        assert verify_log.new_value == "18"
+
+    def test_verify_minimum_age_access_denied(self, service: DigitalIDService) -> None:
+        service.create_id(justification_person_dict)
+        with pytest.raises(ValueError, match="Access denied"):
+            service.verify_minimum_age(1, 18, "ISA eligibility", "Bank", ["status"])
+
 class TestServiceCSV:
     """Tests for loading and saving CSV data via the service"""
 

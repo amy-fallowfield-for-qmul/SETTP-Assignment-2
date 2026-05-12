@@ -11,9 +11,10 @@ class TestAction:
         assert Action.CREATE.value == "create"
         assert Action.READ.value == "read"
         assert Action.UPDATE.value == "update"
+        assert Action.VERIFY.value == "verify"
 
     def test_action_members(self) -> None:
-        assert set(Action.__members__.keys()) == {"CREATE", "READ", "UPDATE"}
+        assert set(Action.__members__.keys()) == {"CREATE", "READ", "UPDATE", "VERIFY"}
 
 class TestLogModel:
     """Tests for Log data model"""
@@ -71,6 +72,31 @@ class TestLogModel:
         assert row[7] == "John"
         assert row[8] == "Alicia"
         assert row[9] == "first_name"
+
+    def test_create_log_for_verify(self) -> None:
+        log = Log.for_verify("Bank", 1, "Account opening", "identity", True)
+        row = log.get_row()
+        assert row[0] == log.id
+        timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
+        assert timestamp >= self.start_time.replace(microsecond=0)
+        assert timestamp <= datetime.now()
+        assert row[2] == True
+        assert row[3] == "Bank"
+        assert row[4] == "1"
+        assert row[5] == "verify"
+        assert row[6] == "Account opening"
+        assert row[7] == "True"
+        assert row[8] is None
+        assert row[9] == "identity"
+
+    def test_create_log_for_verify_with_context(self) -> None:
+        log = Log.for_verify("Bank", 1, "ISA eligibility", "minimum_age", False, "18")
+        row = log.get_row()
+        assert row[5] == "verify"
+        assert row[6] == "ISA eligibility"
+        assert row[7] == "False"
+        assert row[8] == "18"
+        assert row[9] == "minimum_age"
 
     def test_from_csv(self) -> None:
         attributes = {
@@ -215,6 +241,26 @@ class TestLogProperties:
         
         assert "Requested to update ID 3" in output
         assert "Status change was ACCEPTED" in output
+
+    def test_print_verify_action(self, capsys) -> None:
+        verify_log = Log.for_verify("Bank", 5, "Account opening", "identity", True)
+        verify_log.print()
+        captured = capsys.readouterr()
+        output = captured.out
+
+        assert "Requested to verify ID 5" in output
+        assert "identity: True" in output
+        assert "Account opening was ACCEPTED" in output
+
+    def test_print_verify_action_with_context(self, capsys) -> None:
+        verify_log = Log.for_verify("Bank", 5, "ISA eligibility", "minimum_age", False, "18")
+        verify_log.print()
+        captured = capsys.readouterr()
+        output = captured.out
+
+        assert "Requested to verify ID 5" in output
+        assert "minimum_age (threshold: 18): False" in output
+        assert "ISA eligibility was ACCEPTED" in output
 
     def test_print_create_with_non_digitalid(self, capsys) -> None:
         create_log = Log(True, "NHS", 4, Action.CREATE, "Manual entry", "John Doe Profile", None, None)
