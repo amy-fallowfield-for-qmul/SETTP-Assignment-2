@@ -17,7 +17,7 @@ class HMRC(OtherOrganisationMain):
         print("\nPlease select an option:")
         print("1. Query Digital ID by ID")
         print("2. Verify Digital ID attribute")
-        print("3. Query Digital ID suspended in given period")
+        print("3. Verify Digital ID suspended in given period")
         print("4. Exit\n")
 
         try:
@@ -32,7 +32,7 @@ class HMRC(OtherOrganisationMain):
             case 2:
                 self.REQUESTS.verify_attribute(self.organisation_name(), self.verifiable_attributes())
             case 3:
-                self._query_suspended_in_period()
+                self.REQUESTS.verify_suspended_in_period(self.organisation_name())
             case 4:
                 self.REQUESTS.exit_program()
             case _:

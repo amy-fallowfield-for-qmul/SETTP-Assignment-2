@@ -3,6 +3,7 @@ from UI.requests import Requests
 from Data.DigitalID.digitalID import DigitalID
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Logic.service import DigitalIDService
+from Logic.verifier import Verifier
 from Data.Attributes.attributeRepository import AttributeRegistry
 from Tests.shared_test_data import justification_person_dict
 
@@ -12,6 +13,7 @@ def requests() -> Requests:
     DigitalIDRepository.clear_instance()
     DigitalIDService.clear_instance()
     Requests.clear_instance()
+    Verifier.clear_instance()
     return Requests()
 
 class TestRequestsCreateID:
@@ -89,6 +91,7 @@ class TestRequestsViewAllIDs:
         DigitalIDRepository.clear_instance()
         DigitalIDService.clear_instance()
         Requests.clear_instance()
+        Verifier.clear_instance()
         req = Requests()
         monkeypatch.setattr("builtins.input", lambda _="": "1")
         req.view_all_ids()
@@ -111,6 +114,7 @@ class TestRequestsQueryID:
         DigitalIDRepository.clear_instance()
         DigitalIDService.clear_instance()
         Requests.clear_instance()
+        Verifier.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 
@@ -143,6 +147,7 @@ class TestRequestsVerifyIdentity:
         DigitalIDRepository.clear_instance()
         DigitalIDService.clear_instance()
         Requests.clear_instance()
+        Verifier.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 
@@ -175,6 +180,7 @@ class TestRequestsVerifyMinimumAge:
         DigitalIDRepository.clear_instance()
         DigitalIDService.clear_instance()
         Requests.clear_instance()
+        Verifier.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 
@@ -207,6 +213,7 @@ class TestRequestsVerifyAttribute:
         DigitalIDRepository.clear_instance()
         DigitalIDService.clear_instance()
         Requests.clear_instance()
+        Verifier.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 
@@ -239,6 +246,7 @@ class TestRequestsUpdateID:
         DigitalIDRepository.clear_instance()
         DigitalIDService.clear_instance()
         Requests.clear_instance()
+        Verifier.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 
@@ -277,6 +285,7 @@ class TestRequestsHelpers:
         DigitalIDRepository.clear_instance()
         DigitalIDService.clear_instance()
         Requests.clear_instance()
+        Verifier.clear_instance()
         self.requests = Requests()
         self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
 

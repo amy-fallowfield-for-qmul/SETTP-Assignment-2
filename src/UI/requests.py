@@ -1,7 +1,7 @@
 from typing import List, Optional
 from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
-from Logic.suspendedChecker import SuspendedChecker
+from Logic.verifier import Verifier
 from Data.DigitalID.digitalID import DigitalID
 from Config.constants import SEPARATION_WIDTH, LOG_HEADERS
 
@@ -10,7 +10,7 @@ class Requests(metaclass=SingletonMeta):
 
     def __init__(self) -> None:
         self.DIGITAL_ID_SERVICE = DigitalIDService()
-        self.SUSPENDED_CHECKER = SuspendedChecker()
+        self.VERIFIER = Verifier()
 
     def create_id(self) -> None:
         data = {}
@@ -107,7 +107,7 @@ class Requests(metaclass=SingletonMeta):
             date_of_birth = input("Enter date of birth (YYYY-MM-DD): ")
             justification = input("Enter justification for verification: ")
 
-            result = self.DIGITAL_ID_SERVICE.verify_identity(
+            result = self.VERIFIER.verify_identity(
                 id_number, first_name, surname, date_of_birth, justification, organisation
             )
 
@@ -126,7 +126,7 @@ class Requests(metaclass=SingletonMeta):
             minimum_age = input("Enter minimum age: ")
             justification = input("Enter justification for verification: ")
 
-            result = self.DIGITAL_ID_SERVICE.verify_minimum_age(
+            result = self.VERIFIER.verify_minimum_age(
                 id_number, minimum_age, justification, organisation
             )
 
@@ -146,7 +146,7 @@ class Requests(metaclass=SingletonMeta):
             claimed_value = input(f"Enter claimed {attribute_choice}: ")
             justification = input("Enter justification for verification: ")
 
-            result = self.DIGITAL_ID_SERVICE.verify_attribute(
+            result = self.VERIFIER.verify_attribute(
                 id_number, attribute_choice, claimed_value, justification, organisation, accessible_attributes
             )
 
@@ -225,20 +225,24 @@ class Requests(metaclass=SingletonMeta):
         except (ValueError, IndexError):
             raise ValueError("Invalid input")
 
-    def id_suspended_in_period(self, organisation: str) -> bool:
+    def verify_suspended_in_period(self, organisation: str) -> None:
         try:
             start_date = input("Enter start date (YYYY-MM-DD): ")
             end_date = input("Enter end date (YYYY-MM-DD): ")
             id_number = int(input("Enter Digital ID number: "))
             justification = input("Enter justification for verification: ")
 
-            self.DIGITAL_ID_SERVICE.get_id_by_number(id_number)
-            
             validated_start = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(start_date)
             validated_end = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(end_date)
             validated_justification = self.DIGITAL_ID_SERVICE.VALIDATOR._validate_string(justification, "justification")
 
-            return self.SUSPENDED_CHECKER.id_suspended_in_period(validated_start, validated_end, id_number, validated_justification, organisation)
-            
-        except Exception as e:
-            raise ValueError(f"Error checking suspension period: {str(e)}")
+            result = self.VERIFIER.verify_suspended_in_period(validated_start, validated_end, id_number, validated_justification, organisation)
+
+            print("=" * SEPARATION_WIDTH)
+            if result:
+                print(f"Result: Digital ID {id_number} was suspended during specified period")
+            else:
+                print(f"Result: Digital ID {id_number} was NOT suspended during specified period")
+            print("=" * SEPARATION_WIDTH)
+        except ValueError as e:
+            print(f"Request rejected: {e}")

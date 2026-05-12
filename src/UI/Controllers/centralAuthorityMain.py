@@ -17,7 +17,7 @@ class CentralAuthorityMain(MainABC):
         print("1. Create a new Digital ID")
         print("2. Query Digital ID by ID")
         print("3. Update a Digital ID")
-        print("4. Query Digital ID suspended in given period")
+        print("4. Verify Digital ID suspended in given period")
         print("5. View all Digital ID data")
         print("6. View all log data")
         print("7. Exit\n")
@@ -36,7 +36,7 @@ class CentralAuthorityMain(MainABC):
             case 3:
                 self.REQUESTS.update_id()
             case 4:
-                self._query_suspended_in_period()
+                self.REQUESTS.verify_suspended_in_period(self.organisation_name())
             case 5:
                 self.REQUESTS.view_all_ids()
             case 6:
