@@ -13,5 +13,9 @@ class TestHMRC:
         assert HMRC.organisation_name() == "HMRC"
 
     def test_accessible_attributes(self) -> None:
-        expected_attributes = ["status", "address", "national_insurance"]
+        expected_attributes = ["address"]
         assert HMRC.accessible_attributes() == expected_attributes
+
+    def test_verifiable_attributes(self) -> None:
+        expected_attributes = ["national_insurance"]
+        assert HMRC.verifiable_attributes() == expected_attributes

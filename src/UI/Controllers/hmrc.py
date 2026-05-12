@@ -3,17 +3,22 @@ from .otherOrganisationsMain import OtherOrganisationMain
 class HMRC(OtherOrganisationMain):
     @classmethod
     def accessible_attributes(cls) -> list:
-        return ["status", "address", "national_insurance"]
+        return ["address"]
+
+    @classmethod
+    def verifiable_attributes(cls) -> list:
+        return ["national_insurance"]
 
     @classmethod
     def organisation_name(cls) -> str:
         return "HMRC"
-    
+
     def generate_options(self) -> None:
         print("\nPlease select an option:")
         print("1. Query Digital ID by ID")
-        print("2. Query Digital ID suspended in given period")
-        print("3. Exit\n")
+        print("2. Verify Digital ID attribute")
+        print("3. Verify Digital ID suspended in given period")
+        print("4. Exit\n")
 
         try:
             choice = int(input())
@@ -25,8 +30,10 @@ class HMRC(OtherOrganisationMain):
             case 1:
                 self.REQUESTS.query_id(self.organisation_name(), self.accessible_attributes())
             case 2:
-                self._query_suspended_in_period()
+                self.REQUESTS.verify_attribute(self.organisation_name(), self.verifiable_attributes())
             case 3:
+                self._query_suspended_in_period()
+            case 4:
                 self.REQUESTS.exit_program()
             case _:
                 print("Invalid choice")
