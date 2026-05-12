@@ -99,7 +99,7 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"{e}")
 
-    def verify_identity(self, organisation: str, accessible_attributes: List[str]) -> None:
+    def verify_identity(self, organisation: str) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
             first_name = input("Enter first name: ")
@@ -108,7 +108,7 @@ class Requests(metaclass=SingletonMeta):
             justification = input("Enter justification for verification: ")
 
             result = self.DIGITAL_ID_SERVICE.verify_identity(
-                id_number, first_name, surname, date_of_birth, justification, organisation, accessible_attributes
+                id_number, first_name, surname, date_of_birth, justification, organisation
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -120,14 +120,14 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"Request rejected: {e}")
 
-    def verify_minimum_age(self, organisation: str, accessible_attributes: List[str]) -> None:
+    def verify_minimum_age(self, organisation: str) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
             minimum_age = input("Enter minimum age: ")
             justification = input("Enter justification for verification: ")
 
             result = self.DIGITAL_ID_SERVICE.verify_minimum_age(
-                id_number, minimum_age, justification, organisation, accessible_attributes
+                id_number, minimum_age, justification, organisation
             )
 
             print("=" * SEPARATION_WIDTH)

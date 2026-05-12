@@ -103,7 +103,7 @@ class DigitalIDService(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(failed_log)
             raise
 
-    def verify_identity(self, id_number: int, first_name: str, surname: str, date_of_birth: str, justification: str, organisation: str, accessible_attributes: List[str]) -> bool:
+    def verify_identity(self, id_number: int, first_name: str, surname: str, date_of_birth: str, justification: str, organisation: str) -> bool:
         safe_justification = justification if justification else "Unknown justification"
 
         try:
@@ -112,10 +112,6 @@ class DigitalIDService(metaclass=SingletonMeta):
                 "surname": surname,
                 "date_of_birth": date_of_birth,
             }
-
-            for attr in required_attributes:
-                if attr not in accessible_attributes:
-                    raise ValueError(f"Access denied: {organisation} is not authorised to access '{attr}' attribute")
 
             digital_id = self.get_id_by_number(id_number)
 
@@ -143,13 +139,10 @@ class DigitalIDService(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(failed_log)
             raise
 
-    def verify_minimum_age(self, id_number: int, minimum_age: Any, justification: str, organisation: str, accessible_attributes: List[str]) -> bool:
+    def verify_minimum_age(self, id_number: int, minimum_age: Any, justification: str, organisation: str) -> bool:
         safe_justification = justification if justification else "Unknown justification"
 
         try:
-            if "date_of_birth" not in accessible_attributes:
-                raise ValueError(f"Access denied: {organisation} is not authorized to access 'date_of_birth' attribute")
-
             validated_min_age = self.VERIFICATION_VALIDATOR.validate_minimum_age(minimum_age)
 
             digital_id = self.get_id_by_number(id_number)

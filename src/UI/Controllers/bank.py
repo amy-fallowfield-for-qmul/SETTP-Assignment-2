@@ -6,10 +6,6 @@ class Bank(OtherOrganisationMain):
         return ["status", "address"]
 
     @classmethod
-    def verifiable_attributes(cls) -> list:
-        return ["status", "first_name", "surname", "date_of_birth", "address"]
-
-    @classmethod
     def organisation_name(cls) -> str:
         return "Bank"
 
@@ -30,9 +26,9 @@ class Bank(OtherOrganisationMain):
             case 1:
                 self.REQUESTS.query_id(self.organisation_name(), self.accessible_attributes())
             case 2:
-                self.REQUESTS.verify_identity(self.organisation_name(), self.verifiable_attributes())
+                self.REQUESTS.verify_identity(self.organisation_name())
             case 3:
-                self.REQUESTS.verify_minimum_age(self.organisation_name(), self.verifiable_attributes())
+                self.REQUESTS.verify_minimum_age(self.organisation_name())
             case 4:
                 self.REQUESTS.exit_program()
             case _:
