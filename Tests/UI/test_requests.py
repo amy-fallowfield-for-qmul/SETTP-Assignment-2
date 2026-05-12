@@ -199,6 +199,38 @@ class TestRequestsVerifyMinimumAge:
         captured = capsys.readouterr()
         assert "Request rejected" in captured.out
 
+class TestRequestsVerifyAttribute:
+    """Tests for verifying a single Digital ID attribute via the UI"""
+
+    def setup_method(self) -> None:
+        DigitalID._next_id = 1
+        DigitalIDRepository.clear_instance()
+        DigitalIDService.clear_instance()
+        Requests.clear_instance()
+        self.requests = Requests()
+        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict)
+
+    def test_verify_attribute_match(self, monkeypatch, capsys) -> None:
+        inputs = iter(["1", "1", "AB123456C", "New hire"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+        self.requests.verify_attribute("Employer", ["national_insurance"])
+        captured = capsys.readouterr()
+        assert "national_insurance matches for Digital ID 1" in captured.out
+
+    def test_verify_attribute_mismatch(self, monkeypatch, capsys) -> None:
+        inputs = iter(["1", "1", "BC123456C", "New hire"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+        self.requests.verify_attribute("Employer", ["national_insurance"])
+        captured = capsys.readouterr()
+        assert "national_insurance does NOT match for Digital ID 1" in captured.out
+
+    def test_verify_attribute_rejected(self, monkeypatch, capsys) -> None:
+        inputs = iter(["99", "1", "AB123456C", "New hire"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+        self.requests.verify_attribute("Employer", ["national_insurance"])
+        captured = capsys.readouterr()
+        assert "Request rejected" in captured.out
+
 class TestRequestsUpdateID:
     """Tests for updating a Digital ID attribute via the UI"""
 
