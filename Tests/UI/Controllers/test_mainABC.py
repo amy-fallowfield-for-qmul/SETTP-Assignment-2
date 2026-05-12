@@ -55,7 +55,7 @@ class TestCentralAuthoritySpecific:
         assert "1. Create a new Digital ID" in captured.out
         assert "2. Query Digital ID by ID" in captured.out  
         assert "3. Update a Digital ID" in captured.out
-        assert "4. Query Digital ID suspended in given period" in captured.out
+        assert "4. Verify Digital ID suspended in given period" in captured.out
         assert "5. View all Digital ID data" in captured.out
         assert "6. View all log data" in captured.out
         assert "7. Exit" in captured.out
@@ -107,7 +107,7 @@ class TestOtherOrganisationSpecific:
         assert "1. Create a new Digital ID" not in captured.out
         assert "2. Query Digital ID by ID" not in captured.out  
         assert "3. Update a Digital ID" not in captured.out
-        assert "4. Query Digital ID suspended in given period" not in captured.out
+        assert "4. Verify Digital ID suspended in given period" not in captured.out
         assert "5. View all Digital ID data" not in captured.out
         assert "6. View all log data" not in captured.out
         assert "7. Exit" not in captured.out
