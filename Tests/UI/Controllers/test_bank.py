@@ -17,5 +17,4 @@ class TestBank:
         assert Bank.accessible_attributes() == expected_attributes
 
     def test_verifiable_attributes(self) -> None:
-        expected_attributes = ["status", "first_name", "surname", "date_of_birth", "address"]
-        assert Bank.verifiable_attributes() == expected_attributes
+        assert Bank.verifiable_attributes() == []

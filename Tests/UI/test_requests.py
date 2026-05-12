@@ -138,8 +138,6 @@ class TestRequestsQueryID:
 class TestRequestsVerifyIdentity:
     """Tests for verifying a Digital ID's identity via the UI"""
 
-    BANK_VERIFIABLE = ["status", "first_name", "surname", "date_of_birth", "address"]
-
     def setup_method(self) -> None:
         DigitalID._next_id = 1
         DigitalIDRepository.clear_instance()
@@ -151,28 +149,26 @@ class TestRequestsVerifyIdentity:
     def test_verify_identity_match(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "John", "Smith", "2000-01-01", "Account opening"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        self.requests.verify_identity("Bank", self.BANK_VERIFIABLE)
+        self.requests.verify_identity("Bank")
         captured = capsys.readouterr()
         assert "Identity verified for Digital ID 1" in captured.out
 
     def test_verify_identity_mismatch(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "Alice", "Smith", "2000-01-01", "Account opening"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        self.requests.verify_identity("Bank", self.BANK_VERIFIABLE)
+        self.requests.verify_identity("Bank")
         captured = capsys.readouterr()
         assert "Identity NOT verified for Digital ID 1" in captured.out
 
     def test_verify_identity_rejected(self, monkeypatch, capsys) -> None:
         inputs = iter(["99", "John", "Smith", "2000-01-01", "Account opening"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        self.requests.verify_identity("Bank", self.BANK_VERIFIABLE)
+        self.requests.verify_identity("Bank")
         captured = capsys.readouterr()
         assert "Request rejected" in captured.out
 
 class TestRequestsVerifyMinimumAge:
     """Tests for verifying a Digital ID's minimum age via the UI"""
-
-    BANK_VERIFIABLE = ["status", "first_name", "surname", "date_of_birth", "address"]
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
@@ -185,21 +181,21 @@ class TestRequestsVerifyMinimumAge:
     def test_verify_minimum_age_meets(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "18", "ISA eligibility"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        self.requests.verify_minimum_age("Bank", self.BANK_VERIFIABLE)
+        self.requests.verify_minimum_age("Bank")
         captured = capsys.readouterr()
         assert "meets the minimum age" in captured.out
 
     def test_verify_minimum_age_does_not_meet(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "99", "Pension eligibility"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        self.requests.verify_minimum_age("Bank", self.BANK_VERIFIABLE)
+        self.requests.verify_minimum_age("Bank")
         captured = capsys.readouterr()
         assert "does NOT meet the minimum age" in captured.out
 
     def test_verify_minimum_age_rejected(self, monkeypatch, capsys) -> None:
         inputs = iter(["99", "18", "ISA eligibility"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
-        self.requests.verify_minimum_age("Bank", self.BANK_VERIFIABLE)
+        self.requests.verify_minimum_age("Bank")
         captured = capsys.readouterr()
         assert "Request rejected" in captured.out
 
