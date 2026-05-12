@@ -99,6 +99,46 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"{e}")
 
+    def verify_identity(self, organisation: str = "Bank", allowed_attributes: Optional[List[str]] = None) -> None:
+        try:
+            id_number = int(input("Enter Digital ID number: "))
+            first_name = input("Enter first name: ")
+            surname = input("Enter surname: ")
+            date_of_birth = input("Enter date of birth (YYYY-MM-DD): ")
+            justification = input("Enter justification for verification: ")
+
+            result = self.DIGITAL_ID_SERVICE.verify_identity(
+                id_number, first_name, surname, date_of_birth, justification, organisation, allowed_attributes
+            )
+
+            print("=" * SEPARATION_WIDTH)
+            if result:
+                print(f"Result: Identity verified for Digital ID {id_number}")
+            else:
+                print(f"Result: Identity NOT verified for Digital ID {id_number}")
+            print("=" * SEPARATION_WIDTH)
+        except ValueError as e:
+            print(f"Request rejected: {e}")
+
+    def verify_minimum_age(self, organisation: str = "Bank", allowed_attributes: Optional[List[str]] = None) -> None:
+        try:
+            id_number = int(input("Enter Digital ID number: "))
+            minimum_age = input("Enter minimum age: ")
+            justification = input("Enter justification for verification: ")
+
+            result = self.DIGITAL_ID_SERVICE.verify_minimum_age(
+                id_number, minimum_age, justification, organisation, allowed_attributes
+            )
+
+            print("=" * SEPARATION_WIDTH)
+            if result:
+                print(f"Result: Digital ID {id_number} meets the minimum age of {minimum_age}")
+            else:
+                print(f"Result: Digital ID {id_number} does NOT meet the minimum age of {minimum_age}")
+            print("=" * SEPARATION_WIDTH)
+        except ValueError as e:
+            print(f"Request rejected: {e}")
+
     def update_id(self) -> None:
         try:
             id_subject = self._get_id_subject()

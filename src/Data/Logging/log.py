@@ -7,6 +7,7 @@ class Action(Enum):
     CREATE = "create"
     READ = "read"
     UPDATE = "update"
+    VERIFY = "verify"
 
 class Log:
     """Stores data model for each individual log entry"""
@@ -37,6 +38,10 @@ class Log:
     @classmethod
     def for_update(cls, organisation: str, id_number: int, justification: str, attribute: str, old_value: str, new_value: str) -> "Log":
         return cls(True, organisation, id_number, Action.UPDATE, justification, old_value, new_value, attribute)
+
+    @classmethod
+    def for_verify(cls, organisation: str, id_number: int, justification: str, verification_type: str, result: bool, context: Optional[str] = None) -> "Log":
+        return cls(True, organisation, id_number, Action.VERIFY, justification, str(result).title(), context, verification_type)
 
     @classmethod
     def for_failure(cls, organisation: str, id_number: int, action: Action, justification: str, error: str, attribute: Optional[str] = None) -> "Log":
@@ -137,5 +142,8 @@ class Log:
                 value_string = str(self._current_value)
             case Action.UPDATE:
                 value_string = f"{self.attribute}: {self._current_value} -> {self._new_value}"
+            case Action.VERIFY:
+                context_string = f" (threshold: {self._new_value})" if self._new_value else ""
+                value_string = f"{self.attribute}{context_string}: {self._current_value}"
         accepted_string = "ACCEPTED" if self._accepted else "REJECTED"
         print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] Requested to {self._action.value} ID {self._id_number} to [{value_string}] because {self._justification} was {accepted_string}")
