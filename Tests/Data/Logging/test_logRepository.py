@@ -9,7 +9,8 @@ from Tests.shared_test_data import new_person_dict
 
 EXPECTED_HEADERS = [
     "id", "timestamp", "accepted", "organisation", "digitalID",
-    "action", "justification", "currentValue", "newValue", "attribute"
+    "action", "justification", "currentValue", "newValue", "attribute",
+    "comparativeValue"
 ]
 
 @pytest.fixture
@@ -98,6 +99,7 @@ class TestLogRepositoryCSV:
         assert data_row[7] == str(digital_id)
         assert data_row[8] == ""
         assert data_row[9] == ""
+        assert data_row[10] == ""
 
     def test_save_empty_csv(self, monkeypatch) -> None:
         monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)

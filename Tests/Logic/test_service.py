@@ -229,7 +229,7 @@ class TestServiceVerifyMinimumAge:
         assert verify_log.action == Action.VERIFY
         assert verify_log.attribute == "minimum_age"
         assert verify_log.current_value == "True"
-        assert verify_log.new_value == "18"
+        assert verify_log.comparative_value == "18"
 
     def test_verify_minimum_age_access_denied(self, service: DigitalIDService) -> None:
         service.create_id(justification_person_dict)

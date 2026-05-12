@@ -95,8 +95,9 @@ class TestLogModel:
         assert row[5] == "verify"
         assert row[6] == "ISA eligibility"
         assert row[7] == "False"
-        assert row[8] == "18"
+        assert row[8] is None
         assert row[9] == "minimum_age"
+        assert row[10] == "18"
 
     def test_from_csv(self) -> None:
         attributes = {
@@ -109,7 +110,8 @@ class TestLogModel:
             "justification": "New registration",
             "currentValue": "John Smith",
             "newValue": "None",
-            "attribute": "None"
+            "attribute": "None",
+            "comparativeValue": "None"
         }
         log = Log.from_csv(attributes)
         assert log.id == 5
@@ -122,6 +124,7 @@ class TestLogModel:
         assert log.current_value == "John Smith"
         assert log.new_value is None
         assert log.attribute is None
+        assert log.comparative_value is None
 
     def test_from_csv_with_new_value(self) -> None:
         attributes = {
@@ -134,13 +137,15 @@ class TestLogModel:
             "justification": "Name change",
             "currentValue": "John",
             "newValue": "Alicia",
-            "attribute": "first_name"
+            "attribute": "first_name",
+            "comparativeValue": "None"
         }
         log = Log.from_csv(attributes)
         assert log.id == 6
         assert log.accepted == False
         assert log.new_value == "Alicia"
         assert log.attribute == "first_name"
+        assert log.comparative_value is None
 
 class TestLogProperties:
     """Tests for Log getters"""
