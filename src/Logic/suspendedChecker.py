@@ -11,7 +11,23 @@ class SuspendedChecker(metaclass=SingletonMeta):
     def __init__(self) -> None:
         self.LOG_REPOSITORY = LogRepository()
 
-    def id_suspended_in_period(self, start_date: str, end_date: str, id: int) -> bool:
+    def id_suspended_in_period(self, start_date: str, end_date: str, id: int, justification: str, organisation: str) -> bool:
+        safe_justification = justification if justification else "Unknown justification"
+
+        try:
+            result = self._was_suspended_in_period(start_date, end_date, id)
+
+            period_context = f"{start_date} to {end_date}"
+            audit_log = Log.for_verify(organisation, id, safe_justification, "suspended_in_period", result, period_context)
+            self.LOG_REPOSITORY.add(audit_log)
+
+            return result
+        except Exception as e:
+            failed_log = Log.for_failure(organisation, id, Action.VERIFY, safe_justification, str(e), "suspended_in_period")
+            self.LOG_REPOSITORY.add(failed_log)
+            raise
+
+    def _was_suspended_in_period(self, start_date: str, end_date: str, id: int) -> bool:
         all_logs = self.LOG_REPOSITORY.get_all()
         relevant_logs = [log for log in all_logs.values() if log.id_number == id]
         most_recent_update = None

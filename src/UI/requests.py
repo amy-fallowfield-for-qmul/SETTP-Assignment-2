@@ -225,18 +225,20 @@ class Requests(metaclass=SingletonMeta):
         except (ValueError, IndexError):
             raise ValueError("Invalid input")
 
-    def id_suspended_in_period(self) -> bool:
+    def id_suspended_in_period(self, organisation: str) -> bool:
         try:
             start_date = input("Enter start date (YYYY-MM-DD): ")
             end_date = input("Enter end date (YYYY-MM-DD): ")
             id_number = int(input("Enter Digital ID number: "))
+            justification = input("Enter justification for verification: ")
 
             self.DIGITAL_ID_SERVICE.get_id_by_number(id_number)
             
             validated_start = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(start_date)
             validated_end = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(end_date)
+            validated_justification = self.DIGITAL_ID_SERVICE.VALIDATOR._validate_string(justification, "justification")
 
-            return self.SUSPENDED_CHECKER.id_suspended_in_period(validated_start, validated_end, id_number)
+            return self.SUSPENDED_CHECKER.id_suspended_in_period(validated_start, validated_end, id_number, validated_justification, organisation)
             
         except Exception as e:
             raise ValueError(f"Error checking suspension period: {str(e)}")

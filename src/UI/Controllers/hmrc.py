@@ -17,7 +17,7 @@ class HMRC(OtherOrganisationMain):
         print("\nPlease select an option:")
         print("1. Query Digital ID by ID")
         print("2. Verify Digital ID attribute")
-        print("3. Verify Digital ID suspended in given period")
+        print("3. Query Digital ID suspended in given period")
         print("4. Exit\n")
 
         try:
