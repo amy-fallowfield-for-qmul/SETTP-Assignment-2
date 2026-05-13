@@ -1,12 +1,11 @@
 from abc import abstractmethod
 from Common.singleton import SingletonABCMeta
-from Data.dataStorage import DataStorage
+from Data import dataStorage
 from typing import Union, Dict, List
 
 class RepositoryABC(metaclass=SingletonABCMeta):
 
     def __init__(self) -> None:
-        self._storage = DataStorage()
         self._initialise()
 
     @abstractmethod
@@ -37,11 +36,11 @@ class RepositoryABC(metaclass=SingletonABCMeta):
         path = self._get_csv_path()
         headers = self._get_csv_headers()
         rows = self._get_rows_for_csv()
-        self._storage.save_to_csv(path, headers, rows)
+        dataStorage.save_to_csv(path, headers, rows)
     
     def load_from_csv(self) -> None:
         path = self._get_csv_path()
-        rows = self._storage.load_from_csv(path)
+        rows = dataStorage.load_from_csv(path)
         for row in rows:
             object = self._create_object_from_csv_row(row)
             self.add(object)
