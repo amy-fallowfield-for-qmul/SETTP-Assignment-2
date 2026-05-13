@@ -4,15 +4,15 @@ from Config.constants import ID_PATH
 from ..repositoryABC import RepositoryABC
 from ..Attributes.attributeRepository import AttributeRegistry
 
-class DigitalIDRepository(RepositoryABC):
+class DigitalIDRepository(RepositoryABC[DigitalID]):
     """Singleton repository for storing and managing Digital IDs"""
 
     def _initialise(self) -> None:
         self._repository: Dict[int, DigitalID] = {}
         self._attribute_registry = AttributeRegistry()
 
-    def add(self, digitalID: DigitalID) -> None:
-        self._repository[digitalID.id] = digitalID
+    def add(self, entity: DigitalID) -> None:
+        self._repository[entity.id] = entity
 
     def get_from_id(self, id: int) -> DigitalID:
         return self._repository[id]
