@@ -3,14 +3,14 @@ from .log import Log
 from ..repositoryABC import RepositoryABC
 from Config.constants import LOG_PATH, LOG_HEADERS
 
-class LogRepository(RepositoryABC):
+class LogRepository(RepositoryABC[Log]):
     """Singleton repository for storing and managing log entries"""
 
     def _initialise(self) -> None:
         self._repository: Dict[int, Log] = {}
 
-    def add(self, log: Log) -> None:
-        self._repository[log.id] = log
+    def add(self, entity: Log) -> None:
+        self._repository[entity.id] = entity
 
     def get_from_id(self, id: int) -> Log:
         return self._repository[id]
