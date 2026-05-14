@@ -1,5 +1,5 @@
 import pytest
-from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.attributeRegistry import AttributeRegistry
 from Data.Attributes.attributeMetadata import AttributeMetadata, AttributeType
 from Tests.shared_test_data import from_csv_person_dict
 

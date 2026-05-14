@@ -6,7 +6,7 @@ from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import DigitalID, Status
 from Data.Logging.logRepository import LogRepository
 from Data.Logging.log import Log, Action
-from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.attributeRegistry import AttributeRegistry
 from Config.constants import ID_PATH, LOG_PATH, LOG_HEADERS
 
 class DigitalIDService(metaclass=SingletonMeta):
