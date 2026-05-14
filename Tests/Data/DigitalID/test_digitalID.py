@@ -26,6 +26,8 @@ class TestDigitalIDCreation:
         
         for key, value in new_person_dict.items():
             assert result[key] == value
+        assert result["id"] == 1
+        assert result["status"] == "active"
 
     def test_create_id_from_csv(self) -> None:
         id = DigitalID(from_csv_person_dict)
