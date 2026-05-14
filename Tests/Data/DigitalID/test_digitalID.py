@@ -130,7 +130,6 @@ class TestDigitalIDProperties:
     def test_get_national_insurance(self) -> None:
         assert self.id.national_insurance == new_person_dict["national_insurance"]
 
-    def test_set_national_insurance(self) -> None:
-        new_ni = "EF123456A"
-        self.id.national_insurance = new_ni
-        assert self.id.national_insurance == new_ni
+    def test_national_insurance_is_read_only(self) -> None:
+        with pytest.raises(AttributeError):
+            setattr(self.id, "national_insurance", "EF123456A")

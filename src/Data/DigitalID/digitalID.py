@@ -103,7 +103,3 @@ class DigitalID:
     @property
     def national_insurance(self) -> str:
         return self._national_insurance
-    
-    @national_insurance.setter
-    def national_insurance(self, ni: str) -> None:
-        self._national_insurance = ni
