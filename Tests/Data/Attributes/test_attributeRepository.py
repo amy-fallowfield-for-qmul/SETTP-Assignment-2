@@ -38,7 +38,7 @@ class TestAttributeRegistryAddAndGet:
         attr = self.registry.get_attribute("first_name")
         assert attr.name == "first_name"
         assert attr.display_name == "First Name"
-        assert attr.type == AttributeType.STRING
+        assert attr.attribute_type == AttributeType.STRING
         assert attr.is_mutable == True
         assert attr.is_required_for_creation == True
         assert attr.input_prompt == "Enter first name: "
