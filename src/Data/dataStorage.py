@@ -1,7 +1,7 @@
 import csv
 from typing import List
 
-def save_to_csv(path: str, headers: List[str], rows: List[List[str]]) -> None:
+def save_to_csv(path: str, headers: List[str], rows: List[List[object]]) -> None:
     with open(path, "w") as file:
         writer = csv.writer(file)
         writer.writerow(headers)
