@@ -68,19 +68,19 @@ class Log:
         
         return log
 
-    def get_row(self) -> List[object]:
+    def get_row(self) -> List[str]:
         return [
-            self._id,
+            str(self._id),
             self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
-            self._accepted,
+            str(self._accepted),
             self._organisation,
             str(self._id_number),
             self._action.value,
             self._justification,
-            self._current_value,
-            self._new_value,
-            self._attribute,
-            self._comparative_value
+            str(self._current_value),
+            str(self._new_value) if self._new_value is not None else "None",
+            str(self._attribute) if self._attribute is not None else "None",
+            str(self._comparative_value) if self._comparative_value is not None else "None",
         ]
     
     @property

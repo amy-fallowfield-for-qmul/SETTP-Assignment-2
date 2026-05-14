@@ -97,9 +97,9 @@ class TestLogRepositoryCSV:
         assert data_row[5] == "create"
         assert data_row[6] == "New registration"
         assert data_row[7] == str(digital_id)
-        assert data_row[8] == ""
-        assert data_row[9] == ""
-        assert data_row[10] == ""
+        assert data_row[8] == "None"
+        assert data_row[9] == "None"
+        assert data_row[10] == "None"
 
     def test_save_empty_csv(self, monkeypatch) -> None:
         monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
