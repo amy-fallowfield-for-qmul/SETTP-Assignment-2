@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Dict, Any
-from ..Attributes.attributeRepository import AttributeRegistry
+from ..Attributes.attributeRegistry import AttributeRegistry
 
 class Status(Enum):
     ACTIVE = "active"

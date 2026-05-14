@@ -1,5 +1,5 @@
 from .mainABC import MainABC
-from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.attributeRegistry import AttributeRegistry
 
 class CentralAuthorityMain(MainABC):
     """Singleton entry point for the Digital ID System used by the Central Authority"""

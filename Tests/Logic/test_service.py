@@ -8,7 +8,7 @@ from Data.DigitalID.digitalID import DigitalID, Status
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.Logging.log import Action
 from Data.Logging.logRepository import LogRepository
-from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.attributeRegistry import AttributeRegistry
 from Tests.shared_test_data import justification_person_dict
 
 @pytest.fixture

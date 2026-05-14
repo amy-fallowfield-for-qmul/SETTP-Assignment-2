@@ -2,7 +2,7 @@ from typing import Dict, List
 from .digitalID import DigitalID
 from Config.constants import ID_PATH
 from ..repositoryABC import RepositoryABC
-from ..Attributes.attributeRepository import AttributeRegistry
+from ..Attributes.attributeRegistry import AttributeRegistry
 
 class DigitalIDRepository(RepositoryABC[DigitalID]):
     """Singleton repository for storing and managing Digital IDs"""

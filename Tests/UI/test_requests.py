@@ -4,7 +4,7 @@ from Data.DigitalID.digitalID import DigitalID
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Logic.service import DigitalIDService
 from Logic.verifier import Verifier
-from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.attributeRegistry import AttributeRegistry
 from Tests.shared_test_data import justification_person_dict
 
 @pytest.fixture

@@ -3,7 +3,7 @@ from datetime import date
 import re
 from Common.singleton import SingletonMeta
 from Data.DigitalID.digitalID import Status
-from Data.Attributes.attributeRepository import AttributeRegistry
+from Data.Attributes.attributeRegistry import AttributeRegistry
 from Data.Attributes.attributeMetadata import AttributeMetadata, AttributeType
 
 class Validator(metaclass=SingletonMeta):
