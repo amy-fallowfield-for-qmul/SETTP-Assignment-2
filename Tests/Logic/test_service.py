@@ -24,10 +24,11 @@ class TestServiceCreateID:
 
     def test_create_id(self, service: DigitalIDService) -> None:
         digital_id = service.create_id(justification_person_dict)
+        id_dict = digital_id.to_dict()
 
         for key, value in justification_person_dict.items():
             if key != "justification":
-                assert getattr(digital_id, key) == value
+                assert id_dict[key] == value
         assert len(service.get_all_ids()) == 1
 
     def test_create_id_creates_log(self, service: DigitalIDService) -> None:

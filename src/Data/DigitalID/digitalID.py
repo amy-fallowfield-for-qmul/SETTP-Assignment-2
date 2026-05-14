@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import Dict, Any
+from typing import Dict, Any, Union
 from ..Attributes.attributeRegistry import AttributeRegistry
+from ..Attributes.address import Address
 
 class Status(Enum):
     ACTIVE = "active"
@@ -31,15 +32,21 @@ class DigitalID:
         self._first_name: str = attributes["first_name"]
         self._surname: str = attributes["surname"] 
         self._date_of_birth: str = attributes["date_of_birth"]
-        self._address: str = attributes["address"]
+        self._address: Address
+        if isinstance(attributes["address"], Address):
+            self._address = attributes["address"]
+        else:
+            self._address = Address.from_string(attributes["address"])
         self._national_insurance: str = attributes["national_insurance"]
 
-    def to_dict(self) -> Dict[str, object]:
-        result: Dict[str, object] = {}
+    def to_dict(self) -> Dict[str, Union[int, str]]:
+        result: Dict[str, Union[int, str]] = {}
         
         for attribute_name in self.ATTRIBUTE_REGISTRY.get_all_attributes():
             if attribute_name == "status":
                 result[attribute_name] = self.status.value
+            elif attribute_name == "address":
+                result[attribute_name] = str(self.address)
             else:
                 result[attribute_name] = getattr(self, attribute_name)
 
@@ -93,12 +100,15 @@ class DigitalID:
         return self._date_of_birth
     
     @property
-    def address(self) -> str:
+    def address(self) -> Address:
         return self._address
     
     @address.setter
-    def address(self, address: str) -> None:
-        self._address = address
+    def address(self, address: Union[str, Address]) -> None:
+        if isinstance(address, Address):
+            self._address = address
+        else:
+            self._address = Address.from_string(address)
     
     @property
     def national_insurance(self) -> str:

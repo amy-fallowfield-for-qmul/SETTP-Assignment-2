@@ -1,5 +1,6 @@
 import pytest
 from Data.DigitalID.digitalID import DigitalID, Status
+from Data.Attributes.address import Address
 from Tests.shared_test_data import new_person_dict, from_csv_person_dict
 
 class TestStatus:
@@ -120,12 +121,12 @@ class TestDigitalIDProperties:
             setattr(self.id, "date_of_birth", "2010-01-01")
 
     def test_get_address(self) -> None:
-        assert self.id.address == new_person_dict["address"]
+        assert self.id.address == Address.from_string(new_person_dict["address"])
 
     def test_set_address(self) -> None:
         new_address = "789 New Street, Birmingham, B1 1BA"
-        self.id.address = new_address
-        assert self.id.address == new_address
+        setattr(self.id, "address", new_address)
+        assert self.id.address == Address.from_string(new_address)
 
     def test_get_national_insurance(self) -> None:
         assert self.id.national_insurance == new_person_dict["national_insurance"]
