@@ -30,16 +30,16 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
 
     def _get_rows_for_csv(self) -> List[List[object]]:
         rows: List[List[object]] = []
-        for digitalID in self._repository.values():
+        for digital_id in self._repository.values():
             row: List[object] = []
-            digital_id_dict = digitalID.to_dict()
+            digital_id_dict = digital_id.to_dict()
             for attribute_name in self._attribute_registry.get_all_attributes():
                 row.append(str(digital_id_dict[attribute_name]))
             rows.append(row)
         return rows
 
     def _create_object_from_csv_row(self, row: List[str]) -> DigitalID:
-        attributes = {}
+        attributes: Dict = {}
         attribute_names = self._attribute_registry.get_all_attributes()
         for i, attribute_name in enumerate(attribute_names):
             attributes[attribute_name] = row[i]
