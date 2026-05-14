@@ -24,8 +24,8 @@ class LogRepository(RepositoryABC[Log]):
     def _get_csv_headers(self) -> List[str]:
         return LOG_HEADERS
 
-    def _get_rows_for_csv(self) -> List[List[object]]:
-        rows: List[List[object]] = []
+    def _get_rows_for_csv(self) -> List[List[str]]:
+        rows: List[List[str]] = []
         for log in self._repository.values():
             row = log.get_row()
             rows.append(row)

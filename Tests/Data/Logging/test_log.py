@@ -28,43 +28,43 @@ class TestLogModel:
         digital_id = DigitalID(new_person_dict)
         log = Log.for_create("NHS", 1, "New registration", digital_id)
         row = log.get_row()
-        assert row[0] == log.id
+        assert row[0] == str(log.id)
         timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
         assert timestamp >= self.start_time.replace(microsecond=0)
         assert timestamp <= datetime.now()
-        assert row[2] == True
+        assert row[2] == "True"
         assert row[3] == "NHS"
         assert row[4] == "1"
         assert row[5] == "create"
         assert row[6] == "New registration"
-        assert row[7].first_name == "John"
-        assert row[8] is None
-        assert row[9] is None
+        assert row[7] == str(digital_id)
+        assert row[8] == "None"
+        assert row[9] == "None"
 
     def test_create_log_for_read(self) -> None:
         log = Log.for_read("NHS", 1, "Medical history check", "active")
         row = log.get_row()
-        assert row[0] == log.id
+        assert row[0] == str(log.id)
         timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
         assert timestamp >= self.start_time.replace(microsecond=0)
         assert timestamp <= datetime.now()
-        assert row[2] == True
+        assert row[2] == "True"
         assert row[3] == "NHS"
         assert row[4] == "1"
         assert row[5] == "read"
         assert row[6] == "Medical history check"
         assert row[7] == "active"
-        assert row[8] is None
-        assert row[9] is None
+        assert row[8] == "None"
+        assert row[9] == "None"
 
     def test_create_log_for_update(self) -> None:
         log = Log.for_update("NHS", 1, "Name change", "first_name", "John", "Alicia")
         row = log.get_row()
-        assert row[0] == log.id
+        assert row[0] == str(log.id)
         timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
         assert timestamp >= self.start_time.replace(microsecond=0)
         assert timestamp <= datetime.now()
-        assert row[2] == True
+        assert row[2] == "True"
         assert row[3] == "NHS"
         assert row[4] == "1"
         assert row[5] == "update"
@@ -76,17 +76,17 @@ class TestLogModel:
     def test_create_log_for_verify(self) -> None:
         log = Log.for_verify("Bank", 1, "Account opening", "identity", True)
         row = log.get_row()
-        assert row[0] == log.id
+        assert row[0] == str(log.id)
         timestamp = datetime.strptime(row[1], "%d/%m/%Y - %H:%M:%S")
         assert timestamp >= self.start_time.replace(microsecond=0)
         assert timestamp <= datetime.now()
-        assert row[2] == True
+        assert row[2] == "True"
         assert row[3] == "Bank"
         assert row[4] == "1"
         assert row[5] == "verify"
         assert row[6] == "Account opening"
         assert row[7] == "True"
-        assert row[8] is None
+        assert row[8] == "None"
         assert row[9] == "identity"
 
     def test_create_log_for_verify_with_context(self) -> None:
@@ -95,7 +95,7 @@ class TestLogModel:
         assert row[5] == "verify"
         assert row[6] == "ISA eligibility"
         assert row[7] == "False"
-        assert row[8] is None
+        assert row[8] == "None"
         assert row[9] == "minimum_age"
         assert row[10] == "18"
 

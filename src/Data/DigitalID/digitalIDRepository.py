@@ -28,10 +28,10 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
     def _get_csv_headers(self) -> List[str]:
         return self._attribute_registry.get_all_attributes()
 
-    def _get_rows_for_csv(self) -> List[List[object]]:
-        rows: List[List[object]] = []
+    def _get_rows_for_csv(self) -> List[List[str]]:
+        rows: List[List[str]] = []
         for digital_id in self._repository.values():
-            row: List[object] = []
+            row: List[str] = []
             digital_id_dict = digital_id.to_dict()
             for attribute_name in self._attribute_registry.get_all_attributes():
                 row.append(str(digital_id_dict[attribute_name]))

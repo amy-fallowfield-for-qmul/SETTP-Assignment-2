@@ -29,7 +29,7 @@ class RepositoryABC(Generic[T], metaclass=SingletonABCMeta):
     def _get_csv_headers(self) -> List[str]: pass
     
     @abstractmethod
-    def _get_rows_for_csv(self) -> List[List[object]]: pass
+    def _get_rows_for_csv(self) -> List[List[str]]: pass
     
     @abstractmethod
     def _create_object_from_csv_row(self, row: List[str]) -> T: pass
