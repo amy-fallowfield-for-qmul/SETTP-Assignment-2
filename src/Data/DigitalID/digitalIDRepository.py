@@ -39,7 +39,7 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
         return rows
 
     def _create_object_from_csv_row(self, row: List[str]) -> DigitalID:
-        attributes: Dict = {}
+        attributes: Dict[str, str] = {}
         attribute_names = self._attribute_registry.get_all_attributes()
         for i, attribute_name in enumerate(attribute_names):
             attributes[attribute_name] = row[i]
