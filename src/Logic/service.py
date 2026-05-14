@@ -106,7 +106,7 @@ class DigitalIDService(metaclass=SingletonMeta):
         
         try:
             digital_id = self.get_id_by_number(id_number)
-            old_value = digital_id.to_dict()[attribute]
+            old_value = str(digital_id.to_dict()[attribute])
 
             if digital_id.status == Status.REVOKED:
                 raise ValueError("Cannot update a revoked Digital ID")
