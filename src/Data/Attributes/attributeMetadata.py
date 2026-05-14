@@ -1,29 +1,24 @@
-from typing import Optional
+from dataclasses import dataclass
 from enum import Enum
 
 class AttributeType(Enum):
     STRING = "string"
-    DATE = "date" 
+    DATE = "date"
     STATUS = "status"
     INTEGER = "integer"
     NATIONAL_INSURANCE = "national_insurance"
     ADDRESS = "address"
 
+@dataclass
 class AttributeMetadata:
     """Metadata for a Digital ID attribute"""
-    
-    def __init__(
-        self,
-        name: str,
-        display_name: str,
-        attribute_type: AttributeType,
-        is_mutable: bool,
-        is_required_for_creation: bool,
-        input_prompt: Optional[str] = None
-    ):
-        self.name = name
-        self.display_name = display_name
-        self.type = attribute_type
-        self.is_mutable = is_mutable
-        self.is_required_for_creation = is_required_for_creation
-        self.input_prompt = input_prompt or f"Enter {display_name.lower()}: "
+    name: str
+    display_name: str
+    attribute_type: AttributeType
+    is_mutable: bool
+    is_required_for_creation: bool
+    input_prompt: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.input_prompt:
+            self.input_prompt = f"Enter {self.display_name.lower()}: "
