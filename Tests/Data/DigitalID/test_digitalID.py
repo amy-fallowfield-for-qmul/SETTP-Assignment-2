@@ -1,5 +1,6 @@
 import pytest
 from Data.DigitalID.digitalID import DigitalID, Status
+from Data.Attributes.address import Address
 from Tests.shared_test_data import new_person_dict, from_csv_person_dict
 
 class TestStatus:
@@ -25,6 +26,8 @@ class TestDigitalIDCreation:
         
         for key, value in new_person_dict.items():
             assert result[key] == value
+        assert result["id"] == 1
+        assert result["status"] == "active"
 
     def test_create_id_from_csv(self) -> None:
         id = DigitalID(from_csv_person_dict)
@@ -120,17 +123,16 @@ class TestDigitalIDProperties:
             setattr(self.id, "date_of_birth", "2010-01-01")
 
     def test_get_address(self) -> None:
-        assert self.id.address == new_person_dict["address"]
+        assert self.id.address == Address.from_string(new_person_dict["address"])
 
     def test_set_address(self) -> None:
         new_address = "789 New Street, Birmingham, B1 1BA"
-        self.id.address = new_address
-        assert self.id.address == new_address
+        setattr(self.id, "address", new_address)
+        assert self.id.address == Address.from_string(new_address)
 
     def test_get_national_insurance(self) -> None:
         assert self.id.national_insurance == new_person_dict["national_insurance"]
 
-    def test_set_national_insurance(self) -> None:
-        new_ni = "EF123456A"
-        self.id.national_insurance = new_ni
-        assert self.id.national_insurance == new_ni
+    def test_national_insurance_is_read_only(self) -> None:
+        with pytest.raises(AttributeError):
+            setattr(self.id, "national_insurance", "EF123456A")
