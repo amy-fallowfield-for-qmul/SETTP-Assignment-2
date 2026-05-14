@@ -30,7 +30,7 @@ class TestAttributeMetadataCreation:
         
         assert metadata.name == "test_attr"
         assert metadata.display_name == "Test Attribute"
-        assert metadata.type == AttributeType.STRING
+        assert metadata.attribute_type == AttributeType.STRING
         assert metadata.is_mutable == True
         assert metadata.is_required_for_creation == False
         assert metadata.input_prompt == "Enter test value: "
@@ -55,7 +55,7 @@ class TestAttributeMetadataCreation:
                 is_mutable=True,
                 is_required_for_creation=False
             )
-            assert metadata.type == attr_type
+            assert metadata.attribute_type == attr_type
 
 class TestAttributeMetadataProperties:
     """Tests for AttributeMetadata properties"""
@@ -77,7 +77,7 @@ class TestAttributeMetadataProperties:
         assert self.metadata.display_name == "Test Attribute"
 
     def test_get_type(self) -> None:
-        assert self.metadata.type == AttributeType.STRING
+        assert self.metadata.attribute_type == AttributeType.STRING
 
     def test_get_is_mutable(self) -> None:
         assert self.metadata.is_mutable == True

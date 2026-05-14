@@ -49,18 +49,18 @@ class Validator(metaclass=SingletonMeta):
         return self._validate_by_type(metadata, value)
 
     def _validate_by_type(self, metadata: AttributeMetadata, value: str) -> str:
-        if metadata.type == AttributeType.STRING:
+        if metadata.attribute_type == AttributeType.STRING:
             return self._validate_string(value, metadata.name)
-        elif metadata.type == AttributeType.DATE:
+        elif metadata.attribute_type == AttributeType.DATE:
             return self.validate_date(value)
-        elif metadata.type == AttributeType.NATIONAL_INSURANCE:
+        elif metadata.attribute_type == AttributeType.NATIONAL_INSURANCE:
             return self._validate_national_insurance(value)
-        elif metadata.type == AttributeType.ADDRESS:
+        elif metadata.attribute_type == AttributeType.ADDRESS:
             return self._validate_address(value)
-        elif metadata.type == AttributeType.STATUS:
+        elif metadata.attribute_type == AttributeType.STATUS:
             return self._validate_status(value)
         else:
-            raise ValueError(f"No validation defined for attribute type: {metadata.type.value}")
+            raise ValueError(f"No validation defined for attribute type: {metadata.attribute_type.value}")
 
     def _validate_status(self, status: str) -> str:
         """
