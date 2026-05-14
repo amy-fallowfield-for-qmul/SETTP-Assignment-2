@@ -20,7 +20,7 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
         return self._repository[id]
     
     def get_all(self) -> Dict[int, DigitalID]:
-        return self._repository
+        return dict(self._repository)
 
     def _get_csv_path(self) -> str:
         return ID_PATH
