@@ -1,5 +1,5 @@
 import pytest
-from Data.Attributes.attributeRegistry import AttributeRegistry
+from Data.Attributes.attributeRegistry import AttributeRegistry, CORE_ATTRIBUTE_OBJECTS
 from Data.Attributes.attributeMetadata import AttributeMetadata, AttributeType
 from Tests.shared_test_data import from_csv_person_dict
 
@@ -12,14 +12,21 @@ class TestAttributeRegistryCreation:
         registry2 = AttributeRegistry()
         assert registry1 is registry2
 
-class TestAttributeRegistryAddAndGet:
-    """Tests for registering and retrieving attributes"""
+class TestAttributeRegistryAdd:
+    """Tests for registering attributes"""
 
     def setup_method(self) -> None:
         AttributeRegistry.clear_instance()
-        self.registry = AttributeRegistry()
+        self._original_core_attributes = list(CORE_ATTRIBUTE_OBJECTS)
+
+    def teardown_method(self) -> None:
+        CORE_ATTRIBUTE_OBJECTS[:] = self._original_core_attributes
+        AttributeRegistry.clear_instance()
 
     def test_register_new_attribute(self) -> None:
+        current_attributes = {attribute.name for attribute in self._original_core_attributes}
+        AttributeRegistry.clear_instance()
+
         test_attr = AttributeMetadata(
             name="test_field",
             display_name="Test Field",
@@ -27,12 +34,18 @@ class TestAttributeRegistryAddAndGet:
             is_mutable=True,
             is_required_for_creation=False
         )
-        
-        initial_count = len(self.registry.get_all_attributes())
-        self.registry.register_attribute(test_attr)
-        
-        assert len(self.registry.get_all_attributes()) == initial_count + 1
-        assert "test_field" in self.registry.get_all_attributes()
+        CORE_ATTRIBUTE_OBJECTS.append(test_attr)
+
+        updated = set(AttributeRegistry().get_all_attributes())
+        assert "test_field" in updated
+        assert current_attributes.issubset(updated)
+
+class TestAttributeRegistryAddAndGet:
+    """Tests for registering and retrieving attributes"""
+
+    def setup_method(self) -> None:
+        AttributeRegistry.clear_instance()
+        self.registry = AttributeRegistry()
 
     def test_get_existing_attribute(self) -> None:
         attr = self.registry.get_attribute("first_name")
