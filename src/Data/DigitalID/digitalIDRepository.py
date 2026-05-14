@@ -12,6 +12,8 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
         self._attribute_registry = AttributeRegistry()
 
     def add(self, entity: DigitalID) -> None:
+        if entity.id in self._repository:
+            raise ValueError(f"Digital ID with id {entity.id} already exists")
         self._repository[entity.id] = entity
 
     def get_from_id(self, id: int) -> DigitalID:

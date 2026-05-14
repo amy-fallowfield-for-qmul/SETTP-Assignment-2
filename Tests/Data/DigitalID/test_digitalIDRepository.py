@@ -20,10 +20,16 @@ class TestDigitalIDRepositoryAddAndGet:
         DigitalIDRepository.clear_instance()
         self.repo = DigitalIDRepository()
 
-    def test_add(self) -> None:
+    def test_add_new_id(self) -> None:
         id = DigitalID(new_person_dict)
         self.repo.add(id)
         assert self.repo.get_from_id(1) == id
+
+    def test_add_existing_id(self) -> None:
+        id = DigitalID(new_person_dict)
+        self.repo.add(id)
+        with pytest.raises(ValueError):
+            self.repo.add(id)
 
     def test_add_multiple_ids(self) -> None:
         id1 = DigitalID(new_person_dict)
