@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict
 
 class Address:
     """Structured address object with separate components"""
@@ -13,7 +13,7 @@ class Address:
         self.town_city = town_city.strip()
         self.postcode = postcode.strip().upper()
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, str]:
         result = {
             "address_line": self.address_line,
             "town_city": self.town_city,
@@ -40,7 +40,7 @@ class Address:
     def __str__(self) -> str:
         return f"{self.address_line}, {self.town_city}, {self.postcode}"
     
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Address):
             return False
         return (
