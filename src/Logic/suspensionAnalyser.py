@@ -14,16 +14,20 @@ class SuspensionAnalyser(metaclass=SingletonMeta):
 
     def was_suspended_in_period(self, start_date: str, end_date: str, id_number: int) -> bool:
         all_logs = self.LOG_REPOSITORY.get_all()
-        relevant_logs = [log for log in all_logs.values() if log.id_number == id_number]
+        relevant_logs = [
+            log for log in all_logs.values()
+            if log.id_number == id_number and self._log_updates_status(log)
+        ]
         most_recent_update = None
 
         for log in relevant_logs:
-            if self._log_updates_status(log):
-                if self._log_in_period(log, start_date, end_date):
-                    if log.new_value in self.SUSPENDED_VALUES:
-                        return True
-                elif self._log_most_recent(log, start_date, most_recent_update):
-                    most_recent_update = log
+            in_period = self._log_in_period(log, start_date, end_date)
+
+            if in_period and log.new_value in self.SUSPENDED_VALUES:
+                return True
+
+            if not in_period and self._log_most_recent(log, start_date, most_recent_update):
+                most_recent_update = log
 
         if most_recent_update is not None and most_recent_update.new_value in self.SUSPENDED_VALUES:
             return True
