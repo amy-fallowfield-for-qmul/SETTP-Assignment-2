@@ -1,5 +1,6 @@
 from typing import Dict, Any, List
 from datetime import date
+from contextlib import contextmanager
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
@@ -18,32 +19,38 @@ class DigitalIDService(metaclass=SingletonMeta):
         self.LOG_REPOSITORY = LogRepository()
         self.ATTRIBUTE_REGISTRY = AttributeRegistry()
 
+    @contextmanager
+    def _record_failures_with_action(self, action: Action, organisation: str, id_number: int, justification: str, attribute=None):
+        safe_justification = justification or "Unknown justification"
+        try:
+            yield safe_justification
+        except Exception as e:
+            failed_log = Log.for_failure(organisation, id_number, action, safe_justification, str(e), attribute)
+            self.LOG_REPOSITORY.add(failed_log)
+            raise
+
     def create_id(self, data: Dict[str, Any]) -> DigitalID:
         justification = data.get("justification", "Unknown justification")
 
         try:
-            valid_data = self.VALIDATOR.validate_all_attributes(data)
+            with self._record_failures_with_action(Action.CREATE, "Central Authority", 0, justification):
+                valid_data = self.VALIDATOR.validate_all_attributes(data)
 
-            creation_attributes = {}
-            for attr_name in self.ATTRIBUTE_REGISTRY.get_required_for_creation():
-                creation_attributes[attr_name] = valid_data[attr_name]
+                creation_attributes = {}
+                for attr_name in self.ATTRIBUTE_REGISTRY.get_required_for_creation():
+                    creation_attributes[attr_name] = valid_data[attr_name]
 
-            justification = valid_data["justification"]
+                justification = valid_data["justification"]
 
-            new_id = DigitalID(creation_attributes)
-            self.DIGITAL_ID_REPOSITORY.add(new_id)
-            
-            log = Log.for_create("Central Authority", new_id.id, justification, new_id)
-            self.LOG_REPOSITORY.add(log)
+                new_id = DigitalID(creation_attributes)
+                self.DIGITAL_ID_REPOSITORY.add(new_id)
 
-            return new_id
+                log = Log.for_create("Central Authority", new_id.id, justification, new_id)
+                self.LOG_REPOSITORY.add(log)
 
+                return new_id
         except Exception as e:
-            error_message = f"Invalid attribute data: {e}"
-
-            failed_log = Log.for_failure("Central Authority", 0, Action.CREATE, justification, error_message)
-            self.LOG_REPOSITORY.add(failed_log)
-            raise ValueError(error_message)
+            raise ValueError(f"Invalid attribute data: {e}")
 
     def get_all_ids(self) -> Dict[int, DigitalID]:
         return self.DIGITAL_ID_REPOSITORY.get_all()
@@ -77,31 +84,22 @@ class DigitalIDService(metaclass=SingletonMeta):
         return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
         
     def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: str, accessible_attributes: List[str]) -> str:
-        safe_justification = justification if justification else "Unknown justification"
-        
-        try:
+        with self._record_failures_with_action(Action.READ, organisation, id_number, justification):
             if attribute not in accessible_attributes:
                 raise ValueError(f"Access denied: {organisation} is not authorized to access '{attribute}' attribute")
-            
+
             digital_id = self.get_id_by_number(id_number)
-            
+
             attribute_value = digital_id.to_dict()[attribute]
             validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
-            
+
             log = Log.for_read(organisation, id_number, validated_justification, str(attribute_value))
             self.LOG_REPOSITORY.add(log)
-            
+
             return str(attribute_value)
-        except Exception as e:
-            error_message = str(e)
-            failed_log = Log.for_failure(organisation, id_number, Action.READ, safe_justification, error_message)
-            self.LOG_REPOSITORY.add(failed_log)
-            raise
 
     def update_id(self, id_number: int, attribute: str, value: Any, justification: str) -> None:
-        safe_justification = justification if justification else "Unknown justification"
-        
-        try:
+        with self._record_failures_with_action(Action.UPDATE, "Central Authority", id_number, justification, attribute=attribute):
             digital_id = self.get_id_by_number(id_number)
             old_value = str(digital_id.to_dict()[attribute])
 
@@ -126,11 +124,6 @@ class DigitalIDService(metaclass=SingletonMeta):
 
             log = Log.for_update("Central Authority", id_number, validated_justification, attribute, old_value, validated_value)
             self.LOG_REPOSITORY.add(log)
-        except Exception as e:
-            error_message = str(e)
-            failed_log = Log.for_failure("Central Authority", id_number, Action.UPDATE, safe_justification, error_message, attribute)
-            self.LOG_REPOSITORY.add(failed_log)
-            raise
   
     def load_csv_data(self) -> None:
         try:
