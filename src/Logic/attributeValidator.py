@@ -83,7 +83,7 @@ class Validator(metaclass=SingletonMeta):
             raise ValueError(f"{attribute} must be a string")
 
         value = value.strip().title()
-        if not re.match(r"^[a-zA-Z\s]+$", value):
+        if not re.match(r"^[a-zA-Z ]+$", value):
             raise ValueError(f"{attribute} cannot contain numbers or special characters")
         return value
 
