@@ -12,7 +12,7 @@ class Action(Enum):
 class Log:
     """Stores data model for each individual log entry"""
     
-    _next_id = 1
+    _next_id: int = 1
 
     def __init__(self, accepted: bool, organisation: str, id_number: int, action: Action, justification: str, current_value: Union[str, DigitalID], new_value: Optional[str], attribute: Optional[str] = None, comparative_value: Optional[str] = None) -> None:
         self._id: int = Log._next_id
@@ -42,7 +42,7 @@ class Log:
 
     @classmethod
     def for_verify(cls, organisation: str, id_number: int, justification: str, verification_type: str, result: bool, comparative_value: Optional[str] = None) -> "Log":
-        return cls(True, organisation, id_number, Action.VERIFY, justification, str(result).title(), None, verification_type, comparative_value)
+        return cls(True, organisation, id_number, Action.VERIFY, justification, str(result), None, verification_type, comparative_value)
 
     @classmethod
     def for_failure(cls, organisation: str, id_number: int, action: Action, justification: str, error: str, attribute: Optional[str] = None) -> "Log":
@@ -53,7 +53,7 @@ class Log:
         log = cls.__new__(cls)
         log._id = int(attributes["id"])
         log._timestamp = datetime.strptime(attributes["timestamp"], "%d/%m/%Y - %H:%M:%S")
-        log._accepted = True if attributes["accepted"] == "True" else False
+        log._accepted = attributes["accepted"] == "True"
         log._organisation = attributes["organisation"]
         log._id_number = int(attributes["digitalID"])
         log._action = Action(attributes["action"])
@@ -67,21 +67,6 @@ class Log:
             cls._next_id = log._id + 1
         
         return log
-
-    def get_row(self) -> List[str]:
-        return [
-            str(self._id),
-            self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
-            str(self._accepted),
-            self._organisation,
-            str(self._id_number),
-            self._action.value,
-            self._justification,
-            str(self._current_value),
-            str(self._new_value) if self._new_value is not None else "None",
-            str(self._attribute) if self._attribute is not None else "None",
-            str(self._comparative_value) if self._comparative_value is not None else "None",
-        ]
     
     @property
     def id(self) -> int:
@@ -126,21 +111,24 @@ class Log:
     @property
     def comparative_value(self) -> Optional[str]:
         return self._comparative_value
-
-    def to_dict(self) -> Dict[str, object]:
+    
+    def to_dict(self) -> Dict[str, str]:
         return {
-            "id": self._id,
+            "id": str(self._id),
             "timestamp": self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
-            "accepted": self._accepted,
+            "accepted": str(self._accepted),
             "organisation": self._organisation,
             "digitalID": str(self._id_number),
             "action": self._action.value,
             "justification": self._justification,
-            "currentValue": self._current_value.to_dict() if isinstance(self._current_value, DigitalID) else str(self._current_value),
-            "newValue": str(self._new_value) if self._new_value else "None",
-            "attribute": str(self._attribute) if self._attribute else "None",
-            "comparativeValue": str(self._comparative_value) if self._comparative_value else "None"
+            "currentValue": str(self._current_value),
+            "newValue": str(self._new_value) if self._new_value is not None else "None",
+            "attribute": str(self._attribute) if self._attribute is not None else "None",
+            "comparativeValue": str(self._comparative_value) if self._comparative_value is not None else "None",
         }
+
+    def get_row(self) -> List[str]:
+        return list(self.to_dict().values())
 
     def print(self) -> None:
         match(self._action):
@@ -153,5 +141,8 @@ class Log:
             case Action.VERIFY:
                 context_string = f" (threshold: {self._comparative_value})" if self._comparative_value else ""
                 value_string = f"{self.attribute}{context_string}: {self._current_value}"
+            case _:
+                raise ValueError("Action not provided")
+            
         accepted_string = "ACCEPTED" if self._accepted else "REJECTED"
         print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] Requested to {self._action.value} ID {self._id_number} to [{value_string}] because {self._justification} was {accepted_string}")

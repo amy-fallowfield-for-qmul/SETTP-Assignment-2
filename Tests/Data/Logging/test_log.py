@@ -198,20 +198,20 @@ class TestLogProperties:
 
     def test_to_dict(self) -> None:
         log_dict = self.log.to_dict()
-        assert log_dict["id"] == self.log.id
-        assert log_dict["accepted"] == True
+        assert log_dict["id"] == str(self.log.id)
+        assert log_dict["accepted"] == "True"
         assert log_dict["organisation"] == "NHS"
         assert log_dict["digitalID"] == "1"
         assert log_dict["action"] == "create"
         assert log_dict["justification"] == "New registration"
-        assert log_dict["currentValue"] == self.log.current_value.to_dict()
+        assert log_dict["currentValue"] == str(self.log.current_value)
         assert log_dict["newValue"] == "None"
         assert log_dict["attribute"] == "None"
 
     def test_to_dict_string_values(self) -> None:
         log = Log.for_update("HMRC", 2, "Name change", "first_name", "John", "Alicia")
         log_dict = log.to_dict()
-        assert log_dict["accepted"] == True
+        assert log_dict["accepted"] == "True"
         assert log_dict["currentValue"] == "John"
         assert log_dict["newValue"] == "Alicia"
         assert log_dict["attribute"] == "first_name"
