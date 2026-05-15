@@ -1,9 +1,13 @@
 from abc import abstractmethod
-from typing import Generic, TypeVar, Dict, List
+from typing import Generic, TypeVar, Dict, List, Protocol
 from Common.singleton import SingletonABCMeta
 from Data import dataStorage
 
-T = TypeVar("T")
+class HasID(Protocol):
+    @property
+    def id(self) -> int: ...
+
+T = TypeVar("T", bound=HasID)
 
 class RepositoryABC(Generic[T], metaclass=SingletonABCMeta):
 
@@ -14,8 +18,10 @@ class RepositoryABC(Generic[T], metaclass=SingletonABCMeta):
     @abstractmethod
     def _initialise(self) -> None: pass
 
-    @abstractmethod
-    def add(self, entity: T) -> None: pass
+    def add(self, entity: T) -> None:
+        if entity.id in self._repository:
+            raise ValueError(f"{type(entity).__name__} with id {entity.id} already exists")
+        self._repository[entity.id] = entity
 
     def get_from_id(self, id: int) -> T:
         return self._repository[id]
@@ -33,7 +39,11 @@ class RepositoryABC(Generic[T], metaclass=SingletonABCMeta):
     def _get_rows_for_csv(self) -> List[List[str]]: pass
     
     @abstractmethod
-    def _create_object_from_csv_row(self, row: List[str]) -> T: pass
+    def _from_dict(self, attributes: Dict[str, str]) -> T: pass
+
+    def _create_object_from_csv_row(self, row: List[str]) -> T:
+        attributes = dict(zip(self._get_csv_headers(), row))
+        return self._from_dict(attributes)
 
     def save_to_csv(self) -> None:
         path = self._get_csv_path()

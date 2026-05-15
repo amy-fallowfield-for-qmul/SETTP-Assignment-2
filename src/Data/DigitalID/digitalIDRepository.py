@@ -11,11 +11,6 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
         self._repository: Dict[int, DigitalID] = {}
         self._attribute_registry = AttributeRegistry()
 
-    def add(self, entity: DigitalID) -> None:
-        if entity.id in self._repository:
-            raise ValueError(f"Digital ID with id {entity.id} already exists")
-        self._repository[entity.id] = entity
-
     def _get_csv_path(self) -> str:
         return ID_PATH
 
@@ -32,9 +27,5 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
             rows.append(row)
         return rows
 
-    def _create_object_from_csv_row(self, row: List[str]) -> DigitalID:
-        attributes: Dict[str, str] = {}
-        attribute_names = self._attribute_registry.get_all_attributes()
-        for i, attribute_name in enumerate(attribute_names):
-            attributes[attribute_name] = row[i]
+    def _from_dict(self, attributes: Dict[str, str]) -> DigitalID:
         return DigitalID(attributes)

@@ -9,11 +9,6 @@ class LogRepository(RepositoryABC[Log]):
     def _initialise(self) -> None:
         self._repository: Dict[int, Log] = {}
 
-    def add(self, log: Log) -> None:
-        if log.id in self._repository:
-            raise ValueError(f"Log with id {log.id} already exists")
-        self._repository[log.id] = log
-
     def _get_csv_path(self) -> str:
         return LOG_PATH
 
@@ -28,6 +23,5 @@ class LogRepository(RepositoryABC[Log]):
             rows.append([log_dict[header] for header in headers])
         return rows
 
-    def _create_object_from_csv_row(self, row: List[str]) -> Log:
-        attributes = dict(zip(self._get_csv_headers(), row))
+    def _from_dict(self, attributes: Dict[str, str]) -> Log:
         return Log.from_csv(attributes)
