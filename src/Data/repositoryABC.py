@@ -8,6 +8,7 @@ T = TypeVar("T")
 class RepositoryABC(Generic[T], metaclass=SingletonABCMeta):
 
     def __init__(self) -> None:
+        self._repository: Dict[int, T] = {}
         self._initialise()
 
     @abstractmethod
@@ -16,11 +17,11 @@ class RepositoryABC(Generic[T], metaclass=SingletonABCMeta):
     @abstractmethod
     def add(self, entity: T) -> None: pass
 
-    @abstractmethod
-    def get_from_id(self, id: int) -> T: pass
+    def get_from_id(self, id: int) -> T:
+        return self._repository[id]
 
-    @abstractmethod
-    def get_all(self) -> Dict[int, T]: pass
+    def get_all(self) -> Dict[int, T]:
+        return dict(self._repository)
 
     @abstractmethod
     def _get_csv_path(self) -> str: pass
