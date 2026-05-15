@@ -21,24 +21,13 @@ class LogRepository(RepositoryABC[Log]):
         return LOG_HEADERS
 
     def _get_rows_for_csv(self) -> List[List[str]]:
+        headers = self._get_csv_headers()
         rows: List[List[str]] = []
         for log in self._repository.values():
-            row = log.get_row()
-            rows.append(row)
+            log_dict = log.to_dict()
+            rows.append([log_dict[header] for header in headers])
         return rows
 
     def _create_object_from_csv_row(self, row: List[str]) -> Log:
-        attributes = {
-            "id": row[0],
-            "timestamp": row[1],
-            "accepted": row[2],
-            "organisation": row[3],
-            "digitalID": row[4],
-            "action": row[5],
-            "justification": row[6],
-            "currentValue": row[7],
-            "newValue": row[8],
-            "attribute": row[9],
-            "comparativeValue": row[10]
-        }
+        attributes = dict(zip(self._get_csv_headers(), row))
         return Log.from_csv(attributes)

@@ -2,6 +2,7 @@ import pytest
 import os
 import csv
 from datetime import datetime
+import Data.Logging.logRepository as log_repo_module
 from Data.Logging.logRepository import LogRepository
 from Data.Logging.log import Log, Action
 from Data.DigitalID.digitalID import DigitalID
@@ -145,3 +146,24 @@ class TestLogRepositoryCSV:
         new_repo.load_from_csv()
 
         assert len(new_repo.get_all()) == 0
+
+    def test_reordering_headers_does_not_break(self, monkeypatch) -> None:
+        monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
+        reversed_headers = list(reversed(EXPECTED_HEADERS))
+        monkeypatch.setattr(log_repo_module, "LOG_HEADERS", reversed_headers)
+
+        original = Log.for_update("NHS", 1, "Name change", "first_name", "John", "Alicia")
+        self.log_repo.add(original)
+        self.log_repo.save_to_csv()
+
+        with open(self.TEST_CSV_PATH, newline="") as file:
+            rows = list(csv.reader(file))
+        assert rows[0] == reversed_headers
+
+        LogRepository.clear_instance()
+        new_repo = LogRepository()
+        monkeypatch.setattr(new_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
+        new_repo.load_from_csv()
+
+        loaded = new_repo.get_from_id(original.id)
+        assert loaded.to_dict() == original.to_dict()
