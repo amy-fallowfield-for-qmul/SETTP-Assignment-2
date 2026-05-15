@@ -42,7 +42,7 @@ class Log:
 
     @classmethod
     def for_verify(cls, organisation: str, id_number: int, justification: str, verification_type: str, result: bool, comparative_value: Optional[str] = None) -> "Log":
-        return cls(True, organisation, id_number, Action.VERIFY, justification, str(result).title(), None, verification_type, comparative_value)
+        return cls(True, organisation, id_number, Action.VERIFY, justification, str(result), None, verification_type, comparative_value)
 
     @classmethod
     def for_failure(cls, organisation: str, id_number: int, action: Action, justification: str, error: str, attribute: Optional[str] = None) -> "Log":
