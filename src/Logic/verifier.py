@@ -39,9 +39,7 @@ class Verifier(metaclass=SingletonMeta):
             }
 
             digital_id = self._get_id_by_number(id_number)
-
-            if digital_id.status != Status.ACTIVE:
-                raise ValueError(f"Digital ID is {digital_id.status.value}")
+            self._ensure_active(digital_id)
 
             validated_attributes = {
                 name: self.VALIDATOR.validate_attribute(name, value)
@@ -64,14 +62,9 @@ class Verifier(metaclass=SingletonMeta):
             validated_min_age = self.VERIFICATION_VALIDATOR.validate_minimum_age(minimum_age)
 
             digital_id = self._get_id_by_number(id_number)
+            self._ensure_active(digital_id)
 
-            if digital_id.status != Status.ACTIVE:
-                raise ValueError(f"Digital ID is {digital_id.status.value}")
-
-            date_of_birth = date.fromisoformat(digital_id.date_of_birth)
-            today = date.today()
-            age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
-
+            age = self._calculate_age(digital_id.date_of_birth)
             result = age >= validated_min_age
 
             validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
@@ -88,8 +81,8 @@ class Verifier(metaclass=SingletonMeta):
 
             digital_id = self._get_id_by_number(id_number)
 
-            if attribute != "status" and digital_id.status != Status.ACTIVE:
-                raise ValueError(f"Digital ID is {digital_id.status.value}")
+            if attribute != "status":
+                self._ensure_active(digital_id)
 
             validated_claimed_value = self.VALIDATOR.validate_attribute(attribute, claimed_value)
             validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
@@ -117,3 +110,12 @@ class Verifier(metaclass=SingletonMeta):
             return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
+
+    def _ensure_active(self, digital_id) -> None:
+        if digital_id.status != Status.ACTIVE:
+            raise ValueError(f"Digital ID is {digital_id.status.value}")
+
+    def _calculate_age(self, date_of_birth: str) -> int:
+        dob = date.fromisoformat(date_of_birth)
+        today = date.today()
+        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
