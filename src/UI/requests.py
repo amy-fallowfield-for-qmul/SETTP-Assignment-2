@@ -1,7 +1,8 @@
-from typing import List, Optional
+from typing import List, Optional, Sequence
 from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
 from Logic.verifier import Verifier
+from Logic.organisation import Organisation
 from Data.DigitalID.digitalID import DigitalID
 from Config.constants import SEPARATION_WIDTH, LOG_HEADERS
 
@@ -12,7 +13,7 @@ class Requests(metaclass=SingletonMeta):
         self.DIGITAL_ID_SERVICE = DigitalIDService()
         self.VERIFIER = Verifier()
 
-    def create_id(self, organisation: str) -> None:
+    def create_id(self, organisation: Organisation) -> None:
         data = {}
         
         for attr_name in self.DIGITAL_ID_SERVICE.get_required_attributes_for_creation():
@@ -83,14 +84,14 @@ class Requests(metaclass=SingletonMeta):
             item.print()
         print("=" * SEPARATION_WIDTH)
 
-    def query_id(self, organisation: str, accessible_attributes: List[str]) -> None:
+    def query_id(self, organisation: Organisation) -> None:
         try:
             id_subject = self._get_id_subject()
-            attribute_choice = self._get_attribute_subject("query", accessible_attributes)
+            attribute_choice = self._get_attribute_subject("query", organisation.accessible_attributes)
             justification = input("Enter justification for query: ")
             
             current_value = self.DIGITAL_ID_SERVICE.query_attribute(
-                id_subject.id, attribute_choice, justification, organisation, accessible_attributes
+                id_subject.id, attribute_choice, justification, organisation
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -99,7 +100,7 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"{e}")
 
-    def verify_identity(self, organisation: str) -> None:
+    def verify_identity(self, organisation: Organisation) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
             first_name = input("Enter first name: ")
@@ -120,7 +121,7 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"Request rejected: {e}")
 
-    def verify_minimum_age(self, organisation: str) -> None:
+    def verify_minimum_age(self, organisation: Organisation) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
             minimum_age = input("Enter minimum age: ")
@@ -139,15 +140,15 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"Request rejected: {e}")
 
-    def verify_attribute(self, organisation: str, accessible_attributes: List[str]) -> None:
+    def verify_attribute(self, organisation: Organisation) -> None:
         try:
             id_number = int(input("Enter Digital ID number: "))
-            attribute_choice = self._get_attribute_subject("verify", accessible_attributes)
+            attribute_choice = self._get_attribute_subject("verify", organisation.verifiable_attributes)
             claimed_value = input(f"Enter claimed {attribute_choice}: ")
             justification = input("Enter justification for verification: ")
 
             result = self.VERIFIER.verify_attribute(
-                id_number, attribute_choice, claimed_value, justification, organisation, accessible_attributes
+                id_number, attribute_choice, claimed_value, justification, organisation
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -159,7 +160,7 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"Request rejected: {e}")
 
-    def update_id(self, organisation: str) -> None:
+    def update_id(self, organisation: Organisation) -> None:
         try:
             id_subject = self._get_id_subject()
             attribute_choice = self._get_attribute_subject("update")
@@ -202,7 +203,7 @@ class Requests(metaclass=SingletonMeta):
         except (ValueError, KeyError):
             raise ValueError("Invalid ID")
 
-    def _get_attribute_subject(self, action: str, accessible_attributes: Optional[List[str]] = None) -> str:
+    def _get_attribute_subject(self, action: str, accessible_attributes: Optional[Sequence[str]] = None) -> str:
         if accessible_attributes is not None:
             fields = accessible_attributes
         elif action == "query":
@@ -225,7 +226,7 @@ class Requests(metaclass=SingletonMeta):
         except (ValueError, IndexError):
             raise ValueError("Invalid input")
 
-    def verify_suspended_in_period(self, organisation: str) -> None:
+    def verify_suspended_in_period(self, organisation: Organisation) -> None:
         try:
             start_date = input("Enter start date (YYYY-MM-DD): ")
             end_date = input("Enter end date (YYYY-MM-DD): ")
