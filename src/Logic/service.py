@@ -1,8 +1,8 @@
 from typing import Dict, Any, List
 from datetime import date
-from contextlib import contextmanager
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
+from src.Logic.exceptionLogger import record_failures
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import DigitalID, Status
 from Data.Logging.logRepository import LogRepository
@@ -19,21 +19,11 @@ class DigitalIDService(metaclass=SingletonMeta):
         self.LOG_REPOSITORY = LogRepository()
         self.ATTRIBUTE_REGISTRY = AttributeRegistry()
 
-    @contextmanager
-    def _record_failures_with_action(self, action: Action, organisation: str, id_number: int, justification: str, attribute=None):
-        safe_justification = justification or "Unknown justification"
-        try:
-            yield safe_justification
-        except Exception as e:
-            failed_log = Log.for_failure(organisation, id_number, action, safe_justification, str(e), attribute)
-            self.LOG_REPOSITORY.add(failed_log)
-            raise
-
     def create_id(self, data: Dict[str, Any]) -> DigitalID:
         justification = data.get("justification", "Unknown justification")
 
         try:
-            with self._record_failures_with_action(Action.CREATE, "Central Authority", 0, justification):
+            with record_failures(self.LOG_REPOSITORY, Action.CREATE, "Central Authority", 0, justification):
                 valid_data = self.VALIDATOR.validate_all_attributes(data)
 
                 creation_attributes = {}
@@ -84,7 +74,7 @@ class DigitalIDService(metaclass=SingletonMeta):
         return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
         
     def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: str, accessible_attributes: List[str]) -> str:
-        with self._record_failures_with_action(Action.READ, organisation, id_number, justification):
+        with record_failures(self.LOG_REPOSITORY, Action.READ, organisation, id_number, justification):
             if attribute not in accessible_attributes:
                 raise ValueError(f"Access denied: {organisation} is not authorized to access '{attribute}' attribute")
 
@@ -99,7 +89,7 @@ class DigitalIDService(metaclass=SingletonMeta):
             return str(attribute_value)
 
     def update_id(self, id_number: int, attribute: str, value: Any, justification: str) -> None:
-        with self._record_failures_with_action(Action.UPDATE, "Central Authority", id_number, justification, attribute=attribute):
+        with record_failures(self.LOG_REPOSITORY, Action.UPDATE, "Central Authority", id_number, justification, attribute):
             digital_id = self.get_id_by_number(id_number)
             old_value = str(digital_id.to_dict()[attribute])
 
