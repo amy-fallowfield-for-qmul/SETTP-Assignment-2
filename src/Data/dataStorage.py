@@ -2,7 +2,7 @@ import csv
 from typing import List
 
 def save_to_csv(path: str, headers: List[str], rows: List[List[str]]) -> None:
-    with open(path, "w") as file:
+    with open(path, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow(headers)
 
@@ -10,7 +10,7 @@ def save_to_csv(path: str, headers: List[str], rows: List[List[str]]) -> None:
             writer.writerow(row)
 
 def load_from_csv(path: str) -> List[List[str]]:
-    with open(path, "r") as file:
+    with open(path, "r", newline="", encoding="utf-8") as file:
         reader = csv.reader(file)
         next(reader)
         return [row for row in reader]
