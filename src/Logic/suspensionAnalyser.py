@@ -18,21 +18,24 @@ class SuspensionAnalyser(metaclass=SingletonMeta):
             log for log in all_logs.values()
             if log.id_number == id_number and self._log_updates_status(log)
         ]
+        
+        return (
+            self._has_suspension_during_period(relevant_logs, start_date, end_date)
+            or self._was_suspended_at_period_start(relevant_logs, start_date)
+        )
+
+    def _has_suspension_during_period(self, logs, start_date: str, end_date: str) -> bool:
+        return any(
+            self._log_in_period(log, start_date, end_date) and log.new_value in self.SUSPENDED_VALUES
+            for log in logs
+        )
+
+    def _was_suspended_at_period_start(self, logs, start_date: str) -> bool:
         most_recent_update = None
-
-        for log in relevant_logs:
-            in_period = self._log_in_period(log, start_date, end_date)
-
-            if in_period and log.new_value in self.SUSPENDED_VALUES:
-                return True
-
-            if not in_period and self._log_most_recent(log, start_date, most_recent_update):
+        for log in logs:
+            if self._log_most_recent(log, start_date, most_recent_update):
                 most_recent_update = log
-
-        if most_recent_update is not None and most_recent_update.new_value in self.SUSPENDED_VALUES:
-            return True
-
-        return False
+        return most_recent_update is not None and most_recent_update.new_value in self.SUSPENDED_VALUES
 
     def _log_most_recent(self, log: Log, date: str, most_recent_update: Optional[Log]) -> bool:
         log_before_period = str(log.timestamp) < date
