@@ -178,8 +178,8 @@ class TestLogProperties:
         assert self.log.justification == "New registration"
 
     def test_get_current_value_digitalid(self) -> None:
-        assert self.log.current_value.first_name == "John"
         assert isinstance(self.log.current_value, DigitalID)
+        assert self.log.current_value.first_name == "John"
 
     def test_get_current_value_string(self) -> None:
         log = Log.for_update("NHS", 1, "Name change", "first_name", "John", "Alicia")

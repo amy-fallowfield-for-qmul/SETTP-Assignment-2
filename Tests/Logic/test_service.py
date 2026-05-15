@@ -41,6 +41,7 @@ class TestServiceCreateID:
         assert create_log.id_number == digital_id.id
         assert create_log.organisation == CENTRAL_AUTHORITY_ORG.name
         assert create_log.justification == "New Registration"
+        assert isinstance(create_log.current_value, DigitalID)
         assert create_log.current_value.first_name == justification_person_dict["first_name"]
         assert create_log.new_value is None
 
