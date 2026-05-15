@@ -12,7 +12,7 @@ class Action(Enum):
 class Log:
     """Stores data model for each individual log entry"""
     
-    _next_id = 1
+    _next_id: int = 1
 
     def __init__(self, accepted: bool, organisation: str, id_number: int, action: Action, justification: str, current_value: Union[str, DigitalID], new_value: Optional[str], attribute: Optional[str] = None, comparative_value: Optional[str] = None) -> None:
         self._id: int = Log._next_id
