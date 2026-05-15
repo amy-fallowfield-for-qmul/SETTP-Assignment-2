@@ -67,21 +67,6 @@ class Log:
             cls._next_id = log._id + 1
         
         return log
-
-    def get_row(self) -> List[str]:
-        return [
-            str(self._id),
-            self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
-            str(self._accepted),
-            self._organisation,
-            str(self._id_number),
-            self._action.value,
-            self._justification,
-            str(self._current_value),
-            str(self._new_value) if self._new_value is not None else "None",
-            str(self._attribute) if self._attribute is not None else "None",
-            str(self._comparative_value) if self._comparative_value is not None else "None",
-        ]
     
     @property
     def id(self) -> int:
@@ -126,6 +111,21 @@ class Log:
     @property
     def comparative_value(self) -> Optional[str]:
         return self._comparative_value
+    
+    def get_row(self) -> List[str]:
+        return [
+            str(self._id),
+            self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
+            str(self._accepted),
+            self._organisation,
+            str(self._id_number),
+            self._action.value,
+            self._justification,
+            str(self._current_value),
+            str(self._new_value) if self._new_value is not None else "None",
+            str(self._attribute) if self._attribute is not None else "None",
+            str(self._comparative_value) if self._comparative_value is not None else "None",
+        ]
 
     def to_dict(self) -> Dict[str, object]:
         return {
