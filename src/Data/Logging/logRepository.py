@@ -13,7 +13,7 @@ class LogRepository(RepositoryABC[Log]):
         return LOG_PATH
 
     def _get_csv_headers(self) -> List[str]:
-        return LOG_HEADERS
+        return list(LOG_HEADERS)
 
     def _get_rows_for_csv(self) -> List[List[str]]:
         headers = self._get_csv_headers()

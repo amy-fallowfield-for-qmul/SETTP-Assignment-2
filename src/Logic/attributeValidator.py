@@ -29,12 +29,8 @@ class Validator(metaclass=SingletonMeta):
         for key in data:
             if key not in accessible_attributes:
                 raise ValueError(f"Unexpected attribute: {key}")
-
-        for key in required_attributes:
-            data[key] = self.validate_attribute(key, data[key])
-
-        if "justification" in data:
-            data["justification"] = self.validate_attribute("justification", data["justification"])
+            if key in required_attributes or key == "justification":
+                data[key] = self.validate_attribute(key, data[key])
 
         return data
     
@@ -70,7 +66,7 @@ class Validator(metaclass=SingletonMeta):
         """
 
         valid_values = [s.value for s in Status]
-        status = status.lower()
+        status = status.strip().lower()
         if status not in valid_values:
             raise ValueError("Status must be 'active', 'suspended', or 'revoked'")
             
@@ -87,7 +83,7 @@ class Validator(metaclass=SingletonMeta):
             raise ValueError(f"{attribute} must be a string")
 
         value = value.strip().title()
-        if not re.match(r"^[a-zA-Z\s]+$", value):
+        if not re.match(r"^[a-zA-Z ]+$", value):
             raise ValueError(f"{attribute} cannot contain numbers or special characters")
         return value
 
@@ -175,10 +171,10 @@ class Validator(metaclass=SingletonMeta):
         if not address_line:
             raise ValueError("Address line cannot be empty")
         
-        self._validate_string(town_or_city, "Town or city")
-        self._validate_postcode(postcode)
+        town_or_city = self._validate_string(town_or_city, "Town or city")
+        postcode = self._validate_postcode(postcode)
 
-        return f"{address_line}, {town_or_city}, {postcode.upper()}"
+        return f"{address_line}, {town_or_city}, {postcode}"
 
     def _validate_postcode(self, postcode: str) -> str:
         """

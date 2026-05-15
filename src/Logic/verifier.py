@@ -38,7 +38,7 @@ class Verifier(metaclass=SingletonMeta):
                 name: self.VALIDATOR.validate_attribute(name, value)
                 for name, value in required_attributes.items()
             }
-            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+            validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
 
             result = all(
                 getattr(digital_id, name) == validated_value
@@ -72,7 +72,7 @@ class Verifier(metaclass=SingletonMeta):
 
             result = age >= validated_min_age
 
-            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+            validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
 
             log = Log.for_verify(organisation, id_number, validated_justification, "minimum_age", result, str(validated_min_age))
             self.LOG_REPOSITORY.add(log)
@@ -97,7 +97,7 @@ class Verifier(metaclass=SingletonMeta):
                 raise ValueError(f"Digital ID is {digital_id.status.value}")
 
             validated_claimed_value = self.VALIDATOR.validate_attribute(attribute, claimed_value)
-            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+            validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
 
             stored_value = digital_id.to_dict()[attribute]
             result = str(stored_value) == str(validated_claimed_value)

@@ -89,7 +89,7 @@ class DigitalIDService(metaclass=SingletonMeta):
             digital_id = self.get_id_by_number(id_number)
             
             attribute_value = digital_id.to_dict()[attribute]
-            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+            validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
             
             log = Log.for_read(organisation, id_number, validated_justification, str(attribute_value))
             self.LOG_REPOSITORY.add(log)
@@ -115,7 +115,7 @@ class DigitalIDService(metaclass=SingletonMeta):
                 raise ValueError(f"{attribute} is immutable and cannot be updated")
 
             validated_value = self.VALIDATOR.validate_attribute(attribute, value)
-            validated_justification = self.VALIDATOR._validate_string(justification, "justification")
+            validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
 
             if attribute == "status":
                 STATUS_MAP = {

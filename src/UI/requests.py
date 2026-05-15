@@ -234,7 +234,7 @@ class Requests(metaclass=SingletonMeta):
 
             validated_start = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(start_date)
             validated_end = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(end_date)
-            validated_justification = self.DIGITAL_ID_SERVICE.VALIDATOR._validate_string(justification, "justification")
+            validated_justification = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_attribute("justification", justification)
 
             result = self.VERIFIER.verify_suspended_in_period(validated_start, validated_end, id_number, validated_justification, organisation)
 
