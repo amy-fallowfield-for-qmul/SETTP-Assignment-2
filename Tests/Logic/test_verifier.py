@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import Mock
 from datetime import datetime
 from Logic.verifier import Verifier
+from Logic.suspensionAnalyser import SuspensionAnalyser
 from Logic.service import DigitalIDService
 from Data.Logging.log import Action
 from Data.Logging.logRepository import LogRepository
@@ -146,11 +147,13 @@ class TestVerifierVerifySuspendedInPeriod:
     def setup_method(self):
         LogRepository.clear_instance()
         DigitalIDRepository.clear_instance()
+        SuspensionAnalyser.clear_instance()
         Verifier.clear_instance()
         DigitalID._next_id = 1
 
         self.verifier = Verifier()
         self.verifier.LOG_REPOSITORY = Mock()
+        self.verifier.SUSPENSION_ANALYSER.LOG_REPOSITORY = self.verifier.LOG_REPOSITORY
 
     def test_verify_suspended_in_period_no_suspension_during_period(self):
         self.verifier.LOG_REPOSITORY.get_all.return_value = {}

@@ -1,8 +1,9 @@
-from typing import Any, List, Optional
-from datetime import date, datetime
+from typing import Any, List
+from datetime import date
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
 from Logic.verificationValidator import VerificationValidator
+from Logic.suspensionAnalyser import SuspensionAnalyser
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import Status
 from Data.Logging.logRepository import LogRepository
@@ -11,11 +12,10 @@ from Data.Logging.log import Log, Action
 class Verifier(metaclass=SingletonMeta):
     """Singleton verifier for Digital ID verification operations"""
 
-    SUSPENDED_VALUES = ["suspended", "revoked"]
-
     def __init__(self) -> None:
         self.VALIDATOR = Validator()
         self.VERIFICATION_VALIDATOR = VerificationValidator()
+        self.SUSPENSION_ANALYSER = SuspensionAnalyser()
         self.DIGITAL_ID_REPOSITORY = DigitalIDRepository()
         self.LOG_REPOSITORY = LogRepository()
 
@@ -116,7 +116,7 @@ class Verifier(metaclass=SingletonMeta):
         safe_justification = justification if justification else "Unknown justification"
 
         try:
-            result = self._was_suspended_in_period(start_date, end_date, id_number)
+            result = self.SUSPENSION_ANALYSER.was_suspended_in_period(start_date, end_date, id_number)
 
             period_context = f"{start_date} to {end_date}"
             audit_log = Log.for_verify(organisation, id_number, safe_justification, "suspended_in_period", result, period_context)
@@ -128,41 +128,8 @@ class Verifier(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(failed_log)
             raise
 
-    def _was_suspended_in_period(self, start_date: str, end_date: str, id_number: int) -> bool:
-        all_logs = self.LOG_REPOSITORY.get_all()
-        relevant_logs = [log for log in all_logs.values() if log.id_number == id_number]
-        most_recent_update = None
-
-        for log in relevant_logs:
-            if self._log_updates_status(log):
-                if self._log_in_period(log, start_date, end_date):
-                    if log.new_value in self.SUSPENDED_VALUES:
-                        return True
-                elif self._log_most_recent(log, start_date, most_recent_update):
-                    most_recent_update = log
-
-        if most_recent_update is not None and most_recent_update.new_value in self.SUSPENDED_VALUES:
-            return True
-
-        return False
-
     def _get_id_by_number(self, id_number: int):
         try:
             return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
         except KeyError:
             raise ValueError(f"Digital ID with ID {id_number} not found")
-
-    def _log_most_recent(self, log: Log, date: str, most_recent_update: Optional[Log]) -> bool:
-        log_before_period = str(log.timestamp) < date
-        log_most_recent_than_current = most_recent_update is None or log.timestamp > most_recent_update.timestamp
-        return log_before_period and log_most_recent_than_current
-
-    def _log_updates_status(self, log: Log) -> bool:
-        if log.action != Action.UPDATE:
-            return False
-        return log.attribute == "status"
-
-    def _log_in_period(self, log: Log, start_date: str, end_date: str) -> bool:
-        start_date_object = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date_object = datetime.strptime(end_date, "%Y-%m-%d")
-        return start_date_object <= log.timestamp <= end_date_object
