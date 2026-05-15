@@ -96,11 +96,13 @@ class Verifier(metaclass=SingletonMeta):
             return result
 
     def verify_suspended_in_period(self, start_date: str, end_date: str, id_number: int, justification: str, organisation: str) -> bool:
-        with self._verify_and_log_failures(organisation, id_number, "suspended_in_period", justification) as safe_justification:
+        with self._verify_and_log_failures(organisation, id_number, "suspended_in_period", justification):
             result = self.SUSPENSION_ANALYSER.was_suspended_in_period(start_date, end_date, id_number)
 
+            validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
+
             period_context = f"{start_date} to {end_date}"
-            audit_log = Log.for_verify(organisation, id_number, safe_justification, "suspended_in_period", result, period_context)
+            audit_log = Log.for_verify(organisation, id_number, validated_justification, "suspended_in_period", result, period_context)
             self.LOG_REPOSITORY.add(audit_log)
 
             return result
