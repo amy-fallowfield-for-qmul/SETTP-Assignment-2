@@ -77,6 +77,7 @@ class TestLogRepositoryCSV:
     def test_save_to_csv(self, monkeypatch) -> None:
         monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
         digital_id = DigitalID(new_person_dict)
+        start_time = datetime.now()
         log = Log.for_create("NHS", 1, "New registration", digital_id)
         self.log_repo.add(log)
         self.log_repo.save_to_csv()
@@ -87,7 +88,6 @@ class TestLogRepositoryCSV:
 
         assert rows[0] == EXPECTED_HEADERS
         data_row = rows[1]
-        start_time = datetime.now()
         assert data_row[0] == str(log.id)
         csv_timestamp = datetime.strptime(data_row[1], "%d/%m/%Y - %H:%M:%S")
         assert csv_timestamp >= start_time.replace(microsecond=0)
@@ -126,15 +126,16 @@ class TestLogRepositoryCSV:
         new_repo.load_from_csv()
 
         assert len(new_repo.get_all()) == 2
-        logs = list(new_repo.get_all().values())
-        assert logs[0].organisation == "NHS"
-        assert logs[0].accepted == True
-        assert logs[0].action == Action.CREATE
+        loaded_log1 = new_repo.get_from_id(log1.id)
+        loaded_log2 = new_repo.get_from_id(log2.id)
+        assert loaded_log1.organisation == "NHS"
+        assert loaded_log1.accepted == True
+        assert loaded_log1.action == Action.CREATE
 
-        assert logs[1].organisation == "HMRC"
-        assert logs[1].accepted == False
-        assert logs[1].action == Action.UPDATE
-        assert logs[1].attribute == "first_name"
+        assert loaded_log2.organisation == "HMRC"
+        assert loaded_log2.accepted == False
+        assert loaded_log2.action == Action.UPDATE
+        assert loaded_log2.attribute == "first_name"
 
     def test_load_empty_csv(self, monkeypatch) -> None:
         monkeypatch.setattr(self.log_repo, "_get_csv_path", lambda: self.TEST_CSV_PATH)
