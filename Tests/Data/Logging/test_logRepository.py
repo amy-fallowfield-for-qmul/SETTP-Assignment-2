@@ -37,6 +37,7 @@ class TestLogRepositoryAddAndGet:
         assert stored_log.id_number == 1
         assert stored_log.action == Action.CREATE
         assert stored_log.justification == "New registration"
+        assert isinstance(stored_log.current_value, DigitalID)
         assert stored_log.current_value.first_name == "John"
         assert stored_log.current_value.surname == "Smith"
         assert stored_log.new_value is None
