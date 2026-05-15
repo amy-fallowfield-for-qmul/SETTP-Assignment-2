@@ -66,7 +66,7 @@ class Validator(metaclass=SingletonMeta):
         """
 
         valid_values = [s.value for s in Status]
-        status = status.lower()
+        status = status.strip().lower()
         if status not in valid_values:
             raise ValueError("Status must be 'active', 'suspended', or 'revoked'")
             
