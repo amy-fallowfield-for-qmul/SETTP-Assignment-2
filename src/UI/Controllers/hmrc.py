@@ -28,11 +28,11 @@ class HMRC(OtherOrganisationMain):
 
         match(choice):
             case 1:
-                self.REQUESTS.query_id(self.organisation_name(), self.accessible_attributes())
+                self.REQUESTS.query_id(self.organisation())
             case 2:
-                self.REQUESTS.verify_attribute(self.organisation_name(), self.verifiable_attributes())
+                self.REQUESTS.verify_attribute(self.organisation())
             case 3:
-                self.REQUESTS.verify_suspended_in_period(self.organisation_name())
+                self.REQUESTS.verify_suspended_in_period(self.organisation())
             case 4:
                 self.REQUESTS.exit_program()
             case _:
