@@ -38,7 +38,7 @@ class Verifier(metaclass=SingletonMeta):
                 "date_of_birth": date_of_birth,
             }
 
-            digital_id = self._get_id_by_number(id_number)
+            digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
             self._ensure_active(digital_id)
 
             validated_attributes = {
@@ -61,7 +61,7 @@ class Verifier(metaclass=SingletonMeta):
         with self._verify_and_log_failures(organisation, id_number, "minimum_age", justification):
             validated_min_age = self.VERIFICATION_VALIDATOR.validate_minimum_age(minimum_age)
 
-            digital_id = self._get_id_by_number(id_number)
+            digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
             self._ensure_active(digital_id)
 
             age = self._calculate_age(digital_id.date_of_birth)
@@ -79,7 +79,7 @@ class Verifier(metaclass=SingletonMeta):
             if attribute not in accessible_attributes:
                 raise ValueError(f"Access denied: {organisation} is not authorised to verify '{attribute}' attribute")
 
-            digital_id = self._get_id_by_number(id_number)
+            digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
 
             if attribute != "status":
                 self._ensure_active(digital_id)
@@ -106,12 +106,6 @@ class Verifier(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(audit_log)
 
             return result
-
-    def _get_id_by_number(self, id_number: int):
-        try:
-            return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
-        except KeyError:
-            raise ValueError(f"Digital ID with ID {id_number} not found")
 
     def _ensure_active(self, digital_id) -> None:
         if digital_id.status != Status.ACTIVE:

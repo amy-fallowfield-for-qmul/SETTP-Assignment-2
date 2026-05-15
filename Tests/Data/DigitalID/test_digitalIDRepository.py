@@ -45,8 +45,8 @@ class TestDigitalIDRepositoryAddAndGet:
         self.repo.add(id2)
         assert self.repo.get_from_id(2).first_name == from_csv_person_dict["first_name"]
 
-    def test_get_id_missing_raises_key_error(self) -> None:
-        with pytest.raises(KeyError):
+    def test_get_id_missing_raises_value_error(self) -> None:
+        with pytest.raises(ValueError, match="not found"):
             self.repo.get_from_id(99)
 
     def test_get_all(self) -> None:

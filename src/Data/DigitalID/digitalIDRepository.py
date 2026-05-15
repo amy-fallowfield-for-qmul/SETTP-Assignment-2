@@ -11,6 +11,12 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
         self._repository: Dict[int, DigitalID] = {}
         self._attribute_registry = AttributeRegistry()
 
+    def get_from_id(self, id: int) -> DigitalID:
+        try:
+            return super().get_from_id(id)
+        except KeyError:
+            raise ValueError(f"DigitalID with id {id} not found")
+
     def _get_csv_path(self) -> str:
         return ID_PATH
 
