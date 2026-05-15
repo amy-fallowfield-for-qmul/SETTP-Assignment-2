@@ -204,7 +204,7 @@ class TestVerifierVerifySuspendedInPeriod:
         assert added_log.current_value == "False"
         assert added_log.comparative_value == "2026-01-01 to 2026-01-02"
         assert added_log.organisation == "HMRC"
-        assert added_log.justification == "Audit check"
+        assert added_log.justification == "Audit Check"
         assert added_log.id_number == 1
 
     def test_verify_suspended_in_period_creates_log_on_failure(self):

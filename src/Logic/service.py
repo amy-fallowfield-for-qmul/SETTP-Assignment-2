@@ -74,10 +74,7 @@ class DigitalIDService(metaclass=SingletonMeta):
         return matches
 
     def get_id_by_number(self, id_number: int) -> DigitalID:
-        try:
-            return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
-        except KeyError:
-            raise ValueError(f"Digital ID with ID {id_number} not found")
+        return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
         
     def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: str, accessible_attributes: List[str]) -> str:
         safe_justification = justification if justification else "Unknown justification"
