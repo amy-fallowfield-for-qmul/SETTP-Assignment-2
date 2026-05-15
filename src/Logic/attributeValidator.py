@@ -171,10 +171,10 @@ class Validator(metaclass=SingletonMeta):
         if not address_line:
             raise ValueError("Address line cannot be empty")
         
-        self._validate_string(town_or_city, "Town or city")
-        self._validate_postcode(postcode)
+        town_or_city = self._validate_string(town_or_city, "Town or city")
+        postcode = self._validate_postcode(postcode)
 
-        return f"{address_line}, {town_or_city}, {postcode.upper()}"
+        return f"{address_line}, {town_or_city}, {postcode}"
 
     def _validate_postcode(self, postcode: str) -> str:
         """
