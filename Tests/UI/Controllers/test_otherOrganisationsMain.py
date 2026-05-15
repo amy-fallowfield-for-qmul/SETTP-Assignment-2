@@ -47,6 +47,7 @@ class TestServicePermissionSystem:
         assert failed_log.accepted == False
         assert failed_log.organisation == "NHS"
         assert failed_log.action == Action.READ
+        assert isinstance(failed_log.current_value, str)
         assert "Access denied" in failed_log.current_value
 
     def test_successful_query_creates_accepted_log(self, service: DigitalIDService) -> None:
