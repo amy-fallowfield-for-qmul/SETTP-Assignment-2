@@ -1,12 +1,13 @@
 import pytest
 import os
 import Data.DigitalID.digitalIDRepository as repo_module
+import Data.Logging.logRepository as log_repo_module
 import Logic.service as service_module
 from Config import constants
 from Logic.service import DigitalIDService
 from Data.DigitalID.digitalID import DigitalID, Status
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
-from Data.Logging.log import Action
+from Data.Logging.log import Action, Log
 from Data.Logging.logRepository import LogRepository
 from Data.Attributes.attributeRegistry import AttributeRegistry
 from Tests.shared_test_data import justification_person_dict
@@ -172,18 +173,26 @@ class TestServiceCSV:
     """Tests for loading and saving CSV data via the service"""
 
     TEST_CSV_PATH = "test_service_ids.csv"
+    TEST_LOG_PATH = "test_service_logs.csv"
 
     def setup_method(self) -> None:
         DigitalID._next_id = 1
+        Log._next_id = 1
         DigitalIDRepository.clear_instance()
+        LogRepository.clear_instance()
         DigitalIDService.clear_instance()
         constants.ID_PATH = self.TEST_CSV_PATH
         repo_module.ID_PATH = self.TEST_CSV_PATH
         service_module.ID_PATH = self.TEST_CSV_PATH
+        constants.LOG_PATH = self.TEST_LOG_PATH
+        log_repo_module.LOG_PATH = self.TEST_LOG_PATH
+        service_module.LOG_PATH = self.TEST_LOG_PATH
 
     def teardown_method(self) -> None:
         if os.path.exists(self.TEST_CSV_PATH):
             os.remove(self.TEST_CSV_PATH)
+        if os.path.exists(self.TEST_LOG_PATH):
+            os.remove(self.TEST_LOG_PATH)
 
     def test_save_and_load_csv(self) -> None:
         service = DigitalIDService()
@@ -191,7 +200,9 @@ class TestServiceCSV:
         service.save_csv_data()
 
         DigitalID._next_id = 1
+        Log._next_id = 1
         DigitalIDRepository.clear_instance()
+        LogRepository.clear_instance()
         DigitalIDService.clear_instance()
         new_service = DigitalIDService()
         new_service.load_csv_data()

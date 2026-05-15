@@ -16,12 +16,6 @@ class DigitalIDRepository(RepositoryABC[DigitalID]):
             raise ValueError(f"Digital ID with id {entity.id} already exists")
         self._repository[entity.id] = entity
 
-    def get_from_id(self, id: int) -> DigitalID:
-        return self._repository[id]
-    
-    def get_all(self) -> Dict[int, DigitalID]:
-        return dict(self._repository)
-
     def _get_csv_path(self) -> str:
         return ID_PATH
 

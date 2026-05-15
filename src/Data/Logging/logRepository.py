@@ -9,14 +9,10 @@ class LogRepository(RepositoryABC[Log]):
     def _initialise(self) -> None:
         self._repository: Dict[int, Log] = {}
 
-    def add(self, entity: Log) -> None:
-        self._repository[entity.id] = entity
-
-    def get_from_id(self, id: int) -> Log:
-        return self._repository[id]
-
-    def get_all(self) -> Dict[int, Log]:
-        return self._repository
+    def add(self, log: Log) -> None:
+        if log.id in self._repository:
+            raise ValueError(f"Log with id {log.id} already exists")
+        self._repository[log.id] = log
 
     def _get_csv_path(self) -> str:
         return LOG_PATH
