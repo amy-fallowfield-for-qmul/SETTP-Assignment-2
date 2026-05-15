@@ -4,7 +4,7 @@ from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
 from Logic.verificationValidator import VerificationValidator
 from Logic.suspensionAnalyser import SuspensionAnalyser
-from src.Logic.exceptionLogger import record_failures
+from Logic.exceptionLogger import record_failures
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import Status
 from Data.Logging.logRepository import LogRepository

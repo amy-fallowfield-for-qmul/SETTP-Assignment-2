@@ -12,7 +12,7 @@ class Requests(metaclass=SingletonMeta):
         self.DIGITAL_ID_SERVICE = DigitalIDService()
         self.VERIFIER = Verifier()
 
-    def create_id(self) -> None:
+    def create_id(self, organisation: str) -> None:
         data = {}
         
         for attr_name in self.DIGITAL_ID_SERVICE.get_required_attributes_for_creation():
@@ -22,7 +22,7 @@ class Requests(metaclass=SingletonMeta):
         data["justification"] = input("Enter justification for creation: ")
 
         try:
-            self.DIGITAL_ID_SERVICE.create_id(data)
+            self.DIGITAL_ID_SERVICE.create_id(data, organisation)
             print("Digital ID created successfully")
         except Exception as e:
             print(f"Error creating Digital ID: {e}")
@@ -159,7 +159,7 @@ class Requests(metaclass=SingletonMeta):
         except ValueError as e:
             print(f"Request rejected: {e}")
 
-    def update_id(self) -> None:
+    def update_id(self, organisation: str) -> None:
         try:
             id_subject = self._get_id_subject()
             attribute_choice = self._get_attribute_subject("update")
@@ -172,7 +172,7 @@ class Requests(metaclass=SingletonMeta):
                 return
 
             justification = input("Enter justification for update: ")
-            self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value, justification)
+            self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value, justification, organisation)
 
             print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value} -> {new_value}")

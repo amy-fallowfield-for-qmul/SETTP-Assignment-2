@@ -57,22 +57,22 @@ class TestVerifierVerifyIdentity:
     """Tests for verifying a Digital ID's identity via the verifier"""
 
     def test_verify_identity_match(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         result = verifier.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank")
         assert result is True
 
     def test_verify_identity_mismatch(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         result = verifier.verify_identity(1, "Alice", "Smith", "2000-01-01", "Account opening", "Bank")
         assert result is False
 
     def test_verify_identity_normalises_input(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         result = verifier.verify_identity(1, "  john  ", "SMITH", "2000-01-01", "Account opening", "Bank")
         assert result is True
 
     def test_verify_identity_creates_log(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         verifier.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", "Bank")
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
@@ -84,22 +84,22 @@ class TestVerifierVerifyMinimumAge:
     """Tests for verifying a Digital ID's minimum age via the verifier"""
 
     def test_verify_minimum_age_meets(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         result = verifier.verify_minimum_age(1, 18, "ISA eligibility", "Bank")
         assert result is True
 
     def test_verify_minimum_age_does_not_meet(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         result = verifier.verify_minimum_age(1, 99, "Pension eligibility", "Bank")
         assert result is False
 
     def test_verify_minimum_age_accepts_string_input(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         result = verifier.verify_minimum_age(1, "18", "ISA eligibility", "Bank")
         assert result is True
 
     def test_verify_minimum_age_creates_log(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         verifier.verify_minimum_age(1, 18, "ISA eligibility", "Bank")
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
@@ -112,23 +112,23 @@ class TestVerifierVerifyAttribute:
     """Tests for verifying a single Digital ID attribute via the verifier"""
 
     def test_verify_attribute_match(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         result = verifier.verify_attribute(1, "national_insurance", "AB123456C", "New hire", "Employer", ["national_insurance"])
         assert result is True
 
     def test_verify_attribute_mismatch(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         result = verifier.verify_attribute(1, "national_insurance", "BC123456C", "New hire", "Employer", ["national_insurance"])
         assert result is False
 
     def test_verify_attribute_status_on_suspended(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
-        service.update_id(1, "status", "suspended", "Investigation")
+        service.create_id(justification_person_dict, "Central Authority")
+        service.update_id(1, "status", "suspended", "Investigation", "Central Authority")
         result = verifier.verify_attribute(1, "status", "active", "Hiring check", "Employer", ["status"])
         assert result is False
 
     def test_verify_attribute_creates_log(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         verifier.verify_attribute(1, "national_insurance", "AB123456C", "New hire", "Employer", ["national_insurance"])
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
@@ -137,7 +137,7 @@ class TestVerifierVerifyAttribute:
         assert verify_log.current_value == "True"
 
     def test_verify_attribute_access_denied(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         with pytest.raises(ValueError, match="Access denied"):
             verifier.verify_attribute(1, "first_name", "John", "New hire", "Employer", ["national_insurance"])
 

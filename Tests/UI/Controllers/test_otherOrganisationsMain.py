@@ -18,7 +18,7 @@ class TestServicePermissionSystem:
         LogRepository.clear_instance()
 
         service = DigitalIDService()
-        service.create_id(justification_person_dict)
+        service.create_id(justification_person_dict, "Central Authority")
         return service
 
     def test_query_with_allowed_attribute(self, service: DigitalIDService) -> None:

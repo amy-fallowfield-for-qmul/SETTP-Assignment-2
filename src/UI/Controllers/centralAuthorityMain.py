@@ -30,11 +30,11 @@ class CentralAuthorityMain(MainABC):
 
         match(choice):
             case 1:
-                self.REQUESTS.create_id()
+                self.REQUESTS.create_id(self.organisation_name())
             case 2:
                 self.REQUESTS.query_id(self.organisation_name(), self.accessible_attributes())
             case 3:
-                self.REQUESTS.update_id()
+                self.REQUESTS.update_id(self.organisation_name())
             case 4:
                 self.REQUESTS.verify_suspended_in_period(self.organisation_name())
             case 5:
