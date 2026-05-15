@@ -28,11 +28,11 @@ class Employer(OtherOrganisationMain):
 
         match(choice):
             case 1:
-                self.REQUESTS.verify_attribute(self.organisation_name(), self.verifiable_attributes())
+                self.REQUESTS.verify_attribute(self.organisation())
             case 2:
-                self.REQUESTS.verify_identity(self.organisation_name())
+                self.REQUESTS.verify_identity(self.organisation())
             case 3:
-                self.REQUESTS.verify_minimum_age(self.organisation_name())
+                self.REQUESTS.verify_minimum_age(self.organisation())
             case 4:
                 self.REQUESTS.exit_program()
             case _:
