@@ -1,5 +1,6 @@
 from typing import Any, List
 from datetime import date
+from contextlib import contextmanager
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
 from Logic.verificationValidator import VerificationValidator
@@ -19,10 +20,18 @@ class Verifier(metaclass=SingletonMeta):
         self.DIGITAL_ID_REPOSITORY = DigitalIDRepository()
         self.LOG_REPOSITORY = LogRepository()
 
-    def verify_identity(self, id_number: int, first_name: str, surname: str, date_of_birth: str, justification: str, organisation: str) -> bool:
-        safe_justification = justification if justification else "Unknown justification"
-
+    @contextmanager
+    def _verify_and_log_failures(self, organisation: str, id_number: int, attribute_name: str, justification: str):
+        safe_justification = justification or "Unknown justification"
         try:
+            yield safe_justification
+        except Exception as e:
+            failed_log = Log.for_failure(organisation, id_number, Action.VERIFY, safe_justification, str(e), attribute_name)
+            self.LOG_REPOSITORY.add(failed_log)
+            raise
+
+    def verify_identity(self, id_number: int, first_name: str, surname: str, date_of_birth: str, justification: str, organisation: str) -> bool:
+        with self._verify_and_log_failures(organisation, id_number, "identity", justification):
             required_attributes = {
                 "first_name": first_name,
                 "surname": surname,
@@ -49,16 +58,9 @@ class Verifier(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(log)
 
             return result
-        except Exception as e:
-            error_message = str(e)
-            failed_log = Log.for_failure(organisation, id_number, Action.VERIFY, safe_justification, error_message, "identity")
-            self.LOG_REPOSITORY.add(failed_log)
-            raise
 
     def verify_minimum_age(self, id_number: int, minimum_age: Any, justification: str, organisation: str) -> bool:
-        safe_justification = justification if justification else "Unknown justification"
-
-        try:
+        with self._verify_and_log_failures(organisation, id_number, "minimum_age", justification):
             validated_min_age = self.VERIFICATION_VALIDATOR.validate_minimum_age(minimum_age)
 
             digital_id = self._get_id_by_number(id_number)
@@ -78,16 +80,9 @@ class Verifier(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(log)
 
             return result
-        except Exception as e:
-            error_message = str(e)
-            failed_log = Log.for_failure(organisation, id_number, Action.VERIFY, safe_justification, error_message, "minimum_age")
-            self.LOG_REPOSITORY.add(failed_log)
-            raise
 
     def verify_attribute(self, id_number: int, attribute: str, claimed_value: str, justification: str, organisation: str, accessible_attributes: List[str]) -> bool:
-        safe_justification = justification if justification else "Unknown justification"
-
-        try:
+        with self._verify_and_log_failures(organisation, id_number, attribute, justification):
             if attribute not in accessible_attributes:
                 raise ValueError(f"Access denied: {organisation} is not authorised to verify '{attribute}' attribute")
 
@@ -106,16 +101,9 @@ class Verifier(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(log)
 
             return result
-        except Exception as e:
-            error_message = str(e)
-            failed_log = Log.for_failure(organisation, id_number, Action.VERIFY, safe_justification, error_message, attribute)
-            self.LOG_REPOSITORY.add(failed_log)
-            raise
 
     def verify_suspended_in_period(self, start_date: str, end_date: str, id_number: int, justification: str, organisation: str) -> bool:
-        safe_justification = justification if justification else "Unknown justification"
-
-        try:
+        with self._verify_and_log_failures(organisation, id_number, "suspended_in_period", justification) as safe_justification:
             result = self.SUSPENSION_ANALYSER.was_suspended_in_period(start_date, end_date, id_number)
 
             period_context = f"{start_date} to {end_date}"
@@ -123,10 +111,6 @@ class Verifier(metaclass=SingletonMeta):
             self.LOG_REPOSITORY.add(audit_log)
 
             return result
-        except Exception as e:
-            failed_log = Log.for_failure(organisation, id_number, Action.VERIFY, safe_justification, str(e), "suspended_in_period")
-            self.LOG_REPOSITORY.add(failed_log)
-            raise
 
     def _get_id_by_number(self, id_number: int):
         try:
