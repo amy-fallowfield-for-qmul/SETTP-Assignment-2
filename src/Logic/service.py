@@ -2,7 +2,7 @@ from typing import Dict, Any, List
 from datetime import date
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
-from src.Logic.exceptionLogger import record_failures
+from Logic.exceptionLogger import record_failures
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import DigitalID, Status
 from Data.Logging.logRepository import LogRepository
@@ -22,25 +22,22 @@ class DigitalIDService(metaclass=SingletonMeta):
     def create_id(self, data: Dict[str, Any]) -> DigitalID:
         justification = data.get("justification", "Unknown justification")
 
-        try:
-            with record_failures(self.LOG_REPOSITORY, Action.CREATE, "Central Authority", 0, justification):
-                valid_data = self.VALIDATOR.validate_all_attributes(data)
+        with record_failures(self.LOG_REPOSITORY, Action.CREATE, "Central Authority", 0, justification):
+            valid_data = self.VALIDATOR.validate_all_attributes(data)
 
-                creation_attributes = {}
-                for attr_name in self.ATTRIBUTE_REGISTRY.get_required_for_creation():
-                    creation_attributes[attr_name] = valid_data[attr_name]
+            creation_attributes = {}
+            for attr_name in self.ATTRIBUTE_REGISTRY.get_required_for_creation():
+                creation_attributes[attr_name] = valid_data[attr_name]
 
-                justification = valid_data["justification"]
+            justification = valid_data["justification"]
 
-                new_id = DigitalID(creation_attributes)
-                self.DIGITAL_ID_REPOSITORY.add(new_id)
+            new_id = DigitalID(creation_attributes)
+            self.DIGITAL_ID_REPOSITORY.add(new_id)
 
-                log = Log.for_create("Central Authority", new_id.id, justification, new_id)
-                self.LOG_REPOSITORY.add(log)
+            log = Log.for_create("Central Authority", new_id.id, justification, new_id)
+            self.LOG_REPOSITORY.add(log)
 
-                return new_id
-        except Exception as e:
-            raise ValueError(f"Invalid attribute data: {e}")
+            return new_id
 
     def get_all_ids(self) -> Dict[int, DigitalID]:
         return self.DIGITAL_ID_REPOSITORY.get_all()
@@ -138,7 +135,7 @@ class DigitalIDService(metaclass=SingletonMeta):
                 print(f"Saved log data to {LOG_PATH}")
             else:
                 print("No logs to save")
-        except Exception as e:
+        except OSError as e:
             print(f"Error saving to CSV: {e}")
 
     def get_required_attributes_for_creation(self) -> List[str]:
