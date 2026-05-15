@@ -112,35 +112,23 @@ class Log:
     def comparative_value(self) -> Optional[str]:
         return self._comparative_value
     
-    def get_row(self) -> List[str]:
-        return [
-            str(self._id),
-            self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
-            str(self._accepted),
-            self._organisation,
-            str(self._id_number),
-            self._action.value,
-            self._justification,
-            str(self._current_value),
-            str(self._new_value) if self._new_value is not None else "None",
-            str(self._attribute) if self._attribute is not None else "None",
-            str(self._comparative_value) if self._comparative_value is not None else "None",
-        ]
-
-    def to_dict(self) -> Dict[str, object]:
+    def to_dict(self) -> Dict[str, str]:
         return {
-            "id": self._id,
+            "id": str(self._id),
             "timestamp": self._timestamp.strftime("%d/%m/%Y - %H:%M:%S"),
-            "accepted": self._accepted,
+            "accepted": str(self._accepted),
             "organisation": self._organisation,
             "digitalID": str(self._id_number),
             "action": self._action.value,
             "justification": self._justification,
-            "currentValue": self._current_value.to_dict() if isinstance(self._current_value, DigitalID) else str(self._current_value),
-            "newValue": str(self._new_value) if self._new_value else "None",
-            "attribute": str(self._attribute) if self._attribute else "None",
-            "comparativeValue": str(self._comparative_value) if self._comparative_value else "None"
+            "currentValue": str(self._current_value),
+            "newValue": str(self._new_value) if self._new_value is not None else "None",
+            "attribute": str(self._attribute) if self._attribute is not None else "None",
+            "comparativeValue": str(self._comparative_value) if self._comparative_value is not None else "None",
         }
+
+    def get_row(self) -> List[str]:
+        return list(self.to_dict().values())
 
     def print(self) -> None:
         match(self._action):
