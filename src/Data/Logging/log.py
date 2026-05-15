@@ -153,5 +153,8 @@ class Log:
             case Action.VERIFY:
                 context_string = f" (threshold: {self._comparative_value})" if self._comparative_value else ""
                 value_string = f"{self.attribute}{context_string}: {self._current_value}"
+            case _:
+                raise ValueError("Action not provided")
+            
         accepted_string = "ACCEPTED" if self._accepted else "REJECTED"
         print(f"[{self._timestamp.strftime('%d/%m/%Y - %H:%M:%S')}] [{self._organisation}] Requested to {self._action.value} ID {self._id_number} to [{value_string}] because {self._justification} was {accepted_string}")
