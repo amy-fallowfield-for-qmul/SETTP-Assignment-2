@@ -53,7 +53,7 @@ class Log:
         log = cls.__new__(cls)
         log._id = int(attributes["id"])
         log._timestamp = datetime.strptime(attributes["timestamp"], "%d/%m/%Y - %H:%M:%S")
-        log._accepted = True if attributes["accepted"] == "True" else False
+        log._accepted = attributes["accepted"] == "True"
         log._organisation = attributes["organisation"]
         log._id_number = int(attributes["digitalID"])
         log._action = Action(attributes["action"])
