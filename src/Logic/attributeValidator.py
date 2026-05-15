@@ -29,12 +29,8 @@ class Validator(metaclass=SingletonMeta):
         for key in data:
             if key not in accessible_attributes:
                 raise ValueError(f"Unexpected attribute: {key}")
-
-        for key in required_attributes:
-            data[key] = self.validate_attribute(key, data[key])
-
-        if "justification" in data:
-            data["justification"] = self.validate_attribute("justification", data["justification"])
+            if key in required_attributes or key == "justification":
+                data[key] = self.validate_attribute(key, data[key])
 
         return data
     
