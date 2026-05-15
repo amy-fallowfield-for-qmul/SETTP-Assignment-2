@@ -61,6 +61,12 @@ class TestLogRepositoryAddAndGet:
         with pytest.raises(KeyError):
             log_repo.get_from_id(999)
 
+    def test_add_duplicate_id_raises(self, log_repo: LogRepository) -> None:
+        log = Log.for_create("NHS", 1, "New registration", DigitalID(new_person_dict))
+        log_repo.add(log)
+        with pytest.raises(ValueError, match="already exists"):
+            log_repo.add(log)
+
 class TestLogRepositoryCSV:
     """Tests for CSV save and load"""
 
