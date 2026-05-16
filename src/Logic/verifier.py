@@ -25,6 +25,7 @@ class Verifier(metaclass=SingletonMeta):
 
     def verify_identity(self, id_number: int, claim: IdentityClaim, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "identity"):
+            context.assert_can_perform("verify_identity")
             digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
             self._ensure_active(digital_id)
 
@@ -40,6 +41,7 @@ class Verifier(metaclass=SingletonMeta):
 
     def verify_minimum_age(self, id_number: int, minimum_age: Any, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "minimum_age"):
+            context.assert_can_perform("verify_minimum_age")
             validated_min_age = self.VERIFICATION_VALIDATOR.validate_minimum_age(minimum_age)
 
             digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
@@ -57,6 +59,7 @@ class Verifier(metaclass=SingletonMeta):
 
     def verify_attribute(self, id_number: int, attribute: str, claimed_value: str, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, attribute):
+            context.assert_can_perform("verify_attribute")
             context.assert_can_verify(attribute)
 
             digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
@@ -77,6 +80,7 @@ class Verifier(metaclass=SingletonMeta):
 
     def verify_suspended_in_period(self, period: Period, id_number: int, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "suspended_in_period"):
+            context.assert_can_perform("verify_suspended_in_period")
             result = self.SUSPENSION_ANALYSER.was_suspended_in_period(period, id_number)
 
             validated_justification = context.validated_justification(self.VALIDATOR)
