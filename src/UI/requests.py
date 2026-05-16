@@ -1,4 +1,4 @@
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
 from Logic.verifier import Verifier

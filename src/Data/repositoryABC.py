@@ -10,6 +10,7 @@ class HasID(Protocol):
 T = TypeVar("T", bound=HasID)
 
 class RepositoryABC(Generic[T], metaclass=SingletonABCMeta):
+    """Generic singleton base class for repositories"""
 
     def __init__(self) -> None:
         self._repository: Dict[int, T] = {}

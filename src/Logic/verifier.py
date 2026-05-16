@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 from datetime import date
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
