@@ -14,11 +14,11 @@ class RequestContext:
     justification: str
 
     def assert_can_read(self, attribute: str) -> None:
-        if attribute not in self.organisation.accessible_attributes:
+        if not self.organisation.can_read(attribute):
             raise ValueError(f"Access denied: {self.organisation.name} is not authorized to access '{attribute}' attribute")
 
     def assert_can_verify(self, attribute: str) -> None:
-        if attribute not in self.organisation.verifiable_attributes:
+        if not self.organisation.can_verify(attribute):
             raise ValueError(f"Access denied: {self.organisation.name} is not authorised to verify '{attribute}' attribute")
 
     def validated_justification(self, validator: "Validator") -> str:
