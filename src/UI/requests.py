@@ -3,6 +3,7 @@ from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
 from Logic.verifier import Verifier
 from Logic.organisation import Organisation
+from Logic.requestContext import RequestContext
 from Data.DigitalID.digitalID import DigitalID
 from Config.constants import SEPARATION_WIDTH, LOG_HEADERS
 
@@ -23,7 +24,8 @@ class Requests(metaclass=SingletonMeta):
         data["justification"] = input("Enter justification for creation: ")
 
         try:
-            self.DIGITAL_ID_SERVICE.create_id(data, organisation)
+            context = RequestContext(organisation=organisation, justification=data["justification"])
+            self.DIGITAL_ID_SERVICE.create_id(data, context)
             print("Digital ID created successfully")
         except Exception as e:
             print(f"Error creating Digital ID: {e}")
@@ -89,9 +91,10 @@ class Requests(metaclass=SingletonMeta):
             id_subject = self._get_id_subject()
             attribute_choice = self._get_attribute_subject("query", organisation.accessible_attributes)
             justification = input("Enter justification for query: ")
+            context = RequestContext(organisation=organisation, justification=justification)
             
             current_value = self.DIGITAL_ID_SERVICE.query_attribute(
-                id_subject.id, attribute_choice, justification, organisation
+                id_subject.id, attribute_choice, context
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -107,9 +110,10 @@ class Requests(metaclass=SingletonMeta):
             surname = input("Enter surname: ")
             date_of_birth = input("Enter date of birth (YYYY-MM-DD): ")
             justification = input("Enter justification for verification: ")
+            context = RequestContext(organisation=organisation, justification=justification)
 
             result = self.VERIFIER.verify_identity(
-                id_number, first_name, surname, date_of_birth, justification, organisation
+                id_number, first_name, surname, date_of_birth, context
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -126,9 +130,10 @@ class Requests(metaclass=SingletonMeta):
             id_number = int(input("Enter Digital ID number: "))
             minimum_age = input("Enter minimum age: ")
             justification = input("Enter justification for verification: ")
+            context = RequestContext(organisation=organisation, justification=justification)
 
             result = self.VERIFIER.verify_minimum_age(
-                id_number, minimum_age, justification, organisation
+                id_number, minimum_age, context
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -146,9 +151,10 @@ class Requests(metaclass=SingletonMeta):
             attribute_choice = self._get_attribute_subject("verify", organisation.verifiable_attributes)
             claimed_value = input(f"Enter claimed {attribute_choice}: ")
             justification = input("Enter justification for verification: ")
+            context = RequestContext(organisation=organisation, justification=justification)
 
             result = self.VERIFIER.verify_attribute(
-                id_number, attribute_choice, claimed_value, justification, organisation
+                id_number, attribute_choice, claimed_value, context
             )
 
             print("=" * SEPARATION_WIDTH)
@@ -173,7 +179,8 @@ class Requests(metaclass=SingletonMeta):
                 return
 
             justification = input("Enter justification for update: ")
-            self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value, justification, organisation)
+            context = RequestContext(organisation=organisation, justification=justification)
+            self.DIGITAL_ID_SERVICE.update_id(id_subject.id, attribute_choice, new_value, context)
 
             print("=" * SEPARATION_WIDTH)
             print(f"ID: {id_subject.id}, {attribute_choice}: {current_value} -> {new_value}")
@@ -237,7 +244,7 @@ class Requests(metaclass=SingletonMeta):
             validated_end = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(end_date)
             validated_justification = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_attribute("justification", justification)
 
-            result = self.VERIFIER.verify_suspended_in_period(validated_start, validated_end, id_number, validated_justification, organisation)
+            result = self.VERIFIER.verify_suspended_in_period(validated_start, validated_end, id_number, RequestContext(organisation=organisation, justification=validated_justification))
 
             print("=" * SEPARATION_WIDTH)
             if result:
