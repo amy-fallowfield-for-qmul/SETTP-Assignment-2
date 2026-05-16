@@ -1,9 +1,7 @@
 from typing import Dict, Any, List
-from datetime import date
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
 from Logic.exceptionLogger import record_failures
-from Logic.organisation import Organisation
 from Logic.requestContext import RequestContext
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import DigitalID, Status
