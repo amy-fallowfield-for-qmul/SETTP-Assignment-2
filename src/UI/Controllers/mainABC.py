@@ -40,8 +40,9 @@ class MainABC(metaclass=SingletonABCMeta):
             print("Invalid choice")
             return
 
-        if choice > 1 or choice > len(options):
+        if choice < 1 or choice > len(options):
             print("Invalid choice")
+            return
 
         options[choice - 1][1]()
 
