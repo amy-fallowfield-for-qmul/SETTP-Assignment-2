@@ -5,6 +5,7 @@ import Data.Logging.logRepository as log_repo_module
 import Logic.service as service_module
 from Config import constants
 from Logic.service import DigitalIDService
+from Logic.requestContext import RequestContext
 from Data.DigitalID.digitalID import DigitalID, Status
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.Logging.log import Action, Log
@@ -24,7 +25,7 @@ class TestServiceCreateID:
     """Tests for creating a Digital ID via the service"""
 
     def test_create_id(self, service: DigitalIDService) -> None:
-        digital_id = service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        digital_id = service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         id_dict = digital_id.to_dict()
 
         for key, value in justification_person_dict.items():
@@ -33,7 +34,7 @@ class TestServiceCreateID:
         assert len(service.get_all_ids()) == 1
 
     def test_create_id_creates_log(self, service: DigitalIDService) -> None:
-        digital_id = service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        digital_id = service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 1
         create_log = list(logs.values())[0]
@@ -52,31 +53,31 @@ class TestServiceGetAllIDs:
         assert service.get_all_ids() == {}
 
     def test_get_all(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         id2 = justification_person_dict.copy()
         id2["justification"] = "Second creation"
-        service.create_id(id2, CENTRAL_AUTHORITY_ORG)
+        service.create_id(id2, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=id2.get("justification", "Test")))
         assert len(service.get_all_ids()) == 2
 
 class TestServiceFilterIDs:
     """Tests for filtering Digital IDs by attributes"""
 
     def test_filter_by_attribute(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         id2 = justification_person_dict.copy()
         id2["first_name"] = "DifferentName"
         id2["justification"] = "Second creation"
-        service.create_id(id2, CENTRAL_AUTHORITY_ORG)
+        service.create_id(id2, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=id2.get("justification", "Test")))
         filtered = service.get_filtered_ids({"first_name": justification_person_dict["first_name"]})
         assert len(filtered) == 1
 
     def test_filter_no_matches(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         filtered = service.get_filtered_ids({"first_name": "FakeName"})
         assert len(filtered) == 0
 
     def test_filter_case_insensitive_name(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         uppercase_name = justification_person_dict["first_name"].upper()
         lowercase_name = justification_person_dict["first_name"].lower()
 
@@ -84,7 +85,7 @@ class TestServiceFilterIDs:
         assert len(service.get_filtered_ids({"first_name": lowercase_name})) == 1
 
     def test_filter_case_insensitive_status(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         assert len(service.get_filtered_ids({"status": "ACTIVE"})) == 1
         assert len(service.get_filtered_ids({"status": "Active"})) == 1
 
@@ -96,10 +97,10 @@ class TestServiceFilterLogs:
     """Tests for filtering logs by attributes"""
 
     def test_filter_by_attribute(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         id2 = justification_person_dict.copy()
         id2["justification"] = "Second creation"
-        service.create_id(id2, CENTRAL_AUTHORITY_ORG)
+        service.create_id(id2, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=id2.get("justification", "Test")))
         filtered = service.get_filtered_logs({"digitalID": "1"})
         assert len(filtered) == 1
 
@@ -107,7 +108,7 @@ class TestServiceGetIDByNumber:
     """Tests for retrieving a Digital ID by its number"""
 
     def test_get_id_by_number(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         assert service.get_id_by_number(1).first_name == justification_person_dict["first_name"]
 
     def test_get_id_not_found(self, service: DigitalIDService) -> None:
@@ -120,13 +121,13 @@ class TestServiceQueryAttribute:
     central_authority_attributes = AttributeRegistry().get_queryable_attributes()
 
     def test_query_attribute(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = service.query_attribute(1, "first_name", "External audit", CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = service.query_attribute(1, "first_name", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="External audit"))
         assert result == "John"
 
     def test_query_attribute_creates_log(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        service.query_attribute(1, "status", "Status verification", CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        service.query_attribute(1, "status", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="Status verification"))
         
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 2
@@ -139,19 +140,19 @@ class TestServiceQueryAttribute:
 
     def test_query_attribute_not_found(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="not found"):
-            service.query_attribute(99, "first_name", "External audit", CENTRAL_AUTHORITY_ORG)
+            service.query_attribute(99, "first_name", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="External audit"))
 
 class TestServiceUpdateID:
     """Tests for updating Digital ID attributes via the service"""
 
     def test_update_attribute(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        service.update_id(1, "first_name", "Alicia", "Name change requested", CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        service.update_id(1, "first_name", "Alicia", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="Name change requested"))
         assert service.get_id_by_number(1).first_name == "Alicia"
 
     def test_update_creates_log(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        service.update_id(1, "first_name", "Alicia", "Name change requested", CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        service.update_id(1, "first_name", "Alicia", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="Name change requested"))
         
         logs = service.LOG_REPOSITORY.get_all()
         assert len(logs) == 2
@@ -163,12 +164,12 @@ class TestServiceUpdateID:
 
     def test_update_nonexistent_id(self, service: DigitalIDService) -> None:
         with pytest.raises(ValueError, match="not found"):
-            service.update_id(99, "first_name", "Alicia", "Name change", CENTRAL_AUTHORITY_ORG)
+            service.update_id(99, "first_name", "Alicia", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="Name change"))
 
     def test_update_immutable_field_rejected(self, service: DigitalIDService) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         with pytest.raises(ValueError, match="is immutable and cannot be updated"):
-            service.update_id(1, "date_of_birth", "2010-01-01", "Date correction", CENTRAL_AUTHORITY_ORG)
+            service.update_id(1, "date_of_birth", "2010-01-01", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="Date correction"))
 
 class TestServiceCSV:
     """Tests for loading and saving CSV data via the service"""
@@ -197,7 +198,7 @@ class TestServiceCSV:
 
     def test_save_and_load_csv(self) -> None:
         service = DigitalIDService()
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         service.save_csv_data()
 
         DigitalID._next_id = 1
