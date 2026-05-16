@@ -25,25 +25,13 @@ class Verifier(metaclass=SingletonMeta):
 
     def verify_identity(self, id_number: int, claim: IdentityClaim, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "identity"):
-            required_attributes = {
-                "first_name": claim.first_name,
-                "surname": claim.surname,
-                "date_of_birth": claim.date_of_birth,
-            }
-
             digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
             self._ensure_active(digital_id)
 
-            validated_attributes = {
-                name: self.VALIDATOR.validate_attribute(name, value)
-                for name, value in required_attributes.items()
-            }
+            validated_claim = claim.validated(self.VALIDATOR)
             validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
 
-            result = all(
-                getattr(digital_id, name) == validated_value
-                for name, validated_value in validated_attributes.items()
-            )
+            result = validated_claim.matches(digital_id)
 
             log = Log.for_verify(context.organisation.name, id_number, validated_justification, "identity", result)
             self.LOG_REPOSITORY.add(log)
