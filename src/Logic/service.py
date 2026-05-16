@@ -4,6 +4,7 @@ from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
 from Logic.exceptionLogger import record_failures
 from Logic.organisation import Organisation
+from Logic.requestContext import RequestContext
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import DigitalID, Status
 from Data.Logging.logRepository import LogRepository
@@ -20,22 +21,18 @@ class DigitalIDService(metaclass=SingletonMeta):
         self.LOG_REPOSITORY = LogRepository()
         self.ATTRIBUTE_REGISTRY = AttributeRegistry()
 
-    def create_id(self, data: Dict[str, Any], organisation: Organisation) -> DigitalID:
-        justification = data.get("justification", "Unknown justification")
-
-        with record_failures(self.LOG_REPOSITORY, Action.CREATE, organisation.name, 0, justification):
+    def create_id(self, data: Dict[str, Any], context: RequestContext) -> DigitalID:
+        with record_failures(self.LOG_REPOSITORY, Action.CREATE, context, 0):
             valid_data = self.VALIDATOR.validate_all_attributes(data)
 
             creation_attributes = {}
             for attr_name in self.ATTRIBUTE_REGISTRY.get_required_for_creation():
                 creation_attributes[attr_name] = valid_data[attr_name]
 
-            justification = valid_data["justification"]
-
             new_id = DigitalID(creation_attributes)
             self.DIGITAL_ID_REPOSITORY.add(new_id)
 
-            log = Log.for_create(organisation.name, new_id.id, justification, new_id)
+            log = Log.for_create(context.organisation.name, new_id.id, context.justification, new_id)
             self.LOG_REPOSITORY.add(log)
 
             return new_id
@@ -71,23 +68,23 @@ class DigitalIDService(metaclass=SingletonMeta):
     def get_id_by_number(self, id_number: int) -> DigitalID:
         return self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
         
-    def query_attribute(self, id_number: int, attribute: str, justification: str, organisation: Organisation) -> str:
-        with record_failures(self.LOG_REPOSITORY, Action.READ, organisation.name, id_number, justification):
-            if attribute not in organisation.accessible_attributes:
-                raise ValueError(f"Access denied: {organisation.name} is not authorized to access '{attribute}' attribute")
+    def query_attribute(self, id_number: int, attribute: str, context: RequestContext) -> str:
+        with record_failures(self.LOG_REPOSITORY, Action.READ, context, id_number):
+            if attribute not in context.organisation.accessible_attributes:
+                raise ValueError(f"Access denied: {context.organisation.name} is not authorized to access '{attribute}' attribute")
 
             digital_id = self.get_id_by_number(id_number)
 
             attribute_value = digital_id.to_dict()[attribute]
-            validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
+            validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
 
-            log = Log.for_read(organisation.name, id_number, validated_justification, str(attribute_value))
+            log = Log.for_read(context.organisation.name, id_number, validated_justification, str(attribute_value))
             self.LOG_REPOSITORY.add(log)
 
             return str(attribute_value)
 
-    def update_id(self, id_number: int, attribute: str, value: Any, justification: str, organisation: Organisation) -> None:
-        with record_failures(self.LOG_REPOSITORY, Action.UPDATE, organisation.name, id_number, justification, attribute):
+    def update_id(self, id_number: int, attribute: str, value: Any, context: RequestContext) -> None:
+        with record_failures(self.LOG_REPOSITORY, Action.UPDATE, context, id_number, attribute):
             digital_id = self.get_id_by_number(id_number)
             old_value = str(digital_id.to_dict()[attribute])
 
@@ -98,7 +95,7 @@ class DigitalIDService(metaclass=SingletonMeta):
                 raise ValueError(f"{attribute} is immutable and cannot be updated")
 
             validated_value = self.VALIDATOR.validate_attribute(attribute, value)
-            validated_justification = self.VALIDATOR.validate_attribute("justification", justification)
+            validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
 
             if attribute == "status":
                 STATUS_MAP = {
@@ -110,7 +107,7 @@ class DigitalIDService(metaclass=SingletonMeta):
             else:
                 setattr(digital_id, attribute, validated_value)
 
-            log = Log.for_update(organisation.name, id_number, validated_justification, attribute, old_value, validated_value)
+            log = Log.for_update(context.organisation.name, id_number, validated_justification, attribute, old_value, validated_value)
             self.LOG_REPOSITORY.add(log)
   
     def load_csv_data(self) -> None:

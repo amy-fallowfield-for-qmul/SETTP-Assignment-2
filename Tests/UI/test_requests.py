@@ -3,7 +3,9 @@ from UI.requests import Requests
 from Data.DigitalID.digitalID import DigitalID
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Logic.service import DigitalIDService
+from Logic.requestContext import RequestContext
 from Logic.verifier import Verifier
+from Logic.requestContext import RequestContext
 from Data.Attributes.attributeRegistry import AttributeRegistry
 from Tests.shared_test_data import justification_person_dict, CENTRAL_AUTHORITY_ORG, BANK_ORG, EMPLOYER_ORG
 
@@ -39,17 +41,17 @@ class TestRequestsViewAllIDs:
     """Tests for viewing all Digital IDs via the UI"""
 
     def test_view_all(self, requests: Requests, monkeypatch, capsys) -> None:
-        id = requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        id = requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         monkeypatch.setattr("builtins.input", lambda _="": "1")
         requests.view_all_ids()
         captured = capsys.readouterr()
         assert id.first_name in captured.out
 
     def test_filter(self, requests: Requests, monkeypatch, capsys) -> None:
-        id1 = requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        id1 = requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         id2_dict = justification_person_dict.copy()
         id2_dict["surname"] = "Johnson"
-        id2 = requests.DIGITAL_ID_SERVICE.create_id(id2_dict, CENTRAL_AUTHORITY_ORG)
+        id2 = requests.DIGITAL_ID_SERVICE.create_id(id2_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=id2_dict.get("justification", "Test")))
         num_attrs = len(justification_person_dict) - 3
         inputs = iter(["2", "n", "n", "n", "y", "Johnson"] + ["n"] * num_attrs)
         
@@ -60,11 +62,11 @@ class TestRequestsViewAllIDs:
         assert "Johnson" in captured.out
 
     def test_multiple_filters(self, requests: Requests, monkeypatch, capsys) -> None:
-        requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         id2 = justification_person_dict.copy()
         id2_dict = justification_person_dict.copy()
         id2_dict["surname"] = "Johnson"
-        requests.DIGITAL_ID_SERVICE.create_id(id2_dict, CENTRAL_AUTHORITY_ORG)
+        requests.DIGITAL_ID_SERVICE.create_id(id2_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=id2_dict.get("justification", "Test")))
         extra_ns = ["n"] * (len(justification_person_dict) - 3)
         inputs = iter(["2", "n", "n", "y", id2["first_name"], "y", "Johnson"] + extra_ns)
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
@@ -74,10 +76,10 @@ class TestRequestsViewAllIDs:
         assert id2_dict["surname"] in captured.out
 
     def test_filter_returns_all_when_no_params(self, requests: Requests, monkeypatch, capsys) -> None:
-        requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         id2 = justification_person_dict.copy()
         id2["first_name"] = "Bob"
-        requests.DIGITAL_ID_SERVICE.create_id(id2, CENTRAL_AUTHORITY_ORG)
+        requests.DIGITAL_ID_SERVICE.create_id(id2, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=id2.get("justification", "Test")))
         extra_ns = ["n"] * (len(justification_person_dict) + 1)
         inputs = iter(["2"] + extra_ns)
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
@@ -116,7 +118,7 @@ class TestRequestsQueryID:
         Requests.clear_instance()
         Verifier.clear_instance()
         self.requests = Requests()
-        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
 
     def test_query_id(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "1", "Status check"])
@@ -149,7 +151,7 @@ class TestRequestsVerifyIdentity:
         Requests.clear_instance()
         Verifier.clear_instance()
         self.requests = Requests()
-        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
 
     def test_verify_identity_match(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "John", "Smith", "2000-01-01", "Account opening"])
@@ -182,7 +184,7 @@ class TestRequestsVerifyMinimumAge:
         Requests.clear_instance()
         Verifier.clear_instance()
         self.requests = Requests()
-        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
 
     def test_verify_minimum_age_meets(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "18", "ISA eligibility"])
@@ -215,7 +217,7 @@ class TestRequestsVerifyAttribute:
         Requests.clear_instance()
         Verifier.clear_instance()
         self.requests = Requests()
-        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
 
     def test_verify_attribute_match(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "1", "AB123456C", "New hire"])
@@ -248,7 +250,7 @@ class TestRequestsUpdateID:
         Requests.clear_instance()
         Verifier.clear_instance()
         self.requests = Requests()
-        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
 
     def test_update_id(self, monkeypatch, capsys) -> None:
         inputs = iter(["1", "1", "suspended", "Status change requested"])
@@ -287,7 +289,7 @@ class TestRequestsHelpers:
         Requests.clear_instance()
         Verifier.clear_instance()
         self.requests = Requests()
-        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        self.requests.DIGITAL_ID_SERVICE.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
 
     def test_get_id_subject(self, monkeypatch) -> None:
         monkeypatch.setattr("builtins.input", lambda _="": "1")

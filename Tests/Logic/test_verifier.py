@@ -2,8 +2,11 @@ import pytest
 from unittest.mock import Mock
 from datetime import datetime
 from Logic.verifier import Verifier
+from Logic.requestContext import RequestContext
 from Logic.suspensionAnalyser import SuspensionAnalyser
+from Logic.requestContext import RequestContext
 from Logic.service import DigitalIDService
+from Logic.requestContext import RequestContext
 from Data.Logging.log import Action
 from Data.Logging.logRepository import LogRepository
 from Data.DigitalID.digitalID import DigitalID
@@ -57,23 +60,23 @@ class TestVerifierVerifyIdentity:
     """Tests for verifying a Digital ID's identity via the verifier"""
 
     def test_verify_identity_match(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", BANK_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = verifier.verify_identity(1, "John", "Smith", "2000-01-01", RequestContext(organisation=BANK_ORG, justification="Account opening"))
         assert result is True
 
     def test_verify_identity_mismatch(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_identity(1, "Alice", "Smith", "2000-01-01", "Account opening", BANK_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = verifier.verify_identity(1, "Alice", "Smith", "2000-01-01", RequestContext(organisation=BANK_ORG, justification="Account opening"))
         assert result is False
 
     def test_verify_identity_normalises_input(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_identity(1, "  john  ", "SMITH", "2000-01-01", "Account opening", BANK_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = verifier.verify_identity(1, "  john  ", "SMITH", "2000-01-01", RequestContext(organisation=BANK_ORG, justification="Account opening"))
         assert result is True
 
     def test_verify_identity_creates_log(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        verifier.verify_identity(1, "John", "Smith", "2000-01-01", "Account opening", BANK_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        verifier.verify_identity(1, "John", "Smith", "2000-01-01", RequestContext(organisation=BANK_ORG, justification="Account opening"))
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
         assert verify_log.action == Action.VERIFY
@@ -84,23 +87,23 @@ class TestVerifierVerifyMinimumAge:
     """Tests for verifying a Digital ID's minimum age via the verifier"""
 
     def test_verify_minimum_age_meets(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_minimum_age(1, 18, "ISA eligibility", BANK_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = verifier.verify_minimum_age(1, 18, RequestContext(organisation=BANK_ORG, justification="ISA eligibility"))
         assert result is True
 
     def test_verify_minimum_age_does_not_meet(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_minimum_age(1, 99, "Pension eligibility", BANK_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = verifier.verify_minimum_age(1, 99, RequestContext(organisation=BANK_ORG, justification="Pension eligibility"))
         assert result is False
 
     def test_verify_minimum_age_accepts_string_input(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_minimum_age(1, "18", "ISA eligibility", BANK_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = verifier.verify_minimum_age(1, "18", RequestContext(organisation=BANK_ORG, justification="ISA eligibility"))
         assert result is True
 
     def test_verify_minimum_age_creates_log(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        verifier.verify_minimum_age(1, 18, "ISA eligibility", BANK_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        verifier.verify_minimum_age(1, 18, RequestContext(organisation=BANK_ORG, justification="ISA eligibility"))
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
         assert verify_log.action == Action.VERIFY
@@ -112,24 +115,24 @@ class TestVerifierVerifyAttribute:
     """Tests for verifying a single Digital ID attribute via the verifier"""
 
     def test_verify_attribute_match(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_attribute(1, "national_insurance", "AB123456C", "New hire", EMPLOYER_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = verifier.verify_attribute(1, "national_insurance", "AB123456C", RequestContext(organisation=EMPLOYER_ORG, justification="New hire"))
         assert result is True
 
     def test_verify_attribute_mismatch(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_attribute(1, "national_insurance", "BC123456C", "New hire", EMPLOYER_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        result = verifier.verify_attribute(1, "national_insurance", "BC123456C", RequestContext(organisation=EMPLOYER_ORG, justification="New hire"))
         assert result is False
 
     def test_verify_attribute_status_on_suspended(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        service.update_id(1, "status", "suspended", "Investigation", CENTRAL_AUTHORITY_ORG)
-        result = verifier.verify_attribute(1, "status", "active", "Hiring check", CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        service.update_id(1, "status", "suspended", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="Investigation"))
+        result = verifier.verify_attribute(1, "status", "active", RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification="Hiring check"))
         assert result is False
 
     def test_verify_attribute_creates_log(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
-        verifier.verify_attribute(1, "national_insurance", "AB123456C", "New hire", EMPLOYER_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
+        verifier.verify_attribute(1, "national_insurance", "AB123456C", RequestContext(organisation=EMPLOYER_ORG, justification="New hire"))
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
         assert verify_log.action == Action.VERIFY
@@ -137,9 +140,9 @@ class TestVerifierVerifyAttribute:
         assert verify_log.current_value == "True"
 
     def test_verify_attribute_access_denied(self, service: DigitalIDService, verifier: Verifier) -> None:
-        service.create_id(justification_person_dict, CENTRAL_AUTHORITY_ORG)
+        service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
         with pytest.raises(ValueError, match="Access denied"):
-            verifier.verify_attribute(1, "first_name", "John", "New hire", EMPLOYER_ORG)
+            verifier.verify_attribute(1, "first_name", "John", RequestContext(organisation=EMPLOYER_ORG, justification="New hire"))
 
 class TestVerifierVerifySuspendedInPeriod:
     """Tests for verifying suspension history via the verifier"""
@@ -157,28 +160,28 @@ class TestVerifierVerifySuspendedInPeriod:
 
     def test_verify_suspended_in_period_no_suspension_during_period(self):
         self.verifier.LOG_REPOSITORY.get_all.return_value = {}
-        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, "Audit check", HMRC_ORG) == False
+        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
 
     def test_verify_suspended_in_period_with_suspension_during_period(self):
         suspend_log = get_suspend_log()
         self.verifier.LOG_REPOSITORY.get_all.return_value = {1: suspend_log}
-        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-03", 1, "Audit check", HMRC_ORG) == True
+        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-03", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
 
     def test_verify_suspended_in_period_suspended_before_period(self):
         DigitalID(new_person_dict)
         mock_logs = {1: get_create_log(), 2: get_suspend_log()}
         self.verifier.LOG_REPOSITORY.get_all.return_value = mock_logs
-        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-04", 1, "Audit check", HMRC_ORG) == True
+        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-04", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
 
     def test_verify_suspended_in_period_suspended_and_activated_before_period(self):
         DigitalID(new_person_dict)
         mock_logs = {1: get_create_log(), 2: get_suspend_log(), 3: get_active_log()}
         self.verifier.LOG_REPOSITORY.get_all.return_value = mock_logs
-        assert self.verifier.verify_suspended_in_period("2026-01-04", "2026-01-05", 1, "Audit check", HMRC_ORG) == False
+        assert self.verifier.verify_suspended_in_period("2026-01-04", "2026-01-05", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
 
     def test_verify_suspended_in_period_no_logs_for_id(self):
         self.verifier.LOG_REPOSITORY.get_all.return_value = {}
-        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 999, "Audit check", HMRC_ORG) == False
+        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 999, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
 
     def test_revoked_during_period_counts_as_suspended(self):
         revoke_log = Mock()
@@ -189,12 +192,12 @@ class TestVerifierVerifySuspendedInPeriod:
         revoke_log.current_value = "active"
         revoke_log.attribute = "status"
         self.verifier.LOG_REPOSITORY.get_all.return_value = {1: revoke_log}
-        assert self.verifier.verify_suspended_in_period("2026-01-12", "2026-01-18", 1, "Audit check", HMRC_ORG) == True
+        assert self.verifier.verify_suspended_in_period("2026-01-12", "2026-01-18", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
 
     def test_verify_suspended_in_period_creates_log_on_success(self):
         self.verifier.LOG_REPOSITORY.get_all.return_value = {}
 
-        self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, "Audit check", HMRC_ORG)
+        self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check"))
 
         self.verifier.LOG_REPOSITORY.add.assert_called_once()
         added_log = self.verifier.LOG_REPOSITORY.add.call_args[0][0]
@@ -211,7 +214,7 @@ class TestVerifierVerifySuspendedInPeriod:
         self.verifier.LOG_REPOSITORY.get_all.side_effect = RuntimeError("Storage error")
 
         with pytest.raises(RuntimeError):
-            self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, "Audit check", HMRC_ORG)
+            self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check"))
 
         self.verifier.LOG_REPOSITORY.add.assert_called_once()
         added_log = self.verifier.LOG_REPOSITORY.add.call_args[0][0]
