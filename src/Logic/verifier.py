@@ -6,6 +6,7 @@ from Logic.verificationValidator import VerificationValidator
 from Logic.suspensionAnalyser import SuspensionAnalyser
 from Logic.exceptionLogger import record_failures
 from Logic.requestContext import RequestContext
+from Logic.identityClaim import IdentityClaim
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import Status
 from Data.Logging.logRepository import LogRepository
@@ -21,12 +22,12 @@ class Verifier(metaclass=SingletonMeta):
         self.DIGITAL_ID_REPOSITORY = DigitalIDRepository()
         self.LOG_REPOSITORY = LogRepository()
 
-    def verify_identity(self, id_number: int, first_name: str, surname: str, date_of_birth: str, context: RequestContext) -> bool:
+    def verify_identity(self, id_number: int, claim: IdentityClaim, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "identity"):
             required_attributes = {
-                "first_name": first_name,
-                "surname": surname,
-                "date_of_birth": date_of_birth,
+                "first_name": claim.first_name,
+                "surname": claim.surname,
+                "date_of_birth": claim.date_of_birth,
             }
 
             digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
