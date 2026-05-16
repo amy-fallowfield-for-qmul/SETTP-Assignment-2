@@ -29,22 +29,26 @@ CENTRAL_AUTHORITY_ORG = Organisation(
     name="Central Authority",
     accessible_attributes=("status", "first_name", "surname", "date_of_birth", "address", "national_insurance"),
     verifiable_attributes=("status", "first_name", "surname", "date_of_birth", "address", "national_insurance"),
+    permitted_operations=("create_id", "query_attribute", "update_id", "verify_identity", "verify_minimum_age", "verify_attribute", "verify_suspended_in_period"),
 )
 
 BANK_ORG = Organisation(
     name="Bank",
     accessible_attributes=("status", "address"),
     verifiable_attributes=(),
+    permitted_operations=("query_attribute", "verify_identity", "verify_minimum_age"),
 )
 
 EMPLOYER_ORG = Organisation(
     name="Employer",
     accessible_attributes=("status", "address"),
     verifiable_attributes=("national_insurance",),
+    permitted_operations=("verify_identity", "verify_minimum_age", "verify_attribute"),
 )
 
 HMRC_ORG = Organisation(
     name="HMRC",
     accessible_attributes=("address",),
     verifiable_attributes=("national_insurance",),
+    permitted_operations=("query_attribute", "verify_attribute", "verify_suspended_in_period"),
 )
