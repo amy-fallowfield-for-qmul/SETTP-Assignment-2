@@ -1,6 +1,6 @@
-from datetime import datetime
 from typing import Optional
 from Common.singleton import SingletonMeta
+from Logic.period import Period
 from Data.Logging.logRepository import LogRepository
 from Data.Logging.log import Log, Action
 
@@ -12,7 +12,7 @@ class SuspensionAnalyser(metaclass=SingletonMeta):
     def __init__(self) -> None:
         self.LOG_REPOSITORY = LogRepository()
 
-    def was_suspended_in_period(self, start_date: str, end_date: str, id_number: int) -> bool:
+    def was_suspended_in_period(self, period: Period, id_number: int) -> bool:
         all_logs = self.LOG_REPOSITORY.get_all()
         relevant_logs = [
             log for log in all_logs.values()
@@ -20,13 +20,13 @@ class SuspensionAnalyser(metaclass=SingletonMeta):
         ]
         
         return (
-            self._has_suspension_during_period(relevant_logs, start_date, end_date)
-            or self._was_suspended_at_period_start(relevant_logs, start_date)
+            self._has_suspension_during_period(relevant_logs, period)
+            or self._was_suspended_at_period_start(relevant_logs, period.start_date)
         )
 
-    def _has_suspension_during_period(self, logs, start_date: str, end_date: str) -> bool:
+    def _has_suspension_during_period(self, logs, period: Period) -> bool:
         return any(
-            self._log_in_period(log, start_date, end_date) and log.new_value in self.SUSPENDED_VALUES
+            period.is_in_period(log.timestamp) and log.new_value in self.SUSPENDED_VALUES
             for log in logs
         )
 
@@ -46,8 +46,3 @@ class SuspensionAnalyser(metaclass=SingletonMeta):
         if log.action != Action.UPDATE:
             return False
         return log.attribute == "status"
-
-    def _log_in_period(self, log: Log, start_date: str, end_date: str) -> bool:
-        start_date_object = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date_object = datetime.strptime(end_date, "%Y-%m-%d")
-        return start_date_object <= log.timestamp <= end_date_object

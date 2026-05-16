@@ -7,6 +7,7 @@ from Logic.suspensionAnalyser import SuspensionAnalyser
 from Logic.exceptionLogger import record_failures
 from Logic.requestContext import RequestContext
 from Logic.identityClaim import IdentityClaim
+from Logic.period import Period
 from Data.DigitalID.digitalIDRepository import DigitalIDRepository
 from Data.DigitalID.digitalID import Status
 from Data.Logging.logRepository import LogRepository
@@ -87,14 +88,13 @@ class Verifier(metaclass=SingletonMeta):
 
             return result
 
-    def verify_suspended_in_period(self, start_date: str, end_date: str, id_number: int, context: RequestContext) -> bool:
+    def verify_suspended_in_period(self, period: Period, id_number: int, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "suspended_in_period"):
-            result = self.SUSPENSION_ANALYSER.was_suspended_in_period(start_date, end_date, id_number)
+            result = self.SUSPENSION_ANALYSER.was_suspended_in_period(period, id_number)
 
             validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
 
-            period_context = f"{start_date} to {end_date}"
-            audit_log = Log.for_verify(context.organisation.name, id_number, validated_justification, "suspended_in_period", result, period_context)
+            audit_log = Log.for_verify(context.organisation.name, id_number, validated_justification, "suspended_in_period", result, str(period))
             self.LOG_REPOSITORY.add(audit_log)
 
             return result

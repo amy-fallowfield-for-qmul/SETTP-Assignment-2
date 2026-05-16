@@ -6,6 +6,7 @@ from Logic.suspensionAnalyser import SuspensionAnalyser
 from Logic.service import DigitalIDService
 from Logic.requestContext import RequestContext
 from Logic.identityClaim import IdentityClaim
+from Logic.period import Period
 from Data.Logging.log import Action
 from Data.Logging.logRepository import LogRepository
 from Data.DigitalID.digitalID import DigitalID
@@ -159,28 +160,28 @@ class TestVerifierVerifySuspendedInPeriod:
 
     def test_verify_suspended_in_period_no_suspension_during_period(self):
         self.verifier.LOG_REPOSITORY.get_all.return_value = {}
-        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
+        assert self.verifier.verify_suspended_in_period(Period(start_date="2026-01-01", end_date="2026-01-02"), 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
 
     def test_verify_suspended_in_period_with_suspension_during_period(self):
         suspend_log = get_suspend_log()
         self.verifier.LOG_REPOSITORY.get_all.return_value = {1: suspend_log}
-        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-03", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
+        assert self.verifier.verify_suspended_in_period(Period(start_date="2026-01-01", end_date="2026-01-03"), 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
 
     def test_verify_suspended_in_period_suspended_before_period(self):
         DigitalID(new_person_dict)
         mock_logs = {1: get_create_log(), 2: get_suspend_log()}
         self.verifier.LOG_REPOSITORY.get_all.return_value = mock_logs
-        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-04", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
+        assert self.verifier.verify_suspended_in_period(Period(start_date="2026-01-01", end_date="2026-01-04"), 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
 
     def test_verify_suspended_in_period_suspended_and_activated_before_period(self):
         DigitalID(new_person_dict)
         mock_logs = {1: get_create_log(), 2: get_suspend_log(), 3: get_active_log()}
         self.verifier.LOG_REPOSITORY.get_all.return_value = mock_logs
-        assert self.verifier.verify_suspended_in_period("2026-01-04", "2026-01-05", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
+        assert self.verifier.verify_suspended_in_period(Period(start_date="2026-01-04", end_date="2026-01-05"), 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
 
     def test_verify_suspended_in_period_no_logs_for_id(self):
         self.verifier.LOG_REPOSITORY.get_all.return_value = {}
-        assert self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 999, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
+        assert self.verifier.verify_suspended_in_period(Period(start_date="2026-01-01", end_date="2026-01-02"), 999, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == False
 
     def test_revoked_during_period_counts_as_suspended(self):
         revoke_log = Mock()
@@ -191,12 +192,12 @@ class TestVerifierVerifySuspendedInPeriod:
         revoke_log.current_value = "active"
         revoke_log.attribute = "status"
         self.verifier.LOG_REPOSITORY.get_all.return_value = {1: revoke_log}
-        assert self.verifier.verify_suspended_in_period("2026-01-12", "2026-01-18", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
+        assert self.verifier.verify_suspended_in_period(Period(start_date="2026-01-12", end_date="2026-01-18"), 1, RequestContext(organisation=HMRC_ORG, justification="Audit check")) == True
 
     def test_verify_suspended_in_period_creates_log_on_success(self):
         self.verifier.LOG_REPOSITORY.get_all.return_value = {}
 
-        self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check"))
+        self.verifier.verify_suspended_in_period(Period(start_date="2026-01-01", end_date="2026-01-02"), 1, RequestContext(organisation=HMRC_ORG, justification="Audit check"))
 
         self.verifier.LOG_REPOSITORY.add.assert_called_once()
         added_log = self.verifier.LOG_REPOSITORY.add.call_args[0][0]
@@ -213,7 +214,7 @@ class TestVerifierVerifySuspendedInPeriod:
         self.verifier.LOG_REPOSITORY.get_all.side_effect = RuntimeError("Storage error")
 
         with pytest.raises(RuntimeError):
-            self.verifier.verify_suspended_in_period("2026-01-01", "2026-01-02", 1, RequestContext(organisation=HMRC_ORG, justification="Audit check"))
+            self.verifier.verify_suspended_in_period(Period(start_date="2026-01-01", end_date="2026-01-02"), 1, RequestContext(organisation=HMRC_ORG, justification="Audit check"))
 
         self.verifier.LOG_REPOSITORY.add.assert_called_once()
         added_log = self.verifier.LOG_REPOSITORY.add.call_args[0][0]
