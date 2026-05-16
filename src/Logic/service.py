@@ -23,6 +23,7 @@ class DigitalIDService(metaclass=SingletonMeta):
 
     def create_id(self, data: Dict[str, Any], context: RequestContext) -> DigitalID:
         with record_failures(self.LOG_REPOSITORY, Action.CREATE, context, 0):
+            context.assert_can_perform("create_id")
             valid_data = self.VALIDATOR.validate_all_attributes(data)
 
             creation_attributes = {}
@@ -70,6 +71,7 @@ class DigitalIDService(metaclass=SingletonMeta):
         
     def query_attribute(self, id_number: int, attribute: str, context: RequestContext) -> str:
         with record_failures(self.LOG_REPOSITORY, Action.READ, context, id_number):
+            context.assert_can_perform("query_attribute")
             context.assert_can_read(attribute)
 
             digital_id = self.get_id_by_number(id_number)
@@ -84,6 +86,7 @@ class DigitalIDService(metaclass=SingletonMeta):
 
     def update_id(self, id_number: int, attribute: str, value: Any, context: RequestContext) -> None:
         with record_failures(self.LOG_REPOSITORY, Action.UPDATE, context, id_number, attribute):
+            context.assert_can_perform("update_id")
             digital_id = self.get_id_by_number(id_number)
             old_value = str(digital_id.to_dict()[attribute])
 

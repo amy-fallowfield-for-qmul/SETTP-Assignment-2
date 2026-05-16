@@ -10,6 +10,10 @@ class HMRC(OtherOrganisationMain):
         return ["national_insurance"]
 
     @classmethod
+    def permitted_operations(cls) -> list:
+        return ["query_attribute", "verify_attribute", "verify_suspended_in_period"]
+
+    @classmethod
     def organisation_name(cls) -> str:
         return "HMRC"
 

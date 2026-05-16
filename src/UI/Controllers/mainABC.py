@@ -41,11 +41,16 @@ class MainABC(metaclass=SingletonABCMeta):
         return []
 
     @classmethod
+    def permitted_operations(cls) -> List[str]:
+        return []
+
+    @classmethod
     def organisation(cls) -> Organisation:
         return Organisation(
             name=cls.organisation_name(),
             accessible_attributes=tuple(cls.accessible_attributes()),
             verifiable_attributes=tuple(cls.verifiable_attributes()),
+            permitted_operations=tuple(cls.permitted_operations()),
         )
 
     @abstractmethod

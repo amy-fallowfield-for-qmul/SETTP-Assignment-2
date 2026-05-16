@@ -21,5 +21,9 @@ class RequestContext:
         if not self.organisation.can_verify(attribute):
             raise ValueError(f"Access denied: {self.organisation.name} is not authorised to verify '{attribute}' attribute")
 
+    def assert_can_perform(self, operation: str) -> None:
+        if not self.organisation.can_perform(operation):
+            raise ValueError(f"Access denied: {self.organisation.name} is not authorised to perform '{operation}'")
+
     def validated_justification(self, validator: "Validator") -> str:
         return validator.validate_attribute("justification", self.justification)

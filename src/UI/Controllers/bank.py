@@ -6,6 +6,10 @@ class Bank(OtherOrganisationMain):
         return ["status", "address"]
 
     @classmethod
+    def permitted_operations(cls) -> list:
+        return ["query_attribute", "verify_identity", "verify_minimum_age"]
+
+    @classmethod
     def organisation_name(cls) -> str:
         return "Bank"
 
