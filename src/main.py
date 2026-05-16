@@ -36,7 +36,7 @@ def select_user_type():
                 exit()
 
             if choice < 1 or choice > len(USER_OPTIONS):
-                raise
+                raise ValueError
 
             controller_class = USER_OPTIONS[choice - 1]
             controller_class().run()
