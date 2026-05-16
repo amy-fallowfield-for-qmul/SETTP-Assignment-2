@@ -70,13 +70,12 @@ class DigitalIDService(metaclass=SingletonMeta):
         
     def query_attribute(self, id_number: int, attribute: str, context: RequestContext) -> str:
         with record_failures(self.LOG_REPOSITORY, Action.READ, context, id_number):
-            if attribute not in context.organisation.accessible_attributes:
-                raise ValueError(f"Access denied: {context.organisation.name} is not authorized to access '{attribute}' attribute")
+            context.assert_can_read(attribute)
 
             digital_id = self.get_id_by_number(id_number)
 
             attribute_value = digital_id.to_dict()[attribute]
-            validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
+            validated_justification = context.validated_justification(self.VALIDATOR)
 
             log = Log.for_read(context.organisation.name, id_number, validated_justification, str(attribute_value))
             self.LOG_REPOSITORY.add(log)
@@ -95,7 +94,7 @@ class DigitalIDService(metaclass=SingletonMeta):
                 raise ValueError(f"{attribute} is immutable and cannot be updated")
 
             validated_value = self.VALIDATOR.validate_attribute(attribute, value)
-            validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
+            validated_justification = context.validated_justification(self.VALIDATOR)
 
             if attribute == "status":
                 STATUS_MAP = {

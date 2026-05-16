@@ -8,3 +8,9 @@ class Organisation:
     name: str
     accessible_attributes: Tuple[str, ...] = field(default_factory=tuple)
     verifiable_attributes: Tuple[str, ...] = field(default_factory=tuple)
+
+    def can_read(self, attribute: str) -> bool:
+        return attribute in self.accessible_attributes
+
+    def can_verify(self, attribute: str) -> bool:
+        return attribute in self.verifiable_attributes

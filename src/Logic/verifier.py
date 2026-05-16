@@ -25,25 +25,13 @@ class Verifier(metaclass=SingletonMeta):
 
     def verify_identity(self, id_number: int, claim: IdentityClaim, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "identity"):
-            required_attributes = {
-                "first_name": claim.first_name,
-                "surname": claim.surname,
-                "date_of_birth": claim.date_of_birth,
-            }
-
             digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
             self._ensure_active(digital_id)
 
-            validated_attributes = {
-                name: self.VALIDATOR.validate_attribute(name, value)
-                for name, value in required_attributes.items()
-            }
-            validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
+            validated_claim = claim.validated(self.VALIDATOR)
+            validated_justification = context.validated_justification(self.VALIDATOR)
 
-            result = all(
-                getattr(digital_id, name) == validated_value
-                for name, validated_value in validated_attributes.items()
-            )
+            result = validated_claim.matches(digital_id)
 
             log = Log.for_verify(context.organisation.name, id_number, validated_justification, "identity", result)
             self.LOG_REPOSITORY.add(log)
@@ -60,7 +48,7 @@ class Verifier(metaclass=SingletonMeta):
             age = self._calculate_age(digital_id.date_of_birth)
             result = age >= validated_min_age
 
-            validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
+            validated_justification = context.validated_justification(self.VALIDATOR)
 
             log = Log.for_verify(context.organisation.name, id_number, validated_justification, "minimum_age", result, str(validated_min_age))
             self.LOG_REPOSITORY.add(log)
@@ -69,8 +57,7 @@ class Verifier(metaclass=SingletonMeta):
 
     def verify_attribute(self, id_number: int, attribute: str, claimed_value: str, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, attribute):
-            if attribute not in context.organisation.verifiable_attributes:
-                raise ValueError(f"Access denied: {context.organisation.name} is not authorised to verify '{attribute}' attribute")
+            context.assert_can_verify(attribute)
 
             digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
 
@@ -78,7 +65,7 @@ class Verifier(metaclass=SingletonMeta):
                 self._ensure_active(digital_id)
 
             validated_claimed_value = self.VALIDATOR.validate_attribute(attribute, claimed_value)
-            validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
+            validated_justification = context.validated_justification(self.VALIDATOR)
 
             stored_value = digital_id.to_dict()[attribute]
             result = str(stored_value) == str(validated_claimed_value)
@@ -92,7 +79,7 @@ class Verifier(metaclass=SingletonMeta):
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "suspended_in_period"):
             result = self.SUSPENSION_ANALYSER.was_suspended_in_period(period, id_number)
 
-            validated_justification = self.VALIDATOR.validate_attribute("justification", context.justification)
+            validated_justification = context.validated_justification(self.VALIDATOR)
 
             audit_log = Log.for_verify(context.organisation.name, id_number, validated_justification, "suspended_in_period", result, str(period))
             self.LOG_REPOSITORY.add(audit_log)
