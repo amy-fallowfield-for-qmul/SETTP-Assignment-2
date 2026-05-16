@@ -1,4 +1,5 @@
-from .mainABC import MainABC
+from typing import List
+from .mainABC import MainABC, MenuOption
 from Data.Attributes.attributeRegistry import AttributeRegistry
 
 class CentralAuthorityMain(MainABC):
@@ -9,11 +10,11 @@ class CentralAuthorityMain(MainABC):
         return "Central Authority"
 
     @classmethod
-    def accessible_attributes(cls) -> list:
+    def accessible_attributes(cls) -> List[str]:
         return AttributeRegistry().get_queryable_attributes()
 
     @classmethod
-    def permitted_operations(cls) -> list:
+    def permitted_operations(cls) -> List[str]:
         return [
             "create_id",
             "query_attribute",
@@ -24,39 +25,12 @@ class CentralAuthorityMain(MainABC):
             "verify_suspended_in_period",
         ]
 
-    def generate_options(self) -> None:
-        print("\nPlease select an option:")
-        print("1. Create a new Digital ID")
-        print("2. Query Digital ID by ID")
-        print("3. Update a Digital ID")
-        print("4. Verify Digital ID suspended in given period")
-        print("5. View all Digital ID data")
-        print("6. View all log data")
-        print("7. Exit\n")
-
-        try:
-            choice = int(input())
-        except ValueError:
-            print("Invalid choice")
-            return
-
-        match(choice):
-            case 1:
-                self.REQUESTS.create_id(self.organisation())
-            case 2:
-                self.REQUESTS.query_id(self.organisation())
-            case 3:
-                self.REQUESTS.update_id(self.organisation())
-            case 4:
-                self.REQUESTS.verify_suspended_in_period(self.organisation())
-            case 5:
-                self.REQUESTS.view_all_ids()
-            case 6:
-                self.REQUESTS.view_all_logs()
-            case 7:
-                self.REQUESTS.exit_program()
-            case _:
-                print("Invalid choice")
-
-if __name__ == "__main__":
-    program = CentralAuthorityMain()
+    def menu_options(self) -> List[MenuOption]:
+        return [
+            ("Create a new Digital ID", lambda: self.REQUESTS.create_id(self.organisation())),
+            ("Query Digital ID by ID", lambda: self.REQUESTS.query_id(self.organisation())),
+            ("Update a Digital ID", lambda: self.REQUESTS.update_id(self.organisation())),
+            ("Verify Digital ID suspended in given period", lambda: self.REQUESTS.verify_suspended_in_period(self.organisation())),
+            ("View all Digital ID data", self.REQUESTS.view_all_ids),
+            ("View all log data", self.REQUESTS.view_all_logs),
+        ]

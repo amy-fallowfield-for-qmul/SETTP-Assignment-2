@@ -1,19 +1,18 @@
-import sys
-import os
-
-sys.path.insert(0, os.path.dirname(__file__))
-
 from Common.singleton import SingletonABCMeta
 from UI.requests import Requests
 from Config.constants import SEPARATION_WIDTH
 from Logic.organisation import Organisation
 from abc import abstractmethod
-from typing import List
+from typing import List, Tuple, Callable
+
+MenuOption = Tuple[str, Callable[[], None]]
 
 class MainABC(metaclass=SingletonABCMeta):
 
     def __init__(self) -> None:
         self.REQUESTS = Requests()
+
+    def run(self) -> None:
         self.start_program()
         self.main()
 
@@ -27,6 +26,25 @@ class MainABC(metaclass=SingletonABCMeta):
         print("=" * SEPARATION_WIDTH)
         
         self.REQUESTS.start_program()
+
+    def generate_options(self) -> None:
+        options = self.menu_options() + [("Exit", self.REQUESTS.exit_program)]
+
+        print("\nPlease select an option:")
+        for index, (label, _) in enumerate(options, start=1):
+            print(f"{index}. {label}")
+
+        try:
+            choice = int(input())
+        except ValueError:
+            print("Invalid choice")
+            return
+
+        if choice < 1 or choice > len(options):
+            print("Invalid choice")
+            return
+
+        options[choice - 1][1]()
 
     @classmethod
     @abstractmethod
@@ -54,4 +72,4 @@ class MainABC(metaclass=SingletonABCMeta):
         )
 
     @abstractmethod
-    def generate_options(self) -> None: pass
+    def menu_options(self) -> List[MenuOption]: pass

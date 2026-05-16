@@ -111,3 +111,13 @@ class TestMainEntryPointUserSelection:
         
         assert captured.out.count("Invalid input") >= 2
         assert "Please select your organisation type:" in captured.out
+
+    def test_invalid_out_of_range_input_handling(self, monkeypatch, capsys) -> None:
+        inputs = iter(["99", "5"])
+        monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
+
+        with pytest.raises(SystemExit):
+            main.select_user_type()
+
+        captured = capsys.readouterr()
+        assert "Invalid input" in captured.out
