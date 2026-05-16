@@ -30,7 +30,7 @@ def select_user_type():
         print(f"{exit_option}. Exit")
 
         try:
-            choice = int(input())
+            choice = int(input("Enter your choice: "))
 
             if choice == exit_option:
                 exit()

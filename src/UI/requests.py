@@ -65,7 +65,7 @@ class Requests(metaclass=SingletonMeta):
         print("1. View all data")
         print("2. Filter data")
 
-        choice = int(input())
+        choice = int(input("Enter your choice: "))
         if choice != 1 and choice != 2:
             raise ValueError
 
@@ -224,7 +224,7 @@ class Requests(metaclass=SingletonMeta):
             for i, field in enumerate(fields, start=1):
                 print(f"{i}. {field}")
 
-            user_choice = int(input())
+            user_choice = int(input("Enter your choice: "))
             if user_choice < 1 or user_choice > len(fields):
                 raise IndexError
 
