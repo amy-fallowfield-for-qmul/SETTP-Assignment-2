@@ -4,6 +4,7 @@ from Logic.service import DigitalIDService
 from Logic.verifier import Verifier
 from Logic.organisation import Organisation
 from Logic.requestContext import RequestContext
+from Logic.identityClaim import IdentityClaim
 from Data.DigitalID.digitalID import DigitalID
 from Config.constants import SEPARATION_WIDTH, LOG_HEADERS
 
@@ -110,11 +111,10 @@ class Requests(metaclass=SingletonMeta):
             surname = input("Enter surname: ")
             date_of_birth = input("Enter date of birth (YYYY-MM-DD): ")
             justification = input("Enter justification for verification: ")
+            claim = IdentityClaim(first_name=first_name, surname=surname, date_of_birth=date_of_birth)
             context = RequestContext(organisation=organisation, justification=justification)
 
-            result = self.VERIFIER.verify_identity(
-                id_number, first_name, surname, date_of_birth, context
-            )
+            result = self.VERIFIER.verify_identity(id_number, claim, context)
 
             print("=" * SEPARATION_WIDTH)
             if result:

@@ -2,11 +2,10 @@ import pytest
 from unittest.mock import Mock
 from datetime import datetime
 from Logic.verifier import Verifier
-from Logic.requestContext import RequestContext
 from Logic.suspensionAnalyser import SuspensionAnalyser
-from Logic.requestContext import RequestContext
 from Logic.service import DigitalIDService
 from Logic.requestContext import RequestContext
+from Logic.identityClaim import IdentityClaim
 from Data.Logging.log import Action
 from Data.Logging.logRepository import LogRepository
 from Data.DigitalID.digitalID import DigitalID
@@ -61,22 +60,22 @@ class TestVerifierVerifyIdentity:
 
     def test_verify_identity_match(self, service: DigitalIDService, verifier: Verifier) -> None:
         service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
-        result = verifier.verify_identity(1, "John", "Smith", "2000-01-01", RequestContext(organisation=BANK_ORG, justification="Account opening"))
+        result = verifier.verify_identity(1, IdentityClaim(first_name="John", surname="Smith", date_of_birth="2000-01-01"), RequestContext(organisation=BANK_ORG, justification="Account opening"))
         assert result is True
 
     def test_verify_identity_mismatch(self, service: DigitalIDService, verifier: Verifier) -> None:
         service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
-        result = verifier.verify_identity(1, "Alice", "Smith", "2000-01-01", RequestContext(organisation=BANK_ORG, justification="Account opening"))
+        result = verifier.verify_identity(1, IdentityClaim(first_name="Alice", surname="Smith", date_of_birth="2000-01-01"), RequestContext(organisation=BANK_ORG, justification="Account opening"))
         assert result is False
 
     def test_verify_identity_normalises_input(self, service: DigitalIDService, verifier: Verifier) -> None:
         service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
-        result = verifier.verify_identity(1, "  john  ", "SMITH", "2000-01-01", RequestContext(organisation=BANK_ORG, justification="Account opening"))
+        result = verifier.verify_identity(1, IdentityClaim(first_name="  john  ", surname="SMITH", date_of_birth="2000-01-01"), RequestContext(organisation=BANK_ORG, justification="Account opening"))
         assert result is True
 
     def test_verify_identity_creates_log(self, service: DigitalIDService, verifier: Verifier) -> None:
         service.create_id(justification_person_dict, RequestContext(organisation=CENTRAL_AUTHORITY_ORG, justification=justification_person_dict.get("justification", "Test")))
-        verifier.verify_identity(1, "John", "Smith", "2000-01-01", RequestContext(organisation=BANK_ORG, justification="Account opening"))
+        verifier.verify_identity(1, IdentityClaim(first_name="John", surname="Smith", date_of_birth="2000-01-01"), RequestContext(organisation=BANK_ORG, justification="Account opening"))
         logs = service.LOG_REPOSITORY.get_all()
         verify_log = list(logs.values())[1]
         assert verify_log.action == Action.VERIFY
