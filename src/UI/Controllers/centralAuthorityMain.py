@@ -12,6 +12,18 @@ class CentralAuthorityMain(MainABC):
     def accessible_attributes(cls) -> list:
         return AttributeRegistry().get_queryable_attributes()
 
+    @classmethod
+    def permitted_operations(cls) -> list:
+        return [
+            "create_id",
+            "query_attribute",
+            "update_id",
+            "verify_identity",
+            "verify_minimum_age",
+            "verify_attribute",
+            "verify_suspended_in_period",
+        ]
+
     def generate_options(self) -> None:
         print("\nPlease select an option:")
         print("1. Create a new Digital ID")

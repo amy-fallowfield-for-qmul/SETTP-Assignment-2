@@ -10,6 +10,10 @@ class Employer(OtherOrganisationMain):
         return ["national_insurance"]
 
     @classmethod
+    def permitted_operations(cls) -> list:
+        return ["verify_identity", "verify_minimum_age", "verify_attribute"]
+
+    @classmethod
     def organisation_name(cls) -> str:
         return "Employer"
 
