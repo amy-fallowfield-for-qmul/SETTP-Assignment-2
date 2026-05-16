@@ -1,46 +1,27 @@
+from typing import List
 from .otherOrganisationsMain import OtherOrganisationMain
+from .mainABC import MenuOption
 
 class Employer(OtherOrganisationMain):
     @classmethod
-    def accessible_attributes(cls) -> list:
+    def accessible_attributes(cls) -> List[str]:
         return ["status", "address"]
 
     @classmethod
-    def verifiable_attributes(cls) -> list:
+    def verifiable_attributes(cls) -> List[str]:
         return ["national_insurance"]
 
     @classmethod
-    def permitted_operations(cls) -> list:
+    def permitted_operations(cls) -> List[str]:
         return ["verify_identity", "verify_minimum_age", "verify_attribute"]
 
     @classmethod
     def organisation_name(cls) -> str:
         return "Employer"
 
-    def generate_options(self) -> None:
-        print("\nPlease select an option:")
-        print("1. Verify Digital ID attribute")
-        print("2. Verify Digital ID identity")
-        print("3. Verify Digital ID minimum age")
-        print("4. Exit\n")
-
-        try:
-            choice = int(input())
-        except ValueError:
-            print("Invalid choice")
-            return
-
-        match(choice):
-            case 1:
-                self.REQUESTS.verify_attribute(self.organisation())
-            case 2:
-                self.REQUESTS.verify_identity(self.organisation())
-            case 3:
-                self.REQUESTS.verify_minimum_age(self.organisation())
-            case 4:
-                self.REQUESTS.exit_program()
-            case _:
-                print("Invalid choice")
-
-if __name__ == "__main__":
-    program = Employer()
+    def menu_options(self) -> List[MenuOption]:
+        return [
+            ("Verify Digital ID attribute", lambda: self.REQUESTS.verify_attribute(self.organisation())),
+            ("Verify Digital ID identity", lambda: self.REQUESTS.verify_identity(self.organisation())),
+            ("Verify Digital ID minimum age", lambda: self.REQUESTS.verify_minimum_age(self.organisation())),
+        ]

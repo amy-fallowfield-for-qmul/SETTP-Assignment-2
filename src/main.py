@@ -39,7 +39,7 @@ def select_user_type():
                 raise
 
             controller_class = USER_OPTIONS[choice - 1]
-            controller_class()
+            controller_class().run()
 
         except ValueError:
             print("Invalid input")

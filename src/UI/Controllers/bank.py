@@ -1,42 +1,23 @@
+from typing import List
 from .otherOrganisationsMain import OtherOrganisationMain
+from .mainABC import MenuOption
 
 class Bank(OtherOrganisationMain):
     @classmethod
-    def accessible_attributes(cls) -> list:
+    def accessible_attributes(cls) -> List[str]:
         return ["status", "address"]
 
     @classmethod
-    def permitted_operations(cls) -> list:
+    def permitted_operations(cls) -> List[str]:
         return ["query_attribute", "verify_identity", "verify_minimum_age"]
 
     @classmethod
     def organisation_name(cls) -> str:
         return "Bank"
 
-    def generate_options(self) -> None:
-        print("\nPlease select an option:")
-        print("1. Query Digital ID by ID")
-        print("2. Verify Digital ID identity")
-        print("3. Verify Digital ID minimum age")
-        print("4. Exit\n")
-
-        try:
-            choice = int(input())
-        except ValueError:
-            print("Invalid choice")
-            return
-
-        match(choice):
-            case 1:
-                self.REQUESTS.query_id(self.organisation())
-            case 2:
-                self.REQUESTS.verify_identity(self.organisation())
-            case 3:
-                self.REQUESTS.verify_minimum_age(self.organisation())
-            case 4:
-                self.REQUESTS.exit_program()
-            case _:
-                print("Invalid choice")
-
-if __name__ == "__main__":
-    program = Bank()
+    def menu_options(self) -> List[MenuOption]:
+        return [
+            ("Query Digital ID by ID", lambda: self.REQUESTS.query_id(self.organisation())),
+            ("Verify Digital ID identity", lambda: self.REQUESTS.verify_identity(self.organisation())),
+            ("Verify Digital ID minimum age", lambda: self.REQUESTS.verify_minimum_age(self.organisation())),
+        ]
