@@ -245,12 +245,9 @@ class Requests(metaclass=SingletonMeta):
             id_number = int(input("Enter Digital ID number: "))
             justification = input("Enter justification for verification: ")
 
-            validated_start = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(start_date)
-            validated_end = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_date(end_date)
-            validated_justification = self.DIGITAL_ID_SERVICE.VALIDATOR.validate_attribute("justification", justification)
-            period = Period(validated_start,validated_end)
-
-            result = self.VERIFIER.verify_suspended_in_period(period, id_number, RequestContext(organisation=organisation, justification=validated_justification))
+            period = Period(start_date, end_date)
+            context = RequestContext(organisation=organisation, justification=justification)
+            result = self.VERIFIER.verify_suspended_in_period(period, id_number, context)
 
             print("=" * SEPARATION_WIDTH)
             if result:

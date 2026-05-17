@@ -37,3 +37,22 @@ class TestPeriodStr:
     def test_str(self):
         period = Period(start_date="2026-01-01", end_date="2026-01-02")
         assert str(period) == "2026-01-01 to 2026-01-02"
+
+class TestPeriodValidation:
+    """Tests for Period date validation on construction"""
+
+    def test_invalid_start_date_format_raises(self):
+        with pytest.raises(ValueError):
+            Period(start_date="01/01/2026", end_date="2026-01-02")
+
+    def test_invalid_end_date_format_raises(self):
+        with pytest.raises(ValueError):
+            Period(start_date="2026-01-01", end_date="2026-13-99")
+
+    def test_future_start_date_raises(self):
+        with pytest.raises(ValueError):
+            Period(start_date="2099-01-01", end_date="2099-01-02")
+
+    def test_non_string_dates_raise(self):
+        with pytest.raises(ValueError):
+            Period(start_date=20260101, end_date="2026-01-02")
