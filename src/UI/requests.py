@@ -1,3 +1,4 @@
+import sys
 from typing import Optional, Sequence
 from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
@@ -198,10 +199,13 @@ class Requests(metaclass=SingletonMeta):
             print("Data saved successfully")
         except Exception as e:
             print(f"Warning, failed to save data: {e}")
-            response = input("Continue with exit anyway? [Y/N]: ")
+            try:
+                response = input("Continue with exit anyway? [Y/N]: ")
+            except (KeyboardInterrupt, EOFError):
+                sys.exit(1)
             if response.lower() != "y":
                 return
-        exit()
+        sys.exit()
 
     def _get_id_subject(self) -> DigitalID:
         try:

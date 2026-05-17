@@ -4,6 +4,7 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 
 from Config.constants import SEPARATION_WIDTH
+from UI.requests import Requests
 from UI.Controllers.centralAuthorityMain import CentralAuthorityMain
 from UI.Controllers.hmrc import HMRC
 from UI.Controllers.employer import Employer
@@ -33,7 +34,7 @@ def select_user_type():
             choice = int(input("Enter your choice: "))
 
             if choice == exit_option:
-                exit()
+                Requests().exit_program()
 
             if choice < 1 or choice > len(USER_OPTIONS):
                 raise ValueError
@@ -45,4 +46,8 @@ def select_user_type():
             print("Invalid input")
 
 if __name__ == "__main__":
-    select_user_type()
+    try:
+        select_user_type()
+    except (KeyboardInterrupt, EOFError):
+        print("\nProgram interrupted. Saving data before exit")
+        Requests().exit_program()
