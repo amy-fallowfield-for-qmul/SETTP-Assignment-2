@@ -8,6 +8,12 @@ class Period:
     start_date: str
     end_date: str
 
+    def __post_init__(self) -> None:
+        from Logic.attributeValidator import Validator
+        validator = Validator()
+        validator.validate_date(self.start_date)
+        validator.validate_date(self.end_date)
+
     def is_in_period(self, timestamp: datetime) -> bool:
         start = datetime.strptime(self.start_date, "%Y-%m-%d")
         end = datetime.strptime(self.end_date, "%Y-%m-%d")
