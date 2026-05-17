@@ -1,6 +1,5 @@
 from Common.singleton import SingletonABCMeta
 from UI.requests import Requests
-from Config.constants import SEPARATION_WIDTH
 from Logic.organisation import Organisation
 from abc import abstractmethod
 from typing import List, Tuple, Callable
@@ -21,21 +20,18 @@ class MainABC(metaclass=SingletonABCMeta):
             self.generate_options()
 
     def start_program(self) -> None:
-        print("=" * SEPARATION_WIDTH)
-        print("Welcome to the Digital ID System")
-        print("=" * SEPARATION_WIDTH)
-        
         self.REQUESTS.start_program()
 
     def generate_options(self) -> None:
         options = self.menu_options() + [("Exit", self.REQUESTS.exit_program)]
 
-        print("\nPlease select an option:")
+        print(f"\n--- {self.organisation_name()} ---")
+        print("Please select an option:")
         for index, (label, _) in enumerate(options, start=1):
             print(f"{index}. {label}")
 
         try:
-            choice = int(input())
+            choice = int(input("Enter your choice: "))
         except ValueError:
             print("Invalid choice")
             return

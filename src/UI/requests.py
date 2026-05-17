@@ -1,3 +1,4 @@
+import sys
 from typing import Optional, Sequence
 from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
@@ -29,7 +30,7 @@ class Requests(metaclass=SingletonMeta):
             context = RequestContext(organisation=organisation, justification=data["justification"])
             self.DIGITAL_ID_SERVICE.create_id(data, context)
             print("Digital ID created successfully")
-        except Exception as e:
+        except ValueError as e:
             print(f"Error creating Digital ID: {e}")
 
     def view_all_ids(self) -> None:
@@ -65,7 +66,7 @@ class Requests(metaclass=SingletonMeta):
         print("1. View all data")
         print("2. Filter data")
 
-        choice = int(input())
+        choice = int(input("Enter your choice: "))
         if choice != 1 and choice != 2:
             raise ValueError
 
@@ -198,10 +199,13 @@ class Requests(metaclass=SingletonMeta):
             print("Data saved successfully")
         except Exception as e:
             print(f"Warning, failed to save data: {e}")
-            response = input("Continue with exit anyway? [Y/N]: ")
+            try:
+                response = input("Continue with exit anyway? [Y/N]: ")
+            except (KeyboardInterrupt, EOFError):
+                sys.exit(1)
             if response.lower() != "y":
                 return
-        exit()
+        sys.exit()
 
     def _get_id_subject(self) -> DigitalID:
         try:
@@ -224,7 +228,7 @@ class Requests(metaclass=SingletonMeta):
             for i, field in enumerate(fields, start=1):
                 print(f"{i}. {field}")
 
-            user_choice = int(input())
+            user_choice = int(input("Enter your choice: "))
             if user_choice < 1 or user_choice > len(fields):
                 raise IndexError
 
