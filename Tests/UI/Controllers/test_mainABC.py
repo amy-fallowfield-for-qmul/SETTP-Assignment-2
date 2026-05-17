@@ -55,16 +55,19 @@ class TestCentralAuthoritySpecific:
         assert "1. Create a new Digital ID" in captured.out
         assert "2. Query Digital ID by ID" in captured.out  
         assert "3. Update a Digital ID" in captured.out
-        assert "4. Verify Digital ID suspended in given period" in captured.out
-        assert "5. View all Digital ID data" in captured.out
-        assert "6. View all log data" in captured.out
-        assert "7. Exit" in captured.out
+        assert "4. Verify Digital ID identity" in captured.out
+        assert "5. Verify Digital ID minimum age" in captured.out
+        assert "6. Verify Digital ID attribute" in captured.out
+        assert "7. Verify Digital ID suspended in given period" in captured.out
+        assert "8. View all Digital ID data" in captured.out
+        assert "9. View all log data" in captured.out
+        assert "10. Exit" in captured.out
 
         assert "1. Query Digital ID by ID" not in captured.out
         assert "2. Exit" not in captured.out
 
     def test_central_authority_can_use_extra_commands(self, central_program: CentralAuthorityMain, monkeypatch, capsys) -> None:
-        inputs = iter(["6", "1"])
+        inputs = iter(["9", "1"])
         monkeypatch.setattr("builtins.input", lambda _="": next(inputs))
         central_program.generate_options()
         captured = capsys.readouterr()

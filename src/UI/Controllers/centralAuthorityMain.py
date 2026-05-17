@@ -14,6 +14,10 @@ class CentralAuthorityMain(MainABC):
         return AttributeRegistry().get_queryable_attributes()
 
     @classmethod
+    def verifiable_attributes(cls) -> List[str]:
+        return AttributeRegistry().get_queryable_attributes()
+
+    @classmethod
     def permitted_operations(cls) -> List[str]:
         return [
             "create_id",
@@ -30,6 +34,9 @@ class CentralAuthorityMain(MainABC):
             ("Create a new Digital ID", lambda: self.REQUESTS.create_id(self.organisation())),
             ("Query Digital ID by ID", lambda: self.REQUESTS.query_id(self.organisation())),
             ("Update a Digital ID", lambda: self.REQUESTS.update_id(self.organisation())),
+            ("Verify Digital ID identity", lambda: self.REQUESTS.verify_identity(self.organisation())),
+            ("Verify Digital ID minimum age", lambda: self.REQUESTS.verify_minimum_age(self.organisation())),
+            ("Verify Digital ID attribute", lambda: self.REQUESTS.verify_attribute(self.organisation())),
             ("Verify Digital ID suspended in given period", lambda: self.REQUESTS.verify_suspended_in_period(self.organisation())),
             ("View all Digital ID data", self.REQUESTS.view_all_ids),
             ("View all log data", self.REQUESTS.view_all_logs),
