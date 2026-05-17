@@ -17,7 +17,7 @@ USER_OPTIONS = [
     Bank
 ]
 
-def select_user_type():
+def select_user_type() -> None:
     print("=" * SEPARATION_WIDTH)
     print("Welcome to the Digital ID System")
     print("=" * SEPARATION_WIDTH)

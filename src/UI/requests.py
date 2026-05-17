@@ -1,5 +1,5 @@
 import sys
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple, Dict, Any
 from Common.singleton import SingletonMeta
 from Logic.service import DigitalIDService
 from Logic.verifier import Verifier
@@ -61,7 +61,7 @@ class Requests(metaclass=SingletonMeta):
 
         self._print_results(all_data, "logs")
 
-    def _get_filter_choice(self, attribute_list):
+    def _get_filter_choice(self, attribute_list: Sequence[str]) -> Tuple[int, Dict[str, str]]:
         print("\nPlease select an option:")
         print("1. View all data")
         print("2. Filter data")
@@ -79,7 +79,7 @@ class Requests(metaclass=SingletonMeta):
 
         return choice, filters
 
-    def _print_results(self, all_data, empty_label: str) -> None:
+    def _print_results(self, all_data: Dict[int, Any], empty_label: str) -> None:
         if not all_data:
             print(f"No {empty_label} found")
             return
