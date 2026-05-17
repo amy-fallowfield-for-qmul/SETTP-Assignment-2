@@ -59,8 +59,8 @@ class TestCentralAuthoritySpecific:
         assert "5. Verify Digital ID minimum age" in captured.out
         assert "6. Verify Digital ID attribute" in captured.out
         assert "7. Verify Digital ID suspended in given period" in captured.out
-        assert "8. View all Digital ID data" in captured.out
-        assert "9. View all log data" in captured.out
+        assert "8. View Digital ID data" in captured.out
+        assert "9. View log data" in captured.out
         assert "10. Exit" in captured.out
 
         assert "1. Query Digital ID by ID" not in captured.out
@@ -111,6 +111,6 @@ class TestOtherOrganisationSpecific:
         assert "2. Query Digital ID by ID" not in captured.out  
         assert "3. Update a Digital ID" not in captured.out
         assert "4. Verify Digital ID suspended in given period" not in captured.out
-        assert "5. View all Digital ID data" not in captured.out
-        assert "6. View all log data" not in captured.out
+        assert "5. View Digital ID data" not in captured.out
+        assert "6. View log data" not in captured.out
         assert "7. Exit" not in captured.out

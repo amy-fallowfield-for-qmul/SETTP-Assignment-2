@@ -150,8 +150,8 @@ Readable attributes:
 Operations:
 - Create new Digital IDs
 - Update existing Digital IDs (mutable attributes only)
-- View all Digital ID data
-- View all log data
+- View Digital ID data
+- View log data
 - Verify a Digital ID's identity
 - Verify a Digital ID meets a minimum age
 - Verify any Digital ID attribute against a claimed value
