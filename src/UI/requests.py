@@ -30,7 +30,7 @@ class Requests(metaclass=SingletonMeta):
             context = RequestContext(organisation=organisation, justification=data["justification"])
             self.DIGITAL_ID_SERVICE.create_id(data, context)
             print("Digital ID created successfully")
-        except Exception as e:
+        except ValueError as e:
             print(f"Error creating Digital ID: {e}")
 
     def view_all_ids(self) -> None:
