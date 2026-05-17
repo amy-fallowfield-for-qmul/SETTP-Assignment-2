@@ -2,7 +2,6 @@ from typing import Any
 from datetime import date
 from Common.singleton import SingletonMeta
 from Logic.attributeValidator import Validator
-from Logic.verificationValidator import VerificationValidator
 from Logic.suspensionAnalyser import SuspensionAnalyser
 from Logic.exceptionLogger import record_failures
 from Logic.requestContext import RequestContext
@@ -18,7 +17,6 @@ class Verifier(metaclass=SingletonMeta):
 
     def __init__(self) -> None:
         self.VALIDATOR = Validator()
-        self.VERIFICATION_VALIDATOR = VerificationValidator()
         self.SUSPENSION_ANALYSER = SuspensionAnalyser()
         self.DIGITAL_ID_REPOSITORY = DigitalIDRepository()
         self.LOG_REPOSITORY = LogRepository()
@@ -42,7 +40,7 @@ class Verifier(metaclass=SingletonMeta):
     def verify_minimum_age(self, id_number: int, minimum_age: Any, context: RequestContext) -> bool:
         with record_failures(self.LOG_REPOSITORY, Action.VERIFY, context, id_number, "minimum_age"):
             context.assert_can_perform("verify_minimum_age")
-            validated_min_age = self.VERIFICATION_VALIDATOR.validate_minimum_age(minimum_age)
+            validated_min_age = self.VALIDATOR.validate_minimum_age(minimum_age)
 
             digital_id = self.DIGITAL_ID_REPOSITORY.get_from_id(id_number)
             self._ensure_active(digital_id)
