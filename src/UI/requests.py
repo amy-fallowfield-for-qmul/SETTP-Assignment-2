@@ -171,7 +171,7 @@ class Requests(metaclass=SingletonMeta):
     def update_id(self, organisation: Organisation) -> None:
         try:
             id_subject = self._get_id_subject()
-            attribute_choice = self._get_attribute_subject("update")
+            attribute_choice = self._get_attribute_subject("update", organisation.accessible_attributes)
             current_value = id_subject.to_dict()[attribute_choice]
 
             print(f"Current value: {current_value}")
