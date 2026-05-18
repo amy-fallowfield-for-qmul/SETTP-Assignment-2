@@ -38,6 +38,6 @@ class CentralAuthorityMain(MainABC):
             ("Verify Digital ID minimum age", lambda: self.REQUESTS.verify_minimum_age(self.organisation())),
             ("Verify Digital ID attribute", lambda: self.REQUESTS.verify_attribute(self.organisation())),
             ("Verify Digital ID suspended in given period", lambda: self.REQUESTS.verify_suspended_in_period(self.organisation())),
-            ("View all Digital ID data", self.REQUESTS.view_all_ids),
-            ("View all log data", self.REQUESTS.view_all_logs),
+            ("View Digital ID data", self.REQUESTS.view_all_ids),
+            ("View log data", self.REQUESTS.view_all_logs),
         ]
