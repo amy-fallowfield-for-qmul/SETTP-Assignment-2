@@ -1,6 +1,7 @@
 # SETTP Assignment 2 — Digital ID System
 
 **Repository:** https://github.com/amy-fallowfield-for-qmul/SETTP-Assignment-2
+**Kanban Board:** https://github.com/users/amy-fallowfield-for-qmul/projects/1
 
 This program is a console-based Digital ID system allowing four organisation types (Central Authority, Bank, Employer, HMRC) to interact with a shared store of Digital IDs through organisation-specific operations. Every action is recorded in an audit log.
 
